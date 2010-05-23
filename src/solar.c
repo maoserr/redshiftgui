@@ -22,8 +22,11 @@
    http://www.srrb.noaa.gov/highlights/sunrise/calcdetails.html
    It is based on equations from "Astronomical Algorithms" by
    Jean Meeus. */
-
+#ifdef _MSC_VER
 #define _USE_MATH_DEFINES
+#define round(X) floor(X + 0.5)
+#endif
+
 #include <math.h>
 
 #include "solar.h"
@@ -32,6 +35,16 @@
 #define RAD(x)  ((x)*(M_PI/180))
 #define DEG(x)  ((x)*(180/M_PI))
 
+#ifdef _MSC_VER
+double copysign(double x, double y){
+	double temp;
+	if(x<0)
+		temp = -1.0*x;
+	if(y<0)
+		return -1.0*temp;
+	return temp;
+}
+#endif
 
 /* Angels of various times of day. */
 static const double time_angle[] = {
@@ -311,13 +324,14 @@ solar_table_fill(double date, double lat, double lon, double *table)
 	double sol_noon = time_of_solar_noon(t, lon);
 	double j_noon = jdn - 0.5 + sol_noon/1440.0;
 	double t_noon = jcent_from_jd(j_noon);
+	int i;
 	table[SOLAR_TIME_NOON] = epoch_from_jd(j_noon);
 
 	/* Calculate solar midnight */
 	table[SOLAR_TIME_MIDNIGHT] = epoch_from_jd(j_noon + 0.5);
 
 	/* Calulate absolute time of other phenomena */
-	for (int i = 2; i < SOLAR_TIME_MAX; i++) {
+	for (i = 2; i < SOLAR_TIME_MAX; i++) {
 		double angle = time_angle[i];
 		double offset =
 			time_of_solar_elevation(t, t_noon, lat, lon, angle);
