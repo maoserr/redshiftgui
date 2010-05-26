@@ -63,4 +63,3 @@ typedef struct{
 	int verbose;
 } rs_opts;
 
-

@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-//#include <unistd.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
@@ -39,6 +39,10 @@
 #else
 # define _(s) s
 #endif
+
+#include <curl/curl.h>
+#include <curl/types.h>
+#include <curl/easy.h>
 
 #include "solar.h"
 #include "systemtime.h"
@@ -109,6 +113,9 @@ static int exiting = 0;
 static int disable = 0;
 
 #endif /* ! HAVE_SYS_SIGNAL_H */
+
+/* Libcurl handle */
+CURL *curl;
 
 /* Restore saved gamma ramps with the appropriate adjustment method. */
 static void
@@ -772,6 +779,13 @@ int main(int argc, char *argv[])
 	rs_opts opts;
 	gamma_state_t state;
 
+	/* Initialize curl for downloads.*/
+	curl = curl_easy_init();
+	if(!curl){
+		fputs(_("Unable to initialize libcurl."),stderr);
+		exit(EXIT_FAILURE);
+	}
+
 	r = parse_options(&opts,argc,argv);
 	if( r != 0)
 		exit(EXIT_FAILURE);
@@ -785,14 +799,14 @@ int main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 	} else {
 #if defined(ENABLE_GTK) || defined(ENABLE_WINGUI)
-		//if(do_continous(&opts,&state) != 0)
-		//	exit(EXIT_FAILURE);
+		if(do_continous(&opts,&state) != 0)
+			exit(EXIT_FAILURE);
 		redshift_gui(&opts,&state,argc,argv);
 #endif
 	}
 
 	/* Clean up gamma adjustment state */
 	gamma_state_free(&state, opts.method);
-
+	curl_easy_cleanup(curl);
 	return EXIT_SUCCESS;
 }

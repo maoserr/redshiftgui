@@ -47,7 +47,7 @@ if(UNIX)
 	endif(ENABLE_VIDMODE)
 	if(ENABLE_GTK)
 		set(RSGSRC ${RSGSRC}
-			${RSG_SRC_DIR}/gui/gui.c
+			${RSG_SRC_DIR}/gui/gtkgui.c
 			${RSG_SRC_DIR}/gui/gui.h)
 	endif(ENABLE_GTK)
 elseif(WIN32)
@@ -105,6 +105,10 @@ elseif(WIN32)
 			)
 	endif(ENABLE_WINGUI)
 endif(UNIX)
+find_package(CURL)
+set(RSG_INCLUDES ${RSG_INCLUDES} ${CURL_INCLUDE_DIRS})
+set(RSG_LIBS ${RSG_LIBS} ${CURL_LIBRARIES})
+
 set(RSG_INCLUDE_DIRS ${RSG_INCLUDES} CACHE STRING "Redshift GUI includes")
 set(RSG_LIBRARIES ${RSG_LIBS} CACHE STRING "Redshift GUI libs")
 foreach(_inc ${RSG_INCLUDES})
