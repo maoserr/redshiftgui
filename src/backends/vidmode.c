@@ -28,7 +28,7 @@
 #include <X11/extensions/xf86vmode.h>
 
 #include "vidmode.h"
-#include "colorramp.h"
+#include "gamma.h"
 
 
 int

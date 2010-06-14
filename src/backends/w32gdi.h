@@ -20,9 +20,10 @@
 #ifndef _REDSHIFT_W32GDI_H
 #define _REDSHIFT_W32GDI_H
 
+#define WINVER  0x0500
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <wingdi.h>
-
 
 typedef struct {
 	HDC hDC;
@@ -32,6 +33,6 @@ typedef struct {
 int w32gdi_init(w32gdi_state_t *state);
 void w32gdi_free(w32gdi_state_t *state);
 void w32gdi_restore(w32gdi_state_t *state);
-int w32gdi_set_temperature(w32gdi_state_t *state, int temp, float gamma[3]);
+int w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma);
 
 #endif /* ! _REDSHIFT_W32GDI_H */

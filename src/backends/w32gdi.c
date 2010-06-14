@@ -17,12 +17,8 @@
    Copyright (c) 2010  Jon Lund Steffensen <jonlst@gmail.com>
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-
-#define WINVER  0x0500
-#include <windows.h>
-#include <wingdi.h>
+#include "common.h"
+#include "gamma.h"
 
 #ifdef ENABLE_NLS
 # include <libintl.h>
@@ -30,9 +26,6 @@
 #else
 # define _(s) s
 #endif
-
-#include "w32gdi.h"
-#include "colorramp.h"
 
 #define GAMMA_RAMP_SIZE  256
 
@@ -96,7 +89,7 @@ w32gdi_restore(w32gdi_state_t *state)
 }
 
 int
-w32gdi_set_temperature(w32gdi_state_t *state, int temp, float gamma[3])
+w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma)
 {
 	BOOL r;
 	WORD *gamma_r, *gamma_g, *gamma_b;

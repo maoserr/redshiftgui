@@ -28,7 +28,7 @@
 #include <xcb/randr.h>
 
 #include "randr.h"
-#include "colorramp.h"
+#include "gamma.h"
 
 
 #define RANDR_VERSION_MAJOR  1
@@ -73,10 +73,11 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 
 	/* Get screen */
 	const xcb_setup_t *setup = xcb_get_setup(state->conn);
+	int i;
 	xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
 	state->screen = NULL;
 
-	for (int i = 0; iter.rem > 0; i++) {
+	for (i = 0; iter.rem > 0; i++) {
 		if (i == screen_num) {
 			state->screen = iter.data;
 			break;
@@ -121,7 +122,7 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 		xcb_randr_get_screen_resources_current_crtcs(res_reply);
 
 	/* Save CRTC identifier in state */
-	for (int i = 0; i < state->crtc_count; i++) {
+	for (i = 0; i < state->crtc_count; i++) {
 		state->crtcs[i].crtc = crtcs[i];
 	}
 
@@ -130,7 +131,7 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 	/* Save size and gamma ramps of all CRTCs.
 	   Current gamma ramps are saved so we can restore them
 	   at program exit. */
-	for (int i = 0; i < state->crtc_count; i++) {
+	for (i = 0; i < state->crtc_count; i++) {
 		xcb_randr_crtc_t crtc = state->crtcs[i].crtc;
 
 		/* Request size of gamma ramps */
@@ -211,9 +212,10 @@ void
 randr_restore(randr_state_t *state)
 {
 	xcb_generic_error_t *error;
+	int i;
 
 	/* Restore CRTC gamma ramps */
-	for (int i = 0; i < state->crtc_count; i++) {
+	for (i = 0; i < state->crtc_count; i++) {
 		xcb_randr_crtc_t crtc = state->crtcs[i].crtc;
 
 		unsigned int ramp_size = state->crtcs[i].ramp_size;
@@ -239,8 +241,9 @@ randr_restore(randr_state_t *state)
 void
 randr_free(randr_state_t *state)
 {
+	int i;
 	/* Free CRTC state */
-	for (int i = 0; i < state->crtc_count; i++) {
+	for (i = 0; i < state->crtc_count; i++) {
 		free(state->crtcs[i].saved_ramps);
 	}
 	free(state->crtcs);
@@ -307,12 +310,12 @@ randr_set_temperature_for_crtc(randr_state_t *state, int crtc_num, int temp,
 int
 randr_set_temperature(randr_state_t *state, int temp, float gamma[3])
 {
-	int r;
+	int r,i;
 
 	/* If no CRTC number has been specified,
 	   set temperature on all CRTCs. */
 	if (state->crtc_num < 0) {
-		for (int i = 0; i < state->crtc_count; i++) {
+		for (i = 0; i < state->crtc_count; i++) {
 			r = randr_set_temperature_for_crtc(state, i,
 							   temp, gamma);
 			if (r < 0) return -1;

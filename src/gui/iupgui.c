@@ -17,7 +17,7 @@
    Copyright (c) 2010  Jon Lund Steffensen <jonlst@gmail.com>
 */
 #include "iup.h"
-#include "redshift.h"
+#include "options.h"
 
 // Modal dialog to pick/search location
 //static void setloc_dialog( GtkWidget *widget, gpointer data)
@@ -31,8 +31,4 @@
 //}
 //
 // Main GUI code
-void redshift_gui(rs_opts *opts, gamma_state_t *state,
-		int argc, char *argv[])
-{
-}
 

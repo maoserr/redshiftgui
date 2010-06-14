@@ -30,9 +30,19 @@ elseif(WIN32)
 endif(UNIX)
 
 # Source files
-file(GLOB RSGSRCFiles "${RSG_SRC_DIR}/*.c" "${RSG_SRC_DIR}/*.h")
 set(RSGSRC
-	${RSGSRCFiles}
+	${RSG_SRC_DIR}/argparser.h
+	${RSG_SRC_DIR}/argparser.c
+	${RSG_SRC_DIR}/common.h
+	${RSG_SRC_DIR}/gamma.h
+	${RSG_SRC_DIR}/gamma.c
+	${RSG_SRC_DIR}/options.h
+	${RSG_SRC_DIR}/options.c
+	${RSG_SRC_DIR}/redshiftgui.c
+	${RSG_SRC_DIR}/solar.h
+	${RSG_SRC_DIR}/solar.c
+	${RSG_SRC_DIR}/systemtime.h
+	${RSG_SRC_DIR}/systemtime.c
 	)
 if(UNIX)
 	if(ENABLE_RANDR)
@@ -104,6 +114,9 @@ elseif(WIN32)
 			${IUP_LIBRARIES}
 			)
 	endif(ENABLE_WINGUI)
+	if(MSVC)
+		set(RSG_INCLUDES ${RSG_INCLUDES} "${PROJECT_SOURCE_DIR}/msvc")
+	endif(MSVC)
 endif(UNIX)
 find_package(CURL)
 set(RSG_INCLUDES ${RSG_INCLUDES} ${CURL_INCLUDE_DIRS})
@@ -122,7 +135,7 @@ endforeach(_lib ${RSG_LIBS})
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type")
 # Compiler flags
 if(UNIX)
-	set(CMAKE_C_FLAGS "-std=gnu99" CACHE STRING "C flags" FORCE)
+	set(CMAKE_C_FLAGS "-Wall -Werror" CACHE STRING "C flags" FORCE)
 endif(UNIX)
 
 # Preprocessor definitions
