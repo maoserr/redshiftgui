@@ -19,16 +19,9 @@
 
 #include "common.h"
 #include "gamma.h"
-
-#ifdef ENABLE_NLS
-# include <libintl.h>
-# define _(s) gettext(s)
-#else
-# define _(s) s
-#endif
+#include "w32gdi.h"
 
 #define GAMMA_RAMP_SIZE  256
-
 
 int
 w32gdi_init(w32gdi_state_t *state)
@@ -39,15 +32,14 @@ w32gdi_init(w32gdi_state_t *state)
 	/* Open device context */
 	state->hDC = GetDC(NULL);
 	if (state->hDC == NULL) {
-		fputs(_("Unable to open device context.\n"), stderr);
+		LOG(LOGERR,_("Unable to open device context.\n"));
 		return -1;
 	}
 
 	/* Check support for gamma ramps */
 	cmcap = GetDeviceCaps(state->hDC, COLORMGMTCAPS);
 	if (cmcap != CM_GAMMA_RAMP) {
-		fputs(_("Display device does not support gamma ramps.\n"),
-		      stderr);
+		LOG(LOGERR,_("Display device does not support gamma ramps.\n"));
 		return -1;
 	}
 
@@ -62,7 +54,7 @@ w32gdi_init(w32gdi_state_t *state)
 	/* Save current gamma ramps so we can restore them at program exit */
 	r = GetDeviceGammaRamp(state->hDC, state->saved_ramps);
 	if (!r) {
-		fputs(_("Unable to save current gamma ramp.\n"), stderr);
+		LOG(LOGERR,_("Unable to save current gamma ramp.\n"));
 		ReleaseDC(NULL, state->hDC);
 		return -1;
 	}
@@ -85,7 +77,7 @@ w32gdi_restore(w32gdi_state_t *state)
 {
 	/* Restore gamma ramps */
 	BOOL r = SetDeviceGammaRamp(state->hDC, state->saved_ramps);
-	if (!r) fputs(_("Unable to restore gamma ramps.\n"), stderr);
+	if (!r) LOG(LOGERR,_("Unable to restore gamma ramps.\n"));
 }
 
 int
@@ -111,12 +103,27 @@ w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma)
 	/* Set new gamma ramps */
 	r = SetDeviceGammaRamp(state->hDC, gamma_ramps);
 	if (!r) {
-		fputs(_("Unable to set gamma ramps.\n"), stderr);
+		LOG(LOGERR,_("Unable to set gamma ramps.\n"));
 		free(gamma_ramps);
 		return -1;
 	}
+	printf("Set Temp: RGB: %d %d %d.\n",gamma_r[255],gamma_g[255],gamma_b[255]);
+
 
 	free(gamma_ramps);
 
 	return 0;
 }
+
+int w32gdi_get_temperature(w32gdi_state_t *state){
+	WORD gamma_ramp[3][256];
+	
+	if( !GetDeviceGammaRamp(state->hDC,gamma_ramp) ){
+		LOG(LOGERR,_("Unable to get gamma ramps.\n"));
+		return -1;
+	}
+	printf("Get Temp: RGB: %d %d %d.\n",gamma_ramp[0][255],gamma_ramp[1][255],gamma_ramp[2][255]);
+
+	return 0;
+}
+

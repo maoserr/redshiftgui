@@ -17,12 +17,7 @@
    Copyright (c) 2010  Jon Lund Steffensen <jonlst@gmail.com>
 */
 
-#include <stdio.h>
-
-#ifndef _WIN32
-# include <time.h>
-#endif
-
+#include "common.h"
 #include "systemtime.h"
 
 int

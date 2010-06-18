@@ -1,6 +1,14 @@
 # redshift GUI CMake build file
 cmake_minimum_required(VERSION 2.6)
 project("Redshift GUI")
+
+# Appends ${ARGN} to ${_var} if ${_val} is defined
+macro(APPEND_IF_VAR _var _val)
+	if(${_val})
+		set(${_var} ${${_var}} ${ARGN})
+	endif(${_val})
+endmacro(APPEND_IF_VAR _var _val)
+
 set(APP_NAME "redshiftgui")
 
 # Project version
@@ -24,9 +32,11 @@ if(UNIX)
 	option(ENABLE_RANDR "Enable Xrandr at compile time" true)
 	option(ENABLE_VIDMODE "Enable Vidmode at compile time" true)
 	option(ENABLE_GTK "Enable GTK GUI at compile time" true)
+	option(ENABLE_IUP "Enable IUP GUI at compile time" false)
 elseif(WIN32)
 	option(ENABLE_WINGDI "Enable win32 GDI at compile time" true)
-	option(ENABLE_WINGUI "Enable win32 GUI at compile time" true)
+	option(ENABLE_GTK "Enable GTK GUI at compile time" false)
+	option(ENABLE_IUP "Enable IUP GUI at compile time" true)
 endif(UNIX)
 
 # Source files
@@ -44,33 +54,23 @@ set(RSGSRC
 	${RSG_SRC_DIR}/systemtime.h
 	${RSG_SRC_DIR}/systemtime.c
 	)
+APPEND_IF_VAR(RSGSRC ENABLE_GTK
+		${RSG_SRC_DIR}/gui/gtkgui.c
+		${RSG_SRC_DIR}/gui/gui.h)
+APPEND_IF_VAR(RSGSRC ENABLE_IUP
+		${RSG_SRC_DIR}/gui/iupgui.c
+		${RSG_SRC_DIR}/gui/gui.h)
 if(UNIX)
-	if(ENABLE_RANDR)
-		set(RSGSRC ${RSGSRC}
+	APPEND_IF_VAR(RSGSRC ENABLE_RANDR
 			${RSG_SRC_DIR}/backends/randr.c
 			${RSG_SRC_DIR}/backends/randr.h)
-	endif(ENABLE_RANDR)
-	if(ENABLE_VIDMODE)
-		set(RSGSRC ${RSGSRC}
+	APPEND_IF_VAR(RSGSRC ENABLE_VIDMODE
 			${RSG_SRC_DIR}/backends/vidmode.c
 			${RSG_SRC_DIR}/backends/vidmode.h)
-	endif(ENABLE_VIDMODE)
-	if(ENABLE_GTK)
-		set(RSGSRC ${RSGSRC}
-			${RSG_SRC_DIR}/gui/gtkgui.c
-			${RSG_SRC_DIR}/gui/gui.h)
-	endif(ENABLE_GTK)
 elseif(WIN32)
-	if(ENABLE_WINGDI)
-		set(RSGSRC ${RSGSRC}
+	APPEND_IF_VAR(RSGSRC ENABLE_WINGDI
 			${RSG_SRC_DIR}/backends/w32gdi.c
 			${RSG_SRC_DIR}/backends/w32gdi.h)
-	endif(ENABLE_WINGDI)
-	if(ENABLE_WINGUI)
-		set(RSGSRC ${RSGSRC}
-			${RSG_SRC_DIR}/gui/iupgui.c
-			${RSG_SRC_DIR}/gui/gui.h)
-	endif(ENABLE_WINGUI)
 endif(UNIX)
 add_executable(RSGBIN WIN32 ${RSGSRC})
 include_directories(${RSG_SRC_DIR})
@@ -78,13 +78,22 @@ include_directories(${RSG_SRC_DIR})
 # 3rd party packages
 unset(RSG_INCLUDES)
 unset(RSG_LIBS)
+if(ENABLE_GTK)
+	cmake_policy(SET CMP0011 OLD)
+	cmake_policy(PUSH)
+	find_package(GTK2 2.10 REQUIRED gtk)
+	cmake_policy(POP)
+endif(ENABLE_GTK)
+if(ENABLE_IUP)
+	find_package(IUP COMPONENTS controls)
+	set(RSG_INCLUDES ${RSG_INCLUDES}
+		${IUP_INCLUDE_DIR}
+		)
+	set(RSG_LIBS ${RSG_LIBS}
+		${IUP_LIBRARIES}
+		)
+endif(ENABLE_IUP)
 if(UNIX)
-	if(ENABLE_GTK)
-		cmake_policy(SET CMP0011 OLD)
-		cmake_policy(PUSH)
-		find_package(GTK2 2.10 REQUIRED gtk)
-		cmake_policy(POP)
-	endif(ENABLE_GTK)
 	find_package(X11)
 	if(ENABLE_RANDR)
 		find_package(XCB COMPONENTS randr)
@@ -105,15 +114,6 @@ if(UNIX)
 		${XLIB_LIBRARIES}
 		)
 elseif(WIN32)
-	if(ENABLE_WINGUI)
-		find_package(IUP COMPONENTS controls)
-		set(RSG_INCLUDES ${RSG_INCLUDES}
-			${IUP_INCLUDE_DIR}
-			)
-		set(RSG_LIBS ${RSG_LIBS}
-			${IUP_LIBRARIES}
-			)
-	endif(ENABLE_WINGUI)
 	if(MSVC)
 		set(RSG_INCLUDES ${RSG_INCLUDES} "${PROJECT_SOURCE_DIR}/msvc")
 	endif(MSVC)
@@ -146,29 +146,15 @@ set(RSG_DEFS ${RSG_DEFS}
 	)
 CHECK_INCLUDE_FILE(libintl.h ENABLE_NLS)
 CHECK_INCLUDE_FILE(sys/signal.h HAVE_SYS_SIGNAL_H)
-#if(ENABLE_NLS)
-#	set(RSG_DEFS ${RSG_DEFS} -DENABLE_NLS)
-#endif(ENABLE_NLS)
-if(HAVE_SYS_SIGNAL_H)
-	set(RSG_DEFS ${RSG_DEFS} -DHAVE_SYS_SIGNAL_H)
-endif(HAVE_SYS_SIGNAL_H)
+APPEND_IF_VAR(RSG_DEFS ENABLE_NLS -DENABLE_NLS)
+APPEND_IF_VAR(RSG_DEFS HAVE_SYS_SIGNAL_H -DHAVE_SYS_SIGNAL_H)
+APPEND_IF_VAR(RSG_DEFS ENABLE_GTK -DENABLE_GTK)
+APPEND_IF_VAR(RSG_DEFS ENABLE_IUP -DENABLE_IUP)
 if(UNIX)
-	if(ENABLE_RANDR)
-		set(RSG_DEFS ${RSG_DEFS} -DENABLE_RANDR)
-	endif(ENABLE_RANDR)
-	if(ENABLE_VIDMODE)
-		set(RSG_DEFS ${RSG_DEFS} -DENABLE_VIDMODE)
-	endif(ENABLE_VIDMODE)
-	if(ENABLE_GTK)
-		set(RSG_DEFS ${RSG_DEFS} -DENABLE_GTK)
-	endif(ENABLE_GTK)
+	APPEND_IF_VAR(RSG_DEFS ENABLE_RANDR -DENABLE_RANDR)
+	APPEND_IF_VAR(RSG_DEFS ENABLE_VIDMODE -DENABLE_VIDMODE)
 else(WIN32)
-	if(ENABLE_WINGDI)
-		set(RSG_DEFS ${RSG_DEFS} -DENABLE_WINGDI)
-	endif(ENABLE_WINGDI)
-	if(ENABLE_WINGUI)
-		set(RSG_DEFS ${RSG_DEFS} -DENABLE_WINGUI)
-	endif(ENABLE_WINGUI)
+	APPEND_IF_VAR(RSG_DEFS ENABLE_WINGDI -DENABLE_WINGDI)
 endif(UNIX)
 set(RSG_DEFINITIONS ${RSG_DEFS} CACHE STRING "Redshift GUI defines")
 add_definitions(${RSG_DEFINITIONS})

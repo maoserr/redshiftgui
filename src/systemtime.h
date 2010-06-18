@@ -22,8 +22,6 @@
 
 #ifndef _WIN32
 # include <time.h>
-#else
-# include <windows.h>
 #endif
 
 

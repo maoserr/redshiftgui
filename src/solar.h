@@ -25,10 +25,10 @@
 /* Model of atmospheric refraction near horizon (in degrees). */
 #define SOLAR_ATM_REFRAC  0.833
 
-#define SOLAR_ASTRO_TWILIGHT_ELEV   -18.0
-#define SOLAR_NAUT_TWILIGHT_ELEV    -12.0
-#define SOLAR_CIVIL_TWILIGHT_ELEV    -6.0
-#define SOLAR_DAYTIME_ELEV           (0.0 - SOLAR_ATM_REFRAC)
+#define SOLAR_ASTRO_TWILIGHT_ELEV   -18.0f
+#define SOLAR_NAUT_TWILIGHT_ELEV    -12.0f
+#define SOLAR_CIVIL_TWILIGHT_ELEV    -6.0f
+#define SOLAR_DAYTIME_ELEV           (0.0f - SOLAR_ATM_REFRAC)
 
 typedef enum {
 	SOLAR_TIME_NOON = 0,
