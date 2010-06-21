@@ -228,6 +228,7 @@ int opt_parse_temperatures(char *val){
 // Sets the verbosity of logging
 int opt_set_verbose(int level){
 	Rs_opts.verbose = level;
+	log_setlevel(level+2);
 	return RET_FUN_SUCCESS;
 }
 

@@ -64,7 +64,7 @@ static int _parse_options(int argc, char *argv[]){
 	args_addarg("t","temps",
 		_("<DAY:NIGHT> Color temperature to set at daytime/night"),ARGVAL_STRING);
 	args_addarg("v","verbose",
-		_("<LEVEL> Verbosity of output (0 for regular, 1 for more)"),ARGVAL_STRING);
+		_("<LEVEL> Verbosity of output (0 = err/warn, 1 = info, 2 = verbose)"),ARGVAL_STRING);
 	args_addarg("h","help",
 		_("Display this help message"),ARGVAL_NONE);
 	if( (args_parse(argc,argv) != ARGRET_OK) ){
@@ -189,7 +189,8 @@ static int _do_oneshot(void){
 	/* Signal handler for exit signals */
 	static void
 	sigexit(int signo)
-	{exiting = 1;}
+	{	LOG(LOGINFO,_("Detected exit signal"));
+		exiting = 1;}
 	/* Register signal handler */
 	static void sig_register(void){
 		struct sigaction sigact;
@@ -203,17 +204,27 @@ static int _do_oneshot(void){
 	static int exiting = 0;
 #	define sig_register()
 #endif /* ! HAVE_SYS_SIGNAL_H */
+
+static void _do_transition(){
+
+}
+static void _do_restore_gamma(){
+
+}
 /* Change gamma continuously until break signal. */
 static int _do_console(void)
 {
 	sig_register();
 	while(!exiting){
+		_do_transition();
 #ifndef _WIN32
-		usleep(5000000);
+		usleep(1000000);
 #else /* ! _WIN32 */
-		Sleep(5000);
+		Sleep(1000);
 #endif
+		printf("Loop\n");
 	}
+	_do_restore_gamma();
 	return RET_FUN_SUCCESS;
 }
 
