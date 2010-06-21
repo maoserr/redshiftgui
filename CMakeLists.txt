@@ -46,6 +46,8 @@ set(RSGSRC
 	${RSG_SRC_DIR}/common.h
 	${RSG_SRC_DIR}/gamma.h
 	${RSG_SRC_DIR}/gamma.c
+	${RSG_SRC_DIR}/logger.h
+	${RSG_SRC_DIR}/logger.c
 	${RSG_SRC_DIR}/options.h
 	${RSG_SRC_DIR}/options.c
 	${RSG_SRC_DIR}/redshiftgui.c
@@ -56,10 +58,10 @@ set(RSGSRC
 	)
 APPEND_IF_VAR(RSGSRC ENABLE_GTK
 		${RSG_SRC_DIR}/gui/gtkgui.c
-		${RSG_SRC_DIR}/gui/gui.h)
+		${RSG_SRC_DIR}/gui/gtkgui.h)
 APPEND_IF_VAR(RSGSRC ENABLE_IUP
 		${RSG_SRC_DIR}/gui/iupgui.c
-		${RSG_SRC_DIR}/gui/gui.h)
+		${RSG_SRC_DIR}/gui/iupgui.h)
 if(UNIX)
 	APPEND_IF_VAR(RSGSRC ENABLE_RANDR
 			${RSG_SRC_DIR}/backends/randr.c

@@ -17,13 +17,7 @@
    Copyright (c) 2010  Jon Lund Steffensen <jonlst@gmail.com>
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <libintl.h>
-#define _(s) gettext(s)
-
+#include "common.h"
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
 
@@ -54,19 +48,19 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 		xcb_randr_query_version_reply(state->conn, ver_cookie, &error);
 
 	if (error) {
-		fprintf(stderr, _("`%s' returned error %d\n"),
+		LOG(LOGERR, _("`%s' returned error %d\n"),
 			"RANDR Query Version", error->error_code);
 		xcb_disconnect(state->conn);
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	if (ver_reply->major_version < RANDR_VERSION_MAJOR ||
 	    ver_reply->minor_version < RANDR_VERSION_MINOR) {
-		fprintf(stderr, _("Unsupported RANDR version (%u.%u)\n"),
+		LOG(LOGERR, _("Unsupported RANDR version (%u.%u)\n"),
 			ver_reply->major_version, ver_reply->minor_version);
 		free(ver_reply);
 		xcb_disconnect(state->conn);
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	free(ver_reply);
@@ -86,10 +80,10 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 	}
 
 	if (state->screen == NULL) {
-		fprintf(stderr, _("Screen %i could not be found.\n"),
+		LOG(LOGERR, _("Screen %i could not be found.\n"),
 			screen_num);
 		xcb_disconnect(state->conn);
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	/* Get list of CRTCs for the screen */
@@ -102,11 +96,11 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 							     &error);
 
 	if (error) {
-		fprintf(stderr, _("`%s' returned error %d\n"),
+		LOG(LOGERR, _("`%s' returned error %d\n"),
 			"RANDR Get Screen Resources Current",
 			error->error_code);
 		xcb_disconnect(state->conn);
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	state->crtc_num = crtc_num;
@@ -115,7 +109,7 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 	if (state->crtcs == NULL) {
 		perror("malloc");
 		xcb_disconnect(state->conn);
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	xcb_randr_crtc_t *crtcs =
@@ -143,11 +137,11 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 							    &error);
 
 		if (error) {
-			fprintf(stderr, _("`%s' returned error %d\n"),
+			LOG(LOGERR, _("`%s' returned error %d\n"),
 				"RANDR Get CRTC Gamma Size",
 				error->error_code);
 			xcb_disconnect(state->conn);
-			return -1;
+			return RET_FUN_FAILED;
 		}
 
 		unsigned int ramp_size = gamma_size_reply->size;
@@ -156,10 +150,10 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 		free(gamma_size_reply);
 
 		if (ramp_size == 0) {
-			fprintf(stderr, _("Gamma ramp size too small: %i\n"),
+			LOG(LOGERR, _("Gamma ramp size too small: %i\n"),
 				ramp_size);
 			xcb_disconnect(state->conn);
-			return -1;
+			return RET_FUN_FAILED;
 		}
 
 		/* Request current gamma ramps */
@@ -171,10 +165,10 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 						       &error);
 
 		if (error) {
-			fprintf(stderr, _("`%s' returned error %d\n"),
+			LOG(LOGERR, _("`%s' returned error %d\n"),
 				"RANDR Get CRTC Gamma", error->error_code);
 			xcb_disconnect(state->conn);
-			return -1;
+			return RET_FUN_FAILED;
 		}
 
 		uint16_t *gamma_r =
@@ -191,7 +185,7 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 			perror("malloc");
 			free(gamma_get_reply);
 			xcb_disconnect(state->conn);
-			return -1;
+			return RET_FUN_FAILED;
 		}
 
 		/* Copy gamma ramps into CRTC state */
@@ -205,7 +199,7 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 		free(gamma_get_reply);
 	}
 
-	return 0;
+	return RET_FUN_SUCCESS;
 }
 
 void
@@ -231,9 +225,9 @@ randr_restore(randr_state_t *state)
 		error = xcb_request_check(state->conn, gamma_set_cookie);
 
 		if (error) {
-			fprintf(stderr, _("`%s' returned error %d\n"),
+			LOG(LOGERR, _("`%s' returned error %d\n"),
 				"RANDR Set CRTC Gamma", error->error_code);
-			fprintf(stderr, _("Unable to restore CRTC %i\n"), i);
+			LOG(LOGERR, _("Unable to restore CRTC %i\n"), i);
 		}
 	}
 }
@@ -254,21 +248,21 @@ randr_free(randr_state_t *state)
 
 static int
 randr_set_temperature_for_crtc(randr_state_t *state, int crtc_num, int temp,
-			       float gamma[3])
+			       gamma_s gamma)
 {
 	xcb_generic_error_t *error;
 	
 	if (crtc_num >= state->crtc_count || crtc_num < 0) {
-		fprintf(stderr, _("CRTC %d does not exist. "),
+		LOG(LOGERR, _("CRTC %d does not exist. "),
 			state->crtc_num);
 		if (state->crtc_count > 1) {
-			fprintf(stderr, _("Valid CRTCs are [0-%d].\n"),
+			LOG(LOGERR, _("Valid CRTCs are [0-%d].\n"),
 				state->crtc_count-1);
 		} else {
-			fprintf(stderr, _("Only CRTC 0 exists.\n"));
+			LOG(LOGERR, _("Only CRTC 0 exists.\n"));
 		}
 
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	xcb_randr_crtc_t crtc = state->crtcs[crtc_num].crtc;
@@ -278,14 +272,14 @@ randr_set_temperature_for_crtc(randr_state_t *state, int crtc_num, int temp,
 	uint16_t *gamma_ramps = malloc(3*ramp_size*sizeof(uint16_t));
 	if (gamma_ramps == NULL) {
 		perror("malloc");
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	uint16_t *gamma_r = &gamma_ramps[0*ramp_size];
 	uint16_t *gamma_g = &gamma_ramps[1*ramp_size];
 	uint16_t *gamma_b = &gamma_ramps[2*ramp_size];
 
-	colorramp_fill(gamma_r, gamma_g, gamma_b, ramp_size,
+	gamma_ramp_fill(gamma_r, gamma_g, gamma_b, ramp_size,
 		       temp, gamma);
 
 	/* Set new gamma ramps */
@@ -296,34 +290,37 @@ randr_set_temperature_for_crtc(randr_state_t *state, int crtc_num, int temp,
 	error = xcb_request_check(state->conn, gamma_set_cookie);
 
 	if (error) {
-		fprintf(stderr, _("`%s' returned error %d\n"),
+		LOG(LOGERR, _("`%s' returned error %d\n"),
 			"RANDR Set CRTC Gamma", error->error_code);
 		free(gamma_ramps);
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	free(gamma_ramps);
 
-	return 0;
+	return RET_FUN_SUCCESS;
 }
 
 int
-randr_set_temperature(randr_state_t *state, int temp, float gamma[3])
+randr_set_temperature(randr_state_t *state, int temp, gamma_s gamma)
 {
-	int r,i;
-
 	/* If no CRTC number has been specified,
 	   set temperature on all CRTCs. */
 	if (state->crtc_num < 0) {
+		int i;
 		for (i = 0; i < state->crtc_count; i++) {
-			r = randr_set_temperature_for_crtc(state, i,
-							   temp, gamma);
-			if (r < 0) return -1;
+			if(!randr_set_temperature_for_crtc(state, i,
+							   temp, gamma))
+				return RET_FUN_FAILED;
 		}
 	} else {
 		return randr_set_temperature_for_crtc(state, state->crtc_num,
 						      temp, gamma);
 	}
 
+	return RET_FUN_SUCCESS;
+}
+int randr_get_temperature(randr_state_t *state){
 	return 0;
 }
+

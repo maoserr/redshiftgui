@@ -21,7 +21,7 @@
 #define _REDSHIFT_VIDMODE_H
 
 #include <stdint.h>
-
+#include "gamma.h"
 #include <X11/Xlib.h>
 
 typedef struct {
@@ -34,6 +34,7 @@ typedef struct {
 int vidmode_init(vidmode_state_t *state, int screen_num);
 void vidmode_free(vidmode_state_t *state);
 void vidmode_restore(vidmode_state_t *state);
-int vidmode_set_temperature(vidmode_state_t *state, int temp, float gamma[3]);
+int vidmode_set_temperature(vidmode_state_t *state, int temp, gamma_s gamma);
+int vidmode_get_temperature(vidmode_state_t *state);
 
 #endif /* ! _REDSHIFT_VIDMODE_H */

@@ -17,7 +17,7 @@
 # define DEBUG(...)
 #endif
 
-#ifdef _MSC_VER
+#ifdef WIN32
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
@@ -236,6 +236,7 @@ static ArgItem *_args_setunnamed(const ArgStr arg){
 	return newitem;
 }
 
+#ifdef ARGS_DEBUG
 // Internal function to print all found arguments
 void _args_DEBUGprintfound(void)
 {
@@ -266,6 +267,7 @@ void _args_DEBUGprintfound(void)
 	}
 	DEBUG("--End found arguments.\n\n");
 }
+#endif
 
 // Function to parse the arguments
 ArgReturn args_parse(int argc, char *argv[]){
@@ -523,7 +525,7 @@ int main( int argc, char *argv[] ){
 	// The following will be discarded
 	args_addarg(NULL,NULL,"No names!",ARGVAL_NONE);
 
-	if( (args_parse(argc,argv) != ARGRET_OK) ||
+	if( (args_parse(argc,argv) != ARGRET_OK) &&
 			(args_parsefile("./testconfig") != ARGRET_OK) )
 		printf("Error occurred parsing command line.\n");
 	else{

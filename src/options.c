@@ -68,7 +68,7 @@ void opt_set_defaults(void){
 	Rs_opts.gamma.r = DEFAULT_GAMMA;
 	Rs_opts.gamma.g = DEFAULT_GAMMA;
 	Rs_opts.gamma.b = DEFAULT_GAMMA;
-	Rs_opts.method = -1;
+	Rs_opts.method = GAMMA_METHOD_NONE;
 	Rs_opts.screen_num = -1;
 	Rs_opts.crtc_num = -1;
 	Rs_opts.trans_speed = 100;
