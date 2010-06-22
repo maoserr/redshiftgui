@@ -36,6 +36,12 @@
 # include "backends/w32gdi.h"
 #endif
 
+#if defined(ENABLE_IUP)
+# include "gui/iupgui.h"
+#elif defined(ENABLE_GTK)
+# include "gui/gtkgui.h"
+#endif
+
 // Main program return codes
 #define RET_MAIN_OK 0
 #define RET_MAIN_ERR -1
@@ -259,8 +265,9 @@ static int _do_console(void)
 	}while(!exiting);
 	exiting=0;
 	curr_temp=gamma_state_get_temperature(method);
-	transition_to_temp(curr_temp,saved_temp,transpeed*2);
-
+	// Use a constant 2000K/s transition speed to exit
+	transition_to_temp(curr_temp,saved_temp,2000);
+	gamma_state_restore(method);
 	return RET_FUN_SUCCESS;
 }
 
@@ -299,9 +306,9 @@ int main(int argc, char *argv[]){
 		// GUI mode
 		LOG(LOGINFO,_("Starting in GUI mode."));
 #if defined(ENABLE_IUP)
-
+	iup_gui(argc,argv);
 #elif defined(ENABLE_GTK)
-	
+	gtk_gui(argc,argv);
 #else
 		LOG(LOGVERBOSE,_("No GUI toolkit compiled in."));
 		ret = RET_FUN_FAILED;

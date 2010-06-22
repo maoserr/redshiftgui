@@ -290,7 +290,7 @@ randr_set_temperature_for_crtc(randr_state_t *state, int crtc_num, int temp,
 	error = xcb_request_check(state->conn, gamma_set_cookie);
 
 	if (error) {
-		LOG(LOGERR, _("`%s' returned error %d\n"),
+		LOG(LOGERR, _("`%s' returned error %d"),
 			"RANDR Set CRTC Gamma", error->error_code);
 		free(gamma_ramps);
 		return RET_FUN_FAILED;
@@ -321,6 +321,36 @@ randr_set_temperature(randr_state_t *state, int temp, gamma_s gamma)
 	return RET_FUN_SUCCESS;
 }
 int randr_get_temperature(randr_state_t *state){
-	return 0;
+	randr_crtc_state_t crtc;
+	xcb_generic_error_t *error;
+	xcb_randr_get_crtc_gamma_cookie_t gamma_get_cookie;
+	xcb_randr_get_crtc_gamma_reply_t* gamma_get_reply;
+
+	crtc = state->crtc_num<0 ?
+		state->crtcs[0] :
+		state->crtcs[state->crtc_num];
+	gamma_get_cookie= xcb_randr_get_crtc_gamma(state->conn,crtc.crtc);
+	gamma_get_reply = xcb_randr_get_crtc_gamma_reply(state->conn,
+			gamma_get_cookie, &error);
+	free(gamma_get_reply);
+
+	if(error){
+		LOG(LOGERR,_("`%s' returned error %d"),"RANDR Get CRTC Gamma",
+				error->error_code);
+		return RET_FUN_FAILED;
+	}else{
+		uint16_t *gamma_r,*gamma_b;
+		uint16_t gamma_r_end,gamma_b_end;
+		float rb_ratio;
+	
+		gamma_r = xcb_randr_get_crtc_gamma_red(gamma_get_reply);
+		gamma_b = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
+		gamma_r_end = gamma_r[crtc.ramp_size-1];
+		gamma_b_end = gamma_b[crtc.ramp_size-1];
+		LOG(LOGVERBOSE,_("Red end: %uK, Blue end: %uK"),gamma_r_end,
+			gamma_b_end);
+		rb_ratio = (float)gamma_r_end/(float)gamma_b_end;
+		return gamma_find_temp(rb_ratio);
+	}
 }
 

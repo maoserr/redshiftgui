@@ -145,7 +145,33 @@ vidmode_set_temperature(vidmode_state_t *state, int temp, gamma_s gamma)
 	return RET_FUN_SUCCESS;
 }
 int vidmode_get_temperature(vidmode_state_t *state){
+	uint16_t *gamma_r = malloc(state->ramp_size*sizeof(uint16_t));
+	uint16_t *gamma_g = malloc(state->ramp_size*sizeof(uint16_t));
+	uint16_t *gamma_b = malloc(state->ramp_size*sizeof(uint16_t));
+	if( !(gamma_r && gamma_g && gamma_b) ){
+		perror("malloc");
+		return RET_FUN_FAILED;
+	}
 
-	return RET_FUN_SUCCESS;
+	if( !XF86VidModeGetGammaRamp(state->display,state->screen_num,
+				state->ramp_size,
+				gamma_r,gamma_g,gamma_b) ){
+		LOG(LOGERR,_("X request failed"));
+		free(gamma_r);
+		free(gamma_g);
+		free(gamma_b);
+		return RET_FUN_FAILED;
+	}else{
+		uint16_t gamma_r_end = gamma_r[state->ramp_size-1];
+		uint16_t gamma_b_end = gamma_b[state->ramp_size-1];
+		float rb_ratio = (float)gamma_r_end/(float)gamma_b_end;
+
+		LOG(LOGVERBOSE,_("Red end: %uK, Blue end: %uK"),
+				gamma_r_end,gamma_b_end);
+		free(gamma_r);
+		free(gamma_g);
+		free(gamma_b);
+		return gamma_find_temp(rb_ratio);
+	}
 }
 

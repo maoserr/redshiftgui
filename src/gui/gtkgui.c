@@ -141,3 +141,7 @@
 //	gtk_widget_show_all(window);
 //	gtk_main();
 //}
+//
+int gtk_gui(int argc, char *argv[]){
+	return 0;
+}
