@@ -28,6 +28,9 @@ typedef enum {
 void gamma_ramp_fill(uint16_t *gamma_r, uint16_t *gamma_g,
 		uint16_t *gamma_b, int size, int temp, gamma_s gamma);
 
+/** Find the temperature based on red:blue ratio */
+int gamma_find_temp(float ratio);
+
 /** Initialize gamma changing method. */
 gamma_method_t gamma_init_method(int screen_num, int crtc_num,
 		gamma_method_t method);

@@ -59,24 +59,6 @@ int opt_get_config_file(char buffer[],size_t bufsize){
 		return 0;
 }
 
-// Load defaults
-void opt_set_defaults(void){
-	Rs_opts.lat = 0;
-	Rs_opts.lon = 0;
-	Rs_opts.temp_day = DEFAULT_DAY_TEMP;
-	Rs_opts.temp_night = DEFAULT_NIGHT_TEMP;
-	Rs_opts.gamma.r = DEFAULT_GAMMA;
-	Rs_opts.gamma.g = DEFAULT_GAMMA;
-	Rs_opts.gamma.b = DEFAULT_GAMMA;
-	Rs_opts.method = GAMMA_METHOD_NONE;
-	Rs_opts.screen_num = -1;
-	Rs_opts.crtc_num = -1;
-	Rs_opts.trans_speed = 100;
-	Rs_opts.one_shot = 0;
-	Rs_opts.nogui = 0;
-	Rs_opts.verbose = 0;
-}
-
 // Sets the CRTC
 int opt_set_crtc(int val){
 	Rs_opts.crtc_num = val;
@@ -122,6 +104,7 @@ int opt_parse_gamma(char *val){
 int opt_set_location(float lat, float lon){
 	Rs_opts.lat = lat;
 	Rs_opts.lon = lon;
+	LOG(LOGVERBOSE,_("Latitude/longitude set to: %.2f,%.2f"),lat,lon);
 	return RET_FUN_SUCCESS;
 }
 
@@ -230,6 +213,20 @@ int opt_set_verbose(int level){
 	Rs_opts.verbose = level;
 	log_setlevel(level+2);
 	return RET_FUN_SUCCESS;
+}
+
+// Load defaults
+void opt_set_defaults(void){
+	opt_set_location(0,0);
+	opt_set_temperatures(DEFAULT_DAY_TEMP,DEFAULT_NIGHT_TEMP);
+	opt_set_gamma(DEFAULT_GAMMA,DEFAULT_GAMMA,DEFAULT_GAMMA);
+	opt_set_method(GAMMA_METHOD_NONE);
+	opt_set_screen(-1);
+	opt_set_crtc(-1);
+	opt_set_transpeed(1000);
+	opt_set_oneshot(0);
+	opt_set_nogui(0);
+	opt_set_verbose(0);
 }
 
 int opt_get_crtc(void)

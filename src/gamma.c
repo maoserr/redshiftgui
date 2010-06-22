@@ -76,6 +76,19 @@ void gamma_ramp_fill(uint16_t *gamma_r, uint16_t *gamma_g,
 	}
 }
 
+int gamma_find_temp(float ratio){
+	int i;
+	int gam_val_size=SIZEOF(blackbody_color);
+	float curr_ratio;
+	for(i=0; i<gam_val_size; ++i){
+		curr_ratio = (float)blackbody_color[i*3]/(float)blackbody_color[i*3+2];
+		if( curr_ratio <= ratio )
+			return (i*100+1000);
+	}
+	return RET_FUN_FAILED;
+}
+
+
 /* Initialize gamma adjustment method. If method is negative
    try all methods until one that works is found. */
 gamma_method_t gamma_init_method(int screen_num, int crtc_num,

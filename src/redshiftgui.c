@@ -25,9 +25,6 @@
 #ifdef HAVE_SYS_SIGNAL_H
 # include <sys/signal.h>
 #endif
-#ifndef _WIN32
-#include <unistd.h>
-#endif
 
 #ifdef ENABLE_RANDR
 # include "backends/randr.h"
@@ -87,7 +84,10 @@ static int _parse_options(int argc, char *argv[]){
 			return RET_FUN_FAILED;
 		}
 
+		log_setlevel(0);	// This will be overridden by the verbose option
 		opt_set_defaults();
+		if( (val=args_getnamed("v")) )
+			err = (!opt_set_verbose(atoi(val))) || err;
 		if( (val=args_getnamed("c")) )
 			err = (!opt_set_crtc(atoi(val))) || err;
 		if( (val=args_getnamed("g")) )
@@ -106,8 +106,6 @@ static int _parse_options(int argc, char *argv[]){
 			err = (!opt_set_screen(atoi(val))) || err;
 		if( (val=args_getnamed("t")) )
 			err = (!opt_parse_temperatures(val)) || err;
-		if( (val=args_getnamed("v")) )
-			err = (!opt_set_verbose(atoi(val))) || err;
 		if( err ){
 			return RET_FUN_FAILED;
 		}
@@ -119,30 +117,31 @@ static int _parse_options(int argc, char *argv[]){
 	return RET_FUN_SUCCESS;
 }
 
-/* Change gamma and exit. */
-static int _do_oneshot(void){
+static int _calc_curr_target_temp(void){
 	double now, elevation;
 	int temp;
-	gamma_method_t method = opt_get_method();
-
-	if ( systemtime_get_time(&now) ){
+	if ( !systemtime_get_time(&now) ){
 		LOG(LOGERR,_("Unable to read system time."));
 		return RET_FUN_FAILED;
 	}
-
 	/* Current angular elevation of the sun */
 	elevation = solar_elevation(now, opt_get_lat(), opt_get_lon());
-
 	/* TRANSLATORS: Append degree symbol if possible. */
 	LOG(LOGINFO,_("Solar elevation: %f"),elevation);
-
 	/* Use elevation of sun to set color temperature */
 	temp = gamma_calc_temp(elevation, opt_get_temp_day(),
 			opt_get_temp_night());
+	return temp;
+}
 
-	LOG(LOGINFO,_("Color temperature: %uK"), temp);
+/* Change gamma and exit. */
+static int _do_oneshot(void){
+	int temp = _calc_curr_target_temp();
+	gamma_method_t method = opt_get_method();
 
-	gamma_state_get_temperature(method);
+	LOG(LOGINFO,_("Current color temperature: %uK"),gamma_state_get_temperature(method));
+	LOG(LOGINFO,_("Target color temperature: %uK"), temp);
+
 	/* Adjust temperature */
 	if ( !gamma_state_set_temperature(method, temp, opt_get_gamma()) ){
 		LOG(LOGERR,_("Temperature adjustment failed."));
@@ -205,26 +204,63 @@ static int _do_oneshot(void){
 #	define sig_register()
 #endif /* ! HAVE_SYS_SIGNAL_H */
 
-static void _do_transition(){
+static void transition_to_temp(int curr, int target, int speed){
+	gamma_method_t method=opt_get_method();
+	int currtemp = curr;
 
-}
-static void _do_restore_gamma(){
+	do{
+		if( curr > target ){
+			currtemp-=speed/10;
+			if( currtemp < target )
+				break;
+		}else{
+			currtemp+=speed/10;
+			if( currtemp > target )
+				break;
+		}
 
+		LOG(LOGVERBOSE,_("Transition color: %uK"),currtemp);
+		if( !gamma_state_set_temperature(method,currtemp,opt_get_gamma()) ){
+			LOG(LOGERR,_("Temperature adjustment failed."));
+			exiting = 1;
+			break;
+		}
+		SLEEP(100);
+	}while(!exiting);
+
+	LOG(LOGVERBOSE,_("Target color reached: %uK"),target);
+	if( !gamma_state_set_temperature(method,target,opt_get_gamma()) ){
+		LOG(LOGERR,_("Temperature adjustment failed."));
+		exiting = 1;
+	}
 }
+
 /* Change gamma continuously until break signal. */
 static int _do_console(void)
 {
+	gamma_method_t method=opt_get_method();
+	int target_temp;
+	int transpeed = opt_get_trans_speed();
+	int sec_countdown=0;
+	int saved_temp = gamma_state_get_temperature(method);
+	int curr_temp = saved_temp;
+
+	LOG(LOGVERBOSE,_("Original temp: %uK"),saved_temp);
 	sig_register();
-	while(!exiting){
-		_do_transition();
-#ifndef _WIN32
-		usleep(1000000);
-#else /* ! _WIN32 */
-		Sleep(1000);
-#endif
-		printf("Loop\n");
-	}
-	_do_restore_gamma();
+	do{
+		// Re-check every 20 minutes
+		if( sec_countdown <= 0 ){
+			curr_temp=gamma_state_get_temperature(method);
+			target_temp=_calc_curr_target_temp();
+			transition_to_temp(curr_temp,target_temp,transpeed);
+			sec_countdown = 60*20;
+		}
+		SLEEP(1000);
+	}while(!exiting);
+	exiting=0;
+	curr_temp=gamma_state_get_temperature(method);
+	transition_to_temp(curr_temp,saved_temp,transpeed*2);
+
 	return RET_FUN_SUCCESS;
 }
 
@@ -253,11 +289,11 @@ int main(int argc, char *argv[]){
 	
 	if(opt_get_oneshot()){
 		// One shot mode
-		LOG(LOGINFO,_("Doing one-shot adjustment."));
+		LOG(LOGVERBOSE,_("Doing one-shot adjustment."));
 		ret = _do_oneshot();
 	}else if(opt_get_nogui()){
 		// Console mode
-		LOG(LOGINFO,_("Starting in console mode."));
+		LOG(LOGVERBOSE,_("Starting in console mode."));
 		ret = _do_console();
 	}else{
 		// GUI mode
@@ -267,7 +303,7 @@ int main(int argc, char *argv[]){
 #elif defined(ENABLE_GTK)
 	
 #else
-		LOG(LOGERROR,_("No GUI toolkit compiled in."));
+		LOG(LOGVERBOSE,_("No GUI toolkit compiled in."));
 		ret = RET_FUN_FAILED;
 #endif
 	}

@@ -18,6 +18,10 @@
 #include <stdint.h>
 #include "logger.h"
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #ifdef ENABLE_NLS
 # include <libintl.h>
 # define _(s) gettext(s)
@@ -29,7 +33,7 @@
 #if 0
 #define LOG(LVL,...) log_log(LVL,__FILE__,__FUNCTION__ ,__LINE__,__VA_ARGS__)
 #else
-#define LOG(LVL,...) log_log(LVL,NULL,NULL,0,__VA_ARGS__)
+#define LOG(LVL,...) log_log(LVL,NULL,__FUNCTION__,0,__VA_ARGS__)
 #endif
 #define LOGERR		1
 #define LOGWARN		2
@@ -53,5 +57,15 @@
 // Math macros
 #define MIN(x,y)  ((x) < (y) ? (x) : (y))
 #define MAX(x,y)  ((x) > (y) ? (x) : (y))
+
+// Size of statically allocated arrays
+#define SIZEOF(X) (sizeof(X)/sizeof(X[0]))
+
+// Sleep
+#ifndef _WIN32
+# define SLEEP(X) usleep(1000*X)
+#else
+# define SLEEP(X) Sleep(X)
+#endif
 
 #endif//__COMMON_H__

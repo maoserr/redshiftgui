@@ -20,15 +20,13 @@
 #include "common.h"
 #include "systemtime.h"
 
-int
-systemtime_get_time(double *t)
-{
+int systemtime_get_time(double *t){
 #ifndef _WIN32
 	struct timespec now;
 	int r = clock_gettime(CLOCK_REALTIME, &now);
 	if (r < 0) {
 		perror("clock_gettime");
-		return -1;
+		return RET_FUN_FAILED;
 	}
 
 	*t = now.tv_sec + (now.tv_nsec / 1000000000.0);
@@ -43,5 +41,5 @@ systemtime_get_time(double *t)
 	*t = (i.QuadPart / 10000000.0) - 11644473600.0;
 #endif /* _WIN32 */
 
-	return 0;
+	return RET_FUN_SUCCESS;
 }

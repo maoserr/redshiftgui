@@ -81,7 +81,6 @@ w32gdi_restore(w32gdi_state_t *state)
 int
 w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma)
 {
-	BOOL r;
 	WORD *gamma_r, *gamma_g, *gamma_b;
 
 	/* Create new gamma ramps */
@@ -112,12 +111,13 @@ w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma)
 
 int w32gdi_get_temperature(w32gdi_state_t *state){
 	WORD gamma_ramp[3][256];
+	float rb_ratio;
 	
 	if( !GetDeviceGammaRamp(state->hDC,gamma_ramp) ){
 		LOG(LOGERR,_("Unable to get gamma ramps."));
 		return RET_FUN_FAILED;
 	}
-
-	return RET_FUN_SUCCESS;
+	rb_ratio = (float)gamma_ramp[0][255]/(float)gamma_ramp[2][255];
+	return gamma_find_temp(rb_ratio);
 }
 

@@ -17,6 +17,11 @@
 # define DEBUG(...)
 #endif
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#define snprintf _snprintf
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -118,7 +123,7 @@ LogReturn log_log(int level,
 
 		DEBUG(_("Formatting log string...\n"));
 		if(filename){
-			temp=snprintf(buffer+charwritten,bufsizeleft,_("%s"),filename);
+			temp=snprintf(buffer+charwritten,bufsizeleft,_("%s: "),filename);
 			charwritten+=temp;
 			bufsizeleft-=temp;
 			DEBUG(_("File name: %d chars and %d chars remaining.\n"),
@@ -127,7 +132,7 @@ LogReturn log_log(int level,
 				return LOGRET_SNPRINTF_ERR;
 		}
 		if(linenum){
-			temp=snprintf(buffer+charwritten,bufsizeleft,_("(%d)"),linenum);
+			temp=snprintf(buffer+charwritten,bufsizeleft,_("(%d) "),linenum);
 			charwritten+=temp;
 			bufsizeleft-=temp;
 			DEBUG(_("Line number: %d chars and %d chars remaining.\n"),
@@ -136,7 +141,7 @@ LogReturn log_log(int level,
 				return LOGRET_SNPRINTF_ERR;
 		}
 		if(funcname){
-			temp=snprintf(buffer+charwritten,bufsizeleft,_("[%s]"),funcname);
+			temp=snprintf(buffer+charwritten,bufsizeleft,_("[%s] "),funcname);
 			charwritten+=temp;
 			bufsizeleft-=temp;
 			DEBUG(_("Function name: %d chars and %d chars remaining.\n"),
