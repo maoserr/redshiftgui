@@ -82,8 +82,8 @@ add_executable(RSGBIN WIN32 ${RSGSRC})
 include_directories(${RSG_SRC_DIR})
 
 # 3rd party packages
-unset(RSG_INCLUDES)
-unset(RSG_LIBS)
+unset(RSG_INCLUDES CACHE)
+unset(RSG_LIBS CACHE)
 if(ENABLE_GTK)
 	cmake_policy(SET CMP0011 OLD)
 	cmake_policy(PUSH)
@@ -144,7 +144,7 @@ if(UNIX)
 endif(UNIX)
 
 # Preprocessor definitions
-unset(RSG_DEFS)
+unset(RSG_DEFS CACHE)
 set(RSG_DEFS ${RSG_DEFS}
 	-DPACKAGE="redshiftgui"
 	-DPACKAGE_BUGREPORT="https://bugs.launchpad.net/redshift"
