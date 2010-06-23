@@ -39,6 +39,10 @@ elseif(WIN32)
 	option(ENABLE_IUP "Enable IUP GUI at compile time" true)
 endif(UNIX)
 
+if( ENABLE_GTK AND ENABLE_IUP )
+	message(FATAL_ERROR "Cannot have both GTK and IUP enabled")
+endif( ENABLE_GTK AND ENABLE_IUP )
+
 # Source files
 set(RSGSRC
 	${RSG_SRC_DIR}/argparser.h
@@ -85,16 +89,15 @@ if(ENABLE_GTK)
 	cmake_policy(PUSH)
 	find_package(GTK2 2.10 REQUIRED gtk)
 	cmake_policy(POP)
-endif(ENABLE_GTK)
-if(ENABLE_IUP)
-	find_package(IUP COMPONENTS controls)
+elseif(ENABLE_IUP)
+	find_package(IUP)
 	set(RSG_INCLUDES ${RSG_INCLUDES}
 		${IUP_INCLUDE_DIR}
 		)
 	set(RSG_LIBS ${RSG_LIBS}
 		${IUP_LIBRARIES}
 		)
-endif(ENABLE_IUP)
+endif(ENABLE_GTK)
 if(UNIX)
 	find_package(X11)
 	if(ENABLE_RANDR)
