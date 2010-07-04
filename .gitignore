@@ -2,4 +2,5 @@
 .bzr*
 build*
 src/tags
+docs/htmldoc
 

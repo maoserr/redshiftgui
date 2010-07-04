@@ -11,12 +11,16 @@
 # include <windows.h>
 #endif
 
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
-#include "logger.h"
+#include "thirdparty/logger.h"
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -57,6 +61,10 @@
 // Math macros
 #define MIN(x,y)  ((x) < (y) ? (x) : (y))
 #define MAX(x,y)  ((x) > (y) ? (x) : (y))
+// MSVC round
+#ifdef _MSC_VER
+#define round(X) floor(X + 0.5)
+#endif
 
 // Size of statically allocated arrays
 #define SIZEOF(X) (sizeof(X)/sizeof(X[0]))

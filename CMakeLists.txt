@@ -45,13 +45,13 @@ endif( ENABLE_GTK AND ENABLE_IUP )
 
 # Source files
 set(RSGSRC
-	${RSG_SRC_DIR}/argparser.h
-	${RSG_SRC_DIR}/argparser.c
+	${RSG_SRC_DIR}/thirdparty/argparser.h
+	${RSG_SRC_DIR}/thirdparty/argparser.c
+	${RSG_SRC_DIR}/thirdparty/logger.h
+	${RSG_SRC_DIR}/thirdparty/logger.c
 	${RSG_SRC_DIR}/common.h
 	${RSG_SRC_DIR}/gamma.h
 	${RSG_SRC_DIR}/gamma.c
-	${RSG_SRC_DIR}/logger.h
-	${RSG_SRC_DIR}/logger.c
 	${RSG_SRC_DIR}/options.h
 	${RSG_SRC_DIR}/options.c
 	${RSG_SRC_DIR}/redshiftgui.c
@@ -59,6 +59,7 @@ set(RSGSRC
 	${RSG_SRC_DIR}/solar.c
 	${RSG_SRC_DIR}/systemtime.h
 	${RSG_SRC_DIR}/systemtime.c
+	${RSG_SRC_DIR}/gui/icon-redshift.c
 	)
 APPEND_IF_VAR(RSGSRC ENABLE_GTK
 		${RSG_SRC_DIR}/gui/gtkgui.c
@@ -77,6 +78,9 @@ elseif(WIN32)
 	APPEND_IF_VAR(RSGSRC ENABLE_WINGDI
 			${RSG_SRC_DIR}/backends/w32gdi.c
 			${RSG_SRC_DIR}/backends/w32gdi.h)
+	# Resource file
+	include(AddMingwRC)
+	ADD_RC_FILE(${RSG_SRC_DIR}/win32 app.rc RSGSRC)
 endif(UNIX)
 add_executable(RSGBIN WIN32 ${RSGSRC})
 include_directories(${RSG_SRC_DIR})
@@ -141,6 +145,13 @@ set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type")
 # Compiler flags
 if(UNIX)
 	set(CMAKE_C_FLAGS "-Wall -Werror" CACHE STRING "C flags" FORCE)
+elseif(MSVC)
+	set(CMAKE_C_FLAGS_DEBUG "/W3 /D_DEBUG /MTd /Zi /Ob0 /Od /RTC1" CACHE STRING
+		"Debug flags" FORCE)
+	set(CMAKE_C_FLAGS_RELEASE "/W3 /MT /O2 /Ob2 /D NDEBUG" CACHE STRING
+		"Release flags" FORCE)
+	set(CMAKE_EXE_LINKER_FLAGS "/MANIFEST:NO /STACK:10000000 /machine:X86" CACHE
+		STRING "Linker flags" FORCE)
 endif(UNIX)
 
 # Preprocessor definitions

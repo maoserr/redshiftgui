@@ -22,13 +22,7 @@
    http://www.srrb.noaa.gov/highlights/sunrise/calcdetails.html
    It is based on equations from "Astronomical Algorithms" by
    Jean Meeus. */
-#ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#define round(X) floor(X + 0.5)
-#endif
-
-#include <math.h>
-
+#include "common.h"
 #include "solar.h"
 #include "time.h"
 

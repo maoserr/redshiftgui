@@ -8,6 +8,27 @@
 #include "common.h"
 #include "gamma.h"
 
+/** Minimum temperature */
+#define MIN_TEMP 3400
+/** Maximum temperature */
+#define MAX_TEMP 7000
+
+/** Bounds for parameters. */
+#define MIN_LAT   -90.0
+#define MAX_LAT    90.0
+#define MIN_LON  -180.0
+#define MAX_LON   180.0
+#define MIN_GAMMA   0.1
+#define MAX_GAMMA  10.0
+#define MIN_SPEED     1
+#define MAX_SPEED  1000
+
+/** Default values for parameters. */
+#define DEFAULT_DAY_TEMP    6500
+#define DEFAULT_NIGHT_TEMP  3600
+#define DEFAULT_GAMMA        1.0
+#define DEFAULT_TRANSPEED   1000
+
 /**\brief Retrieves full path of the configuration file.
  * \param buffer buffer to store the configuration file.
  * \param bufsize size of the buffer.

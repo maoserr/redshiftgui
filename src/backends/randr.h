@@ -1,3 +1,17 @@
+/**\file		randr.h
+ * \author		Mao Yu
+ * \date		Friday, June 11, 2010
+ * \brief		Main code
+ * \details
+ * This code is forked from the redshift project
+ * (https://bugs.launchpad.net/redshift) by:
+ * Jon Lund Steffensen.
+ *
+ * The license for this project as a whole is same (GPL v3),
+ * although some components of this code (such as argument parsing)
+ * were originally under different license.
+ */
+
 #ifndef _REDSHIFT_RANDR_H
 #define _REDSHIFT_RANDR_H
 

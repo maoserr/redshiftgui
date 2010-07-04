@@ -9,21 +9,7 @@
 
 #include "common.h"
 #include "gamma.h"
-
-/* Bounds for parameters. */
-#define MIN_LAT   -90.0
-#define MAX_LAT    90.0
-#define MIN_LON  -180.0
-#define MAX_LON   180.0
-#define MIN_TEMP   1000
-#define MAX_TEMP  10000
-#define MIN_GAMMA   0.1
-#define MAX_GAMMA  10.0
-
-/* Default values for parameters. */
-#define DEFAULT_DAY_TEMP    6500
-#define DEFAULT_NIGHT_TEMP  3400
-#define DEFAULT_GAMMA        1.0
+#include "options.h"
 
 /* Redshift options.*/
 typedef struct{

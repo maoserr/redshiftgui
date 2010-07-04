@@ -17,11 +17,12 @@
 #endif
 
 #include "common.h"
-#include "argparser.h"
 #include "options.h"
 #include "gamma.h"
 #include "solar.h"
 #include "systemtime.h"
+#include "thirdparty/argparser.h"
+
 #ifdef HAVE_SYS_SIGNAL_H
 # include <sys/signal.h>
 #endif
@@ -306,9 +307,9 @@ int main(int argc, char *argv[]){
 		// GUI mode
 		LOG(LOGINFO,_("Starting in GUI mode."));
 #if defined(ENABLE_IUP)
-	iup_gui(argc,argv);
+	ret = iup_gui(argc,argv);
 #elif defined(ENABLE_GTK)
-	gtk_gui(argc,argv);
+	ret = gtk_gui(argc,argv);
 #else
 		LOG(LOGVERBOSE,_("No GUI toolkit compiled in."));
 		ret = RET_FUN_FAILED;
@@ -325,7 +326,7 @@ int main(int argc, char *argv[]){
 		return RET_MAIN_ERR;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ENABLE_IUP)
 // Win32 wrapper function for GUI mode
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		LPSTR lpCmdLine, int nCmdShow){
