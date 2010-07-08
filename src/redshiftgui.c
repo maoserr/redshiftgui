@@ -124,26 +124,11 @@ static int _parse_options(int argc, char *argv[]){
 	return RET_FUN_SUCCESS;
 }
 
-static int _calc_curr_target_temp(void){
-	double now, elevation;
-	int temp;
-	if ( !systemtime_get_time(&now) ){
-		LOG(LOGERR,_("Unable to read system time."));
-		return RET_FUN_FAILED;
-	}
-	/* Current angular elevation of the sun */
-	elevation = solar_elevation(now, opt_get_lat(), opt_get_lon());
-	/* TRANSLATORS: Append degree symbol if possible. */
-	LOG(LOGINFO,_("Solar elevation: %f"),elevation);
-	/* Use elevation of sun to set color temperature */
-	temp = gamma_calc_temp(elevation, opt_get_temp_day(),
-			opt_get_temp_night());
-	return temp;
-}
-
 /* Change gamma and exit. */
 static int _do_oneshot(void){
-	int temp = _calc_curr_target_temp();
+	int temp = gamma_calc_curr_target_temp(
+				opt_get_lat(),opt_get_lon(),
+				opt_get_temp_day(),opt_get_temp_night());
 	gamma_method_t method = opt_get_method();
 
 	LOG(LOGINFO,_("Current color temperature: %uK"),gamma_state_get_temperature(method));
@@ -258,9 +243,13 @@ static int _do_console(void)
 		// Re-check every 20 minutes
 		if( sec_countdown <= 0 ){
 			curr_temp=gamma_state_get_temperature(method);
-			target_temp=_calc_curr_target_temp();
+			target_temp=gamma_calc_curr_target_temp(
+				opt_get_lat(),opt_get_lon(),
+				opt_get_temp_day(),opt_get_temp_night());
 			transition_to_temp(curr_temp,target_temp,transpeed);
 			sec_countdown = 60*20;
+		}else{
+			sec_countdown -= 1000;
 		}
 		SLEEP(1000);
 	}while(!exiting);

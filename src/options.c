@@ -251,3 +251,15 @@ int opt_get_temp_night(void)
 int opt_get_verbosity(void)
 {return Rs_opts.verbose;}
 
+void opt_write_config(void){
+	char Config_file[LONGEST_PATH];
+	FILE *fid_config;
+
+	opt_get_config_file(Config_file,LONGEST_PATH);
+	fid_config = fopen(Config_file,"w");
+	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
+	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
+	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());
+
+	fclose(fid_config);
+}

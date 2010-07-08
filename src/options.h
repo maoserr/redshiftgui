@@ -152,4 +152,7 @@ int opt_get_temp_night(void);
 /**\brief Retrieves verbosity level */
 int opt_get_verbosity(void);
 
+/**\brief Writes the configuration file with current settings */
+void opt_write_config(void);
+
 #endif//__OPTIONS_H__
