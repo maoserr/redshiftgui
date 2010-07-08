@@ -31,8 +31,8 @@ include(CheckIncludeFile)
 if(UNIX)
 	option(ENABLE_RANDR "Enable Xrandr at compile time" true)
 	option(ENABLE_VIDMODE "Enable Vidmode at compile time" true)
-	option(ENABLE_GTK "Enable GTK GUI at compile time" true)
-	option(ENABLE_IUP "Enable IUP GUI at compile time" false)
+	option(ENABLE_GTK "Enable GTK GUI at compile time" false)
+	option(ENABLE_IUP "Enable IUP GUI at compile time" true)
 elseif(WIN32)
 	option(ENABLE_WINGDI "Enable win32 GDI at compile time" true)
 	option(ENABLE_GTK "Enable GTK GUI at compile time" false)
@@ -41,6 +41,8 @@ endif(UNIX)
 
 if( ENABLE_GTK AND ENABLE_IUP )
 	message(FATAL_ERROR "Cannot have both GTK and IUP enabled")
+elseif( ENABLE_GTK )
+	message(FATAL_ERROR "GTK GUI is not implemented")
 endif( ENABLE_GTK AND ENABLE_IUP )
 
 # Source files
@@ -49,6 +51,8 @@ set(RSGSRC
 	${RSG_SRC_DIR}/thirdparty/argparser.c
 	${RSG_SRC_DIR}/thirdparty/logger.h
 	${RSG_SRC_DIR}/thirdparty/logger.c
+	${RSG_SRC_DIR}/thirdparty/stb_image.h
+	${RSG_SRC_DIR}/thirdparty/stb_image.c
 	${RSG_SRC_DIR}/common.h
 	${RSG_SRC_DIR}/gamma.h
 	${RSG_SRC_DIR}/gamma.c
@@ -59,15 +63,25 @@ set(RSGSRC
 	${RSG_SRC_DIR}/solar.c
 	${RSG_SRC_DIR}/systemtime.h
 	${RSG_SRC_DIR}/systemtime.c
-	${RSG_SRC_DIR}/gui/icon-redshift.c
+	${RSG_SRC_DIR}/resources/redshift.c
+	${RSG_SRC_DIR}/resources/redshift-idle.c
+	${RSG_SRC_DIR}/resources/sun.c
+	${RSG_SRC_DIR}/resources/sunback.c
 	)
 APPEND_IF_VAR(RSGSRC ENABLE_GTK
 		${RSG_SRC_DIR}/gui/gtkgui.c
 		${RSG_SRC_DIR}/gui/gtkgui.h)
 APPEND_IF_VAR(RSGSRC ENABLE_IUP
 		${RSG_SRC_DIR}/gui/iupgui.c
-		${RSG_SRC_DIR}/gui/iupgui.h)
-if(UNIX)
+		${RSG_SRC_DIR}/gui/iupgui.h
+		${RSG_SRC_DIR}/gui/iupgui_gamma.c
+		${RSG_SRC_DIR}/gui/iupgui_gamma.h
+		${RSG_SRC_DIR}/gui/iupgui_main.c
+		${RSG_SRC_DIR}/gui/iupgui_main.h
+		${RSG_SRC_DIR}/gui/iupgui_settings.c
+		${RSG_SRC_DIR}/gui/iupgui_settings.h
+		)
+if(UNIX AND NOT APPLE)
 	APPEND_IF_VAR(RSGSRC ENABLE_RANDR
 			${RSG_SRC_DIR}/backends/randr.c
 			${RSG_SRC_DIR}/backends/randr.h)
@@ -81,19 +95,25 @@ elseif(WIN32)
 	# Resource file
 	include(AddMingwRC)
 	ADD_RC_FILE(${RSG_SRC_DIR}/win32 app.rc RSGSRC)
-endif(UNIX)
-add_executable(RSGBIN WIN32 ${RSGSRC})
-include_directories(${RSG_SRC_DIR})
+endif(UNIX AND NOT APPLE)
 
 # 3rd party packages
-unset(RSG_INCLUDES CACHE)
-unset(RSG_LIBS CACHE)
+unset(RSG_INCLUDE_DIRS CACHE)
+unset(RSG_LIBRARIES CACHE)
 if(ENABLE_GTK)
 	cmake_policy(SET CMP0011 OLD)
 	cmake_policy(PUSH)
 	find_package(GTK2 2.10 REQUIRED gtk)
 	cmake_policy(POP)
 elseif(ENABLE_IUP)
+	if(UNIX AND NOT APPLE)
+		cmake_policy(SET CMP0011 OLD)
+		cmake_policy(PUSH)
+		find_package(GTK2 2.10 REQUIRED gtk)
+		cmake_policy(POP)
+	endif(UNIX AND NOT APPLE)
+
+	set(IUP_FIND_STATIC TRUE)
 	find_package(IUP)
 	set(RSG_INCLUDES ${RSG_INCLUDES}
 		${IUP_INCLUDE_DIR}
@@ -144,7 +164,7 @@ endforeach(_lib ${RSG_LIBS})
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type")
 # Compiler flags
 if(UNIX)
-	set(CMAKE_C_FLAGS "-Wall -Werror" CACHE STRING "C flags" FORCE)
+	set(CMAKE_C_FLAGS "-Wall" CACHE STRING "C flags" FORCE)
 elseif(MSVC)
 	set(CMAKE_C_FLAGS_DEBUG "/W3 /D_DEBUG /MTd /Zi /Ob0 /Od /RTC1" CACHE STRING
 		"Debug flags" FORCE)
@@ -152,6 +172,8 @@ elseif(MSVC)
 		"Release flags" FORCE)
 	set(CMAKE_EXE_LINKER_FLAGS "/MANIFEST:NO /STACK:10000000 /machine:X86" CACHE
 		STRING "Linker flags" FORCE)
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE" CACHE
+		STRING "Debug Linker flags" FORCE)
 endif(UNIX)
 
 # Preprocessor definitions
@@ -180,6 +202,8 @@ endforeach(_def ${RSG_DEFS})
 
 # Includes and libraries
 include_directories(${RSG_INCLUDE_DIRS})
+include_directories(${RSG_SRC_DIR})
+add_executable(RSGBIN WIN32 ${RSGSRC})
 target_link_libraries(RSGBIN ${RSG_LIBRARIES})
 set_target_properties(RSGBIN PROPERTIES
 	OUTPUT_NAME					${APP_NAME}

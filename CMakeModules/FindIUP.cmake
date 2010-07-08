@@ -12,13 +12,24 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 
 find_path(IUP_INCLUDE_DIR iup.h
 	HINTS ${_search_path_inc})
-find_library(IUP_MAIN_LIB iup
+if(IUP_FIND_STATIC AND UNIX)
+	set(CURR_COMP libiup.a)
+elseif(IUP_FIND_STATIC AND UNIX)
+	set(CURR_COMP iup)
+endif(IUP_FIND_STATIC AND UNIX)
+find_library(IUP_MAIN_LIB ${CURR_COMP}
 	HINTS ${_search_path_lib})
 
 set(IUP_LIBRARIES ${IUP_MAIN_LIB})
 foreach(COMPONENT ${IUP_FIND_COMPONENTS})
-	find_library(IUP_LIBRARIES_${COMPONENT} iup${COMPONENT}
-		HINTS ${_search_path_lib})
+	if(IUP_FIND_STATIC AND UNIX)
+		set(CURR_COMP iup${COMPONENT}.a)
+	elseif(IUP_FIND_STATIC AND UNIX)
+		set(CURR_COMP iup${COMPONENT})
+	endif(IUP_FIND_STATIC AND UNIX)
+	find_library(IUP_LIBRARIES_${COMPONENT} ${CURR_COMP}
+			HINTS ${_search_path_lib})
+	message(STATUS "Found IUP_LIBRARIES_${COMPONENT}")
 	set(IUP_LIBRARIES ${IUP_LIBRARIES}
 		${IUP_LIBRARIES_${COMPONENT}})
 	mark_as_advanced(IUP_LIBRARIES_${COMPONENT})
