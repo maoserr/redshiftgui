@@ -1,5 +1,5 @@
 /* gtkgui.c
- * Placeholder
+ * Placeholder file - currently IUP is preferred over GTK
 */
 
 #include "common.h"

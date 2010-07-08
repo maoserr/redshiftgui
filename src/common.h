@@ -59,8 +59,13 @@
 #endif
 
 // Math macros
+#ifndef MIN
 #define MIN(x,y)  ((x) < (y) ? (x) : (y))
+#endif
+#ifndef MAX
 #define MAX(x,y)  ((x) > (y) ? (x) : (y))
+#endif
+
 // MSVC round
 #ifdef _MSC_VER
 #define round(X) floor(X + 0.5)

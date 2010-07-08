@@ -44,6 +44,10 @@ void gamma_state_free(gamma_method_t method);
 /** Calculate temperature based on elevation. */
 int gamma_calc_temp(double elevation, int temp_day, int temp_night);
 
+/** Calculates the target temperature for now */
+int gamma_calc_curr_target_temp(float lat, float lon,
+		int temp_day, int temp_night);
+
 /** Sets the temperature */
 int gamma_state_set_temperature(gamma_method_t method,
 			    int temp, gamma_s gamma);

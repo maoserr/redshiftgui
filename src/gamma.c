@@ -12,6 +12,7 @@
 #include "common.h"
 #include "gamma.h"
 #include "solar.h"
+#include "systemtime.h"
 
 #ifdef ENABLE_RANDR
 # include "backends/randr.h"
@@ -80,10 +81,13 @@ int gamma_find_temp(float ratio){
 	int i;
 	int gam_val_size=SIZEOF(blackbody_color);
 	float curr_ratio;
+	LOG(LOGVERBOSE,_("R/B Ratio: %f"),ratio);
 	for(i=0; i<gam_val_size; ++i){
 		curr_ratio = (float)blackbody_color[i*3]/(float)blackbody_color[i*3+2];
-		if( curr_ratio <= ratio )
+		if( curr_ratio <= ratio ){
+			LOG(LOGVERBOSE,_("Current col:%d"),i*100+1000);
 			return (i*100+1000);
+		}
 	}
 	return RET_FUN_FAILED;
 }
@@ -212,6 +216,26 @@ int gamma_calc_temp(double elevation, int temp_day, int temp_night)
 		LOG(LOGINFO,_("Period: Daytime"));
 	}
 
+	return temp;
+}
+
+/* Calculates the current target temperature */
+int gamma_calc_curr_target_temp(float lat, float lon,
+		int temp_day, int temp_night)
+{
+	double now, elevation;
+	int temp;
+	if ( !systemtime_get_time(&now) ){
+		LOG(LOGERR,_("Unable to read system time."));
+		return RET_FUN_FAILED;
+	}
+	/* Current angular elevation of the sun */
+	elevation = solar_elevation(now, lat, lon);
+	/* TRANSLATORS: Append degree symbol if possible. */
+	LOG(LOGINFO,_("Solar elevation: %f"),elevation);
+	/* Use elevation of sun to set color temperature */
+	temp = gamma_calc_temp(elevation, temp_day,temp_night);
+	LOG(LOGINFO,_("Calculated temp: %d"),temp);
 	return temp;
 }
 

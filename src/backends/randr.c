@@ -295,7 +295,8 @@ randr_set_temperature_for_crtc(randr_state_t *state, int crtc_num, int temp,
 		free(gamma_ramps);
 		return RET_FUN_FAILED;
 	}
-
+	LOG(LOGVERBOSE,_("Set gamma[CRTC %d], end points: (%d,%d)"),
+			crtc_num,gamma_r[ramp_size-1],gamma_b[ramp_size-1]);
 	free(gamma_ramps);
 
 	return RET_FUN_SUCCESS;
@@ -347,9 +348,9 @@ int randr_get_temperature(randr_state_t *state){
 		gamma_b = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
 		gamma_r_end = gamma_r[crtc.ramp_size-1];
 		gamma_b_end = gamma_b[crtc.ramp_size-1];
-		LOG(LOGVERBOSE,_("Red end: %uK, Blue end: %uK"),gamma_r_end,
-			gamma_b_end);
-		rb_ratio = (float)gamma_r_end/(float)gamma_b_end;
+		LOG(LOGVERBOSE,_("Gamma end points: (%d,%d)"),
+				gamma_r_end,gamma_b_end);
+		rb_ratio = ((float)gamma_r_end)/((float)gamma_b_end);
 		return gamma_find_temp(rb_ratio);
 	}
 }
