@@ -4,9 +4,11 @@
 #include "gamma.h"
 #include "iupgui_main.h"
 #include "iupgui_gamma.h"
+#include "iupgui_settings.h"
 
 // Settings dialog handles
 static Ihandle *dialog_settings=NULL;
+static Ihandle *listmethod=NULL;
 static Ihandle *label_day=NULL;
 static Ihandle *label_night=NULL;
 static Ihandle *label_transpeed=NULL;
@@ -42,8 +44,7 @@ static int _val_speed_changed(Ihandle *ih){
 // Setting - cancel
 static int _setting_cancel(Ihandle *ih){
 	guigamma_check(ih);
-	IupDestroy(dialog_settings);
-	dialog_settings = NULL;
+	guisettings_close(ih);
 	return IUP_DEFAULT;
 }
 
@@ -51,21 +52,47 @@ static int _setting_cancel(Ihandle *ih){
 static int _setting_save(Ihandle *ih){
 	int vday = 100*((int)(IupGetInt(val_day,"VALUE")/100.0f));
 	int vnight = 100*((int)(IupGetInt(val_night,"VALUE")/100.0f));
-
+	char *method = IupGetAttribute(
+			listmethod,IupGetAttribute(listmethod,"VALUE"));
+	gamma_method_t oldmethod = opt_get_method();
+	char *name_randr=gamma_get_method_name(GAMMA_METHOD_RANDR);
+	char *name_vidmode=gamma_get_method_name(GAMMA_METHOD_VIDMODE);
+	char *name_wingdi=gamma_get_method_name(GAMMA_METHOD_WINGDI);
+	
 	LOG(LOGVERBOSE,_("New day temp: %d, new night temp: %d"),vday,vnight);
+	if( strcmp(method,name_randr) == 0 )
+		opt_set_method(GAMMA_METHOD_RANDR);
+	else if( strcmp(method,name_vidmode) == 0 )
+		opt_set_method(GAMMA_METHOD_VIDMODE);
+	else if( strcmp(method,name_wingdi) == 0 )
+		opt_set_method(GAMMA_METHOD_WINGDI);
+	else
+		LOG(LOGERR,_("Unknown method set"));
+	if( opt_get_method() != oldmethod ){
+		LOG(LOGINFO,_("Gamma method changed to %s"),method);
+		gamma_state_free(oldmethod);
+		if( !gamma_init_method(opt_get_screen(),opt_get_crtc(),
+				opt_get_method())){
+			LOG(LOGERR,_("Unable to set new gamma method, reverting..."));
+			if(!gamma_init_method(opt_get_screen(),opt_get_crtc(),
+					opt_get_method())){
+				LOG(LOGERR,_("Unable to revert to old method."));
+				guimain_set_exit(RET_FUN_FAILED);
+			}
+		}
+	}
+
 	opt_set_temperatures(vday,vnight);
 	opt_set_transpeed(IupGetInt(val_transpeed,"VALUE"));
 	opt_write_config();
 	guigamma_check(ih);
-	IupDestroy(dialog_settings);
-	dialog_settings = NULL;
+	guisettings_close(ih);
 	return IUP_DEFAULT;
 }
 
 // Creates settings dialog
 static void _settings_create(void){
-	Ihandle *listmethod,
-			*vbox_method,
+	Ihandle *vbox_method,
 			*frame_method,
 
 			*vbox_day,
@@ -82,11 +109,32 @@ static void _settings_create(void){
 			*hbox_buttons,
 			*vbox_all;
 	extern Ihandle *himg_redshift;
+	// Number of methods available
+	int methods=0;
+	char list_count[3];
 
 	// Method selection
 	listmethod = IupList(NULL);
 	IupSetAttribute(listmethod,"DROPDOWN","YES");
 	IupSetAttribute(listmethod,"EXPAND","YES");
+#ifdef ENABLE_RANDR
+	snprintf(list_count,3,"%d",++methods);
+	IupSetAttribute(listmethod,list_count,_("RANDR"));
+	if( opt_get_method() == GAMMA_METHOD_RANDR )
+		IupSetfAttribute(listmethod,"VALUE","%d",methods);
+#endif
+#ifdef ENABLE_VIDMODE
+	snprintf(list_count,3,"%d",++methods);
+	IupSetAttribute(listmethod,list_count,_("VidMode"));
+	if( opt_get_method() == GAMMA_METHOD_VIDMODE )
+		IupSetfAttribute(listmethod,"VALUE","%d",methods);
+#endif
+#ifdef ENABLE_WINGDI
+	snprintf(list_count,3,"%d",++methods);
+	IupSetAttribute(listmethod,list_count,_("WinGDI"));
+	if( opt_get_method() == GAMMA_METHOD_WINGDI )
+		IupSetfAttribute(listmethod,"VALUE","%d",methods);
+#endif
 	vbox_method = IupVbox(
 			listmethod,
 			NULL);
@@ -178,7 +226,7 @@ int guisettings_show(Ihandle *ih){
 	if( !dialog_settings )
 		_settings_create();
 	IupPopup(dialog_settings,IUP_CENTER,IUP_CENTER);
-	if( guimain_get_exit() )
+	if( !guimain_exit_normal() )
 		return IUP_CLOSE;
 	return IUP_DEFAULT;
 }

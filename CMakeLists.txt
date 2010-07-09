@@ -56,6 +56,8 @@ set(RSGSRC
 	${RSG_SRC_DIR}/common.h
 	${RSG_SRC_DIR}/gamma.h
 	${RSG_SRC_DIR}/gamma.c
+	${RSG_SRC_DIR}/location.h
+	${RSG_SRC_DIR}/location.c
 	${RSG_SRC_DIR}/options.h
 	${RSG_SRC_DIR}/options.c
 	${RSG_SRC_DIR}/redshiftgui.c
@@ -76,6 +78,8 @@ APPEND_IF_VAR(RSGSRC ENABLE_IUP
 		${RSG_SRC_DIR}/gui/iupgui.h
 		${RSG_SRC_DIR}/gui/iupgui_gamma.c
 		${RSG_SRC_DIR}/gui/iupgui_gamma.h
+		${RSG_SRC_DIR}/gui/iupgui_location.c
+		${RSG_SRC_DIR}/gui/iupgui_location.h
 		${RSG_SRC_DIR}/gui/iupgui_main.c
 		${RSG_SRC_DIR}/gui/iupgui_main.h
 		${RSG_SRC_DIR}/gui/iupgui_settings.c
@@ -150,6 +154,9 @@ endif(UNIX)
 find_package(CURL)
 set(RSG_INCLUDES ${RSG_INCLUDES} ${CURL_INCLUDE_DIRS})
 set(RSG_LIBS ${RSG_LIBS} ${CURL_LIBRARIES})
+if(WIN32)
+	set(RSG_LIBS ${RSG_LIBS} wsock32.lib ws2_32.lib Wldap32.lib)
+endif(WIN32)
 
 set(RSG_INCLUDE_DIRS ${RSG_INCLUDES} CACHE STRING "Redshift GUI includes")
 set(RSG_LIBRARIES ${RSG_LIBS} CACHE STRING "Redshift GUI libs")

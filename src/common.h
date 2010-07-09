@@ -13,6 +13,7 @@
 
 #ifdef _MSC_VER
 #define _USE_MATH_DEFINES
+#define snprintf sprintf_s
 #endif
 
 #include <stdio.h>
