@@ -260,6 +260,7 @@ void opt_write_config(void){
 	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
 	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());
-
+	fprintf(fid_config,"method=%s\n",
+			gamma_get_method_name(opt_get_method()));
 	fclose(fid_config);
 }

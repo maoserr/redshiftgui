@@ -13,7 +13,7 @@ void guimain_dialog_init( int show );
 int guimain_set_exit(int exit);
 
 /** Gets main application exit status */
-int guimain_get_exit(void);
+int guimain_exit_normal(void);
 
 
 #endif//__IUPGUI_MAIN_H__

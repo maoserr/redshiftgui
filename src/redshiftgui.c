@@ -20,6 +20,7 @@
 #include "options.h"
 #include "gamma.h"
 #include "solar.h"
+#include "location.h"
 #include "systemtime.h"
 #include "thirdparty/argparser.h"
 
@@ -62,7 +63,7 @@ static int _parse_options(int argc, char *argv[]){
 	args_addarg("o","oneshot",
 		_("Adjust color and then exit (no GUI)"),ARGVAL_NONE);
 	args_addarg("r","speed",
-		_("<SPEED> Transition speed (default 100 K/s)"),ARGVAL_STRING);
+		_("<SPEED> Transition speed (default 1000 K/s)"),ARGVAL_STRING);
 	args_addarg("s","screen",
 		_("<SCREEN> Screen to apply to"),ARGVAL_STRING);
 	args_addarg("t","temps",
@@ -275,6 +276,7 @@ int main(int argc, char *argv[]){
 		log_end();
 		return RET_MAIN_ERR;
 	}
+	// Initialize gamma method
 	method = gamma_init_method(opt_get_screen(),opt_get_crtc(),
 			opt_get_method());
 	if( !method ){
@@ -283,6 +285,12 @@ int main(int argc, char *argv[]){
 		return RET_MAIN_ERR;
 	}
 	opt_set_method(method);
+	// Initialize location method
+	if( !location_init() ){
+		args_free();
+		log_end();
+		return RET_MAIN_ERR;
+	}
 	
 	if(opt_get_oneshot()){
 		// One shot mode
@@ -304,7 +312,9 @@ int main(int argc, char *argv[]){
 		ret = RET_FUN_FAILED;
 #endif
 	}
-	gamma_state_free(opt_get_method());
+	location_end();
+	if( ret ) // Free if no error occurred
+		gamma_state_free(opt_get_method());
 
 	// Else we go to GUI mode
 	args_free();

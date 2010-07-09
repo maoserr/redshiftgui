@@ -56,6 +56,19 @@ static void gamma_interp_color(float a,
 	c[2] = (1.0f-a)*c1[2] + a*c2[2];
 }
 
+char *gamma_get_method_name(gamma_method_t method){
+	switch( method ){
+		case GAMMA_METHOD_RANDR:
+			return _("RANDR");
+		case GAMMA_METHOD_VIDMODE:
+			return _("VidMode");
+		case GAMMA_METHOD_WINGDI:
+			return _("WinGDI");
+		default:
+			return _("Unknown");
+	}
+}
+
 void gamma_ramp_fill(uint16_t *gamma_r, uint16_t *gamma_g,
 		uint16_t *gamma_b, int size, int temp, gamma_s gamma)
 {

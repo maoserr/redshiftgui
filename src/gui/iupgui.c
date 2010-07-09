@@ -53,5 +53,9 @@ int iup_gui(int argc, char *argv[]){
 	guigamma_init_timers();
 	IupMainLoop();
 	IupClose();
-	return RET_FUN_SUCCESS;
+	if(!guimain_exit_normal()){
+		LOG(LOGERR,_("An error occurred."));
+		return RET_FUN_FAILED;
+	}else
+		return RET_FUN_SUCCESS;
 }

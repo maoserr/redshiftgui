@@ -2,6 +2,7 @@
 #include <iup.h>
 #include "options.h"
 #include "iupgui_settings.h"
+#include "iupgui_location.h"
 #include "iupgui_gamma.h"
 
 // Main dialog handles
@@ -10,8 +11,8 @@ static Ihandle *infotitle[4]={NULL,NULL,NULL,NULL};
 static Ihandle *infovals[4]={NULL,NULL,NULL,NULL};
 static Ihandle *lbl_sun=NULL;
 
-// If we're exiting
-static int exit_stat=0;
+// exit status
+static int exit_stat=RET_FUN_SUCCESS;
 
 // Sets exit status
 int guimain_set_exit(int exit){
@@ -20,7 +21,7 @@ int guimain_set_exit(int exit){
 }
 
 // Gets exit status
-int guimain_get_exit(void){
+int guimain_exit_normal(void){
 	return exit_stat;
 }
 
@@ -41,12 +42,6 @@ static int _toggle_main_dialog(Ihandle *ih){
 	return IUP_DEFAULT;
 }
 
-// Exits application
-static int _tray_exit(Ihandle *ih){
-	guimain_set_exit(1);
-	return IUP_CLOSE;
-}
-
 // Tray click callback
 static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
 	static Ihandle *menu_tray=NULL;
@@ -61,25 +56,26 @@ static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
 				if( !menu_tray ){
 					Ihandle *mitem_toggle,
 							*mitem_settings,
-							*mitem_about,
-							*mitem_exit;
+							*mitem_about;
 					mitem_toggle = IupItem(_("Hide/Show"),NULL);
 					IupSetCallback(mitem_toggle,"ACTION",_toggle_main_dialog);
 					mitem_settings = IupItem(_("Settings"),NULL);
 					IupSetCallback(mitem_settings,"ACTION",guisettings_show);
 					mitem_about = IupItem(_("About"),NULL);
 					IupSetCallback(mitem_about,"ACTION",_show_about);
-					mitem_exit = IupItem(_("Exit"),NULL);
-					IupSetCallback(mitem_exit,"ACTION",_tray_exit);
 					menu_tray = IupMenu(
 							mitem_toggle,
 							mitem_settings,
-							mitem_about,
 							IupSeparator(),
-							mitem_exit,
+							mitem_about,
 							NULL);
+					IupMap(menu_tray);
 				}
+#ifdef _WIN32
 				IupPopup(menu_tray,IUP_MOUSEPOS,IUP_MOUSEPOS);
+#else	// Need a workaround on GTK2 because MOUSEPOS doesn't seem to work
+				IupPopup(menu_tray,IUP_MOUSEPOS,IUP_CENTER);
+#endif
 				IupDestroy(menu_tray);
 				menu_tray = NULL;
 			}
@@ -122,6 +118,7 @@ void guimain_dialog_init( int show ){
 	// -Location
 	button_loc = IupButton(_("Location"),NULL);
 	IupSetfAttribute(button_loc,"MINSIZE","%dx%d",60,24);
+	IupSetCallback(button_loc,"ACTION",(Icallback)guilocation_show);
 	// -Settings
 	button_setting = IupButton(_("Settings"),NULL);
 	IupSetfAttribute(button_setting,"MINSIZE","%dx%d",60,24);
@@ -150,7 +147,7 @@ void guimain_dialog_init( int show ){
 			lbl_backsun,
 			NULL);
 	// Create frame containing the sun control
-	framesun = IupFrame(vbox_sun);
+	framesun = IupFrame(IupVbox(vbox_sun,IupFill(),NULL));
 	IupSetAttribute(framesun,"TITLE",_("Sun elevation"));
 
 	// Info display
