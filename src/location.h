@@ -15,6 +15,10 @@ typedef enum{
 /**\brief Geocode from www.hostip.info*/
 int location_geocode_hostip(float *lat,float *lon,char *city,int bsize);
 
+/**\brief Look up location from address (from Google maps api)*/
+int location_address_lookup(char *address,float *lat,float *lon,
+		char *city,int bsize);
+
 /**\brief Initialize location lookup*/
 int location_init(void);
 

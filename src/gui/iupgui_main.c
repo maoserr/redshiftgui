@@ -1,5 +1,7 @@
 #include "common.h"
 #include <iup.h>
+#include "systemtime.h"
+#include "solar.h"
 #include "options.h"
 #include "iupgui_settings.h"
 #include "iupgui_location.h"
@@ -27,7 +29,14 @@ int guimain_exit_normal(void){
 
 // Show about dialog
 static int _show_about(Ihandle *ih){
-
+	Ihandle *dialog_about = IupSetAtt(NULL,IupMessageDlg(),
+			"TITLE",_("About Redshift GUI"),
+			"VALUE",
+			_("Redshift GUI is based on Redshift by Jon Lund Steffensen\n"
+				"This program uses IUP and libcURL\n"
+				"Licensed under the GPL license"),NULL);
+	IupPopup(dialog_about,IUP_CENTER,IUP_CENTER);
+	IupDestroy(dialog_about);
 	return IUP_DEFAULT;
 }
 
@@ -83,6 +92,26 @@ static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
 
 // Updates info display
 void guimain_update_info(void){
+	double now;
+	extern int dim_back_w, dim_back_h, dim_sun_w, dim_sun_h;
+	if ( !systemtime_get_time(&now) ){
+		LOG(LOGERR,_("Unable to read system time."));
+	}else{
+		int x,y;
+		float lat=opt_get_lat();
+		float lon=opt_get_lon();
+		double elevation, elevation_next;
+		/* Current angular elevation of the sun */
+		elevation = solar_elevation(now,lat,lon);
+		elevation_next = solar_elevation(now+100,lat,lon);
+		x = cos(RAD(elevation))*(dim_back_w/2-dim_sun_w)+dim_back_w/2;
+		y = sin(RAD(elevation))*(dim_back_h/2-dim_sun_h)+dim_back_h/2;
+			//		if( elevation_next
+		IupSetfAttribute(lbl_sun,"CX","%d",x);
+		IupSetfAttribute(lbl_sun,"CY","%d",y);
+		IupSetAttribute(lbl_sun,"ZORDER","TOP");
+	}
+
 	IupSetfAttribute(infovals[0],"TITLE",_("%d° K"),guigamma_get_temp());
 	IupSetfAttribute(infovals[1],"TITLE",_("%d° K"),opt_get_temp_day());
 	IupSetfAttribute(infovals[2],"TITLE",_("%d° K"),opt_get_temp_night());
@@ -98,6 +127,7 @@ extern Ihandle *redshift_get_idle_icon(void);
 // Main dialog
 void guimain_dialog_init( int show ){
 	Ihandle *hbox_butt,
+			*button_about,
 			*button_loc,
 			*button_setting,
 			*button_hide,
@@ -112,6 +142,10 @@ void guimain_dialog_init( int show ){
 	extern Ihandle *himg_redshift,*himg_sunback,*himg_sun;
 
 	// Buttons
+	// -About
+	button_about = IupButton(_("About"),NULL);
+	IupSetfAttribute(button_about,"MINSIZE","%dx%d",60,24);
+	IupSetCallback(button_about,"ACTION",(Icallback)_show_about);
 	// -Location
 	button_loc = IupButton(_("Location"),NULL);
 	IupSetfAttribute(button_loc,"MINSIZE","%dx%d",60,24);
@@ -124,7 +158,10 @@ void guimain_dialog_init( int show ){
 	button_hide = IupButton(_("Hide"),NULL);
 	IupSetfAttribute(button_hide,"MINSIZE","%dx%d",60,24);
 	IupSetCallback(button_hide,"ACTION",(Icallback)_toggle_main_dialog);
-	hbox_butt = IupHbox(button_loc,
+	hbox_butt = IupHbox(
+			button_about,
+			IupFill(),
+			button_loc,
 			button_setting,
 			button_hide,
 			NULL);
@@ -134,14 +171,13 @@ void guimain_dialog_init( int show ){
 	IupSetAttributeHandle(lbl_backsun,"IMAGE",himg_sunback);
 	IupSetAttribute(lbl_backsun,"CX","0");
 	IupSetAttribute(lbl_backsun,"CY","0");
-	IupSetAttribute(lbl_backsun,"ZORDER","BOTTOM");
 	lbl_sun = IupLabel(NULL);
 	IupSetAttributeHandle(lbl_sun,"IMAGE",himg_sun);
 	IupSetfAttribute(lbl_sun,"CX","%d",0);
 	IupSetfAttribute(lbl_sun,"CY","%d",0);
 	vbox_sun = IupCbox(
-			lbl_sun,
 			lbl_backsun,
+			lbl_sun,
 			NULL);
 	// Create frame containing the sun control
 	framesun = IupFrame(IupVbox(vbox_sun,IupFill(),NULL));

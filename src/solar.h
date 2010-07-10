@@ -30,6 +30,9 @@
 #define SOLAR_CIVIL_TWILIGHT_ELEV    -6.0f
 #define SOLAR_DAYTIME_ELEV           (0.0f - SOLAR_ATM_REFRAC)
 
+#define RAD(x)  ((x)*(M_PI/180))
+#define DEG(x)  ((x)*(180/M_PI))
+
 typedef enum {
 	SOLAR_TIME_NOON = 0,
 	SOLAR_TIME_MIDNIGHT,

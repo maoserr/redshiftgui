@@ -60,6 +60,7 @@ static char *_download2buffer(char url[]){
 	}
 }
 
+// Use hostip.info to look up lat/lon
 int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 	char url[]="http://api.hostip.info/get_html.php?position=true";
 	char *result;
@@ -76,7 +77,7 @@ int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 	LOG(LOGVERBOSE,_("Download content:\n %s"),result);
 
 	if( (searchind=strstr(result, "City: ")) ){
-		char *begin = searchind+6;
+		char *begin = searchind+strlen("City: ");
 		char *end = strchr(begin,'\n');
 		if( end ){
 			int length = end-begin;
@@ -102,9 +103,56 @@ int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 	return RET_FUN_SUCCESS;
 }
 
-int location_address_lookup(char address[]){
+// Use address input to look up lat/lon (probably could use an XML parser
+//		if this gets any more complicated)
+int location_address_lookup(char *address,float *lat,float *lon,
+		char *city,int bsize){
+	char baseurl[]=
+		"http://maps.google.com/maps/api/geocode/xml?sensor=false&address=";
+	char *url = malloc((strlen(baseurl)+strlen(address)+1)*sizeof(char));
+	char *result;
+	char *searchind=NULL;
 
-	return RET_FUN_FAILED;
+	strcpy(url,baseurl);
+	strcpy(url+strlen(baseurl),address);
+	LOG(LOGVERBOSE,_("Created url: %s"),url);
+
+	*lat = 0.0f;
+	*lon = 0.0f;
+	strcpy(city,"(Error)");
+
+	result = _download2buffer(url);
+	free(url);
+	if( !result ){
+		LOG(LOGERR,_("Error during address search"));
+		return RET_FUN_FAILED;
+	}
+	LOG(LOGVERBOSE,_("Downloaded content:\n %s"),result);
+	if( (searchind=strstr(result,"<formatted_address>")) ){
+		char *begin = searchind+strlen("<formatted_address>");
+		char *end = strchr(begin,'<');
+		if( end ){
+			int length = end-begin;
+			strncpy(city,begin,length);
+			city[length]='\0';
+		}else{
+			LOG(LOGWARN,_("Could not parse city name."));
+			return RET_FUN_FAILED;
+		}
+	}else{
+		LOG(LOGWARN,_("Could not parse city name."));
+		return RET_FUN_FAILED;
+	}
+
+	if( (searchind=strstr(result,"<lat>")) )
+		*lat = atof(searchind+strlen("<lat>"));
+
+	if( (searchind=strstr(result,"<lng>")) )
+		*lon = atof(searchind+strlen("<lng>"));
+
+	if(result)
+		free(result);
+	return RET_FUN_SUCCESS;
 }
 
 int location_init(void){

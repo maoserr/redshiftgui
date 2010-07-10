@@ -16,6 +16,7 @@ static int _gamma_transition(Ihandle *ih){
 	if( curr_temp > target_temp ){
 		curr_temp -= transpeed/10;
 		if( curr_temp < target_temp ){
+			curr_temp += transpeed/10;
 			IupSetAttribute(timer_gamma_transition,"RUN","NO");
 			IupSetAttribute(timer_gamma_check,"RUN","YES");
 			return IUP_DEFAULT;
@@ -23,6 +24,7 @@ static int _gamma_transition(Ihandle *ih){
 	}else{
 		curr_temp += transpeed/10;
 		if( curr_temp > target_temp ){
+			curr_temp -= transpeed/10;
 			IupSetAttribute(timer_gamma_transition,"RUN","NO");
 			IupSetAttribute(timer_gamma_check,"RUN","YES");
 			return IUP_DEFAULT;
@@ -55,7 +57,7 @@ int guigamma_check(Ihandle *ih){
 			opt_get_temp_day(),opt_get_temp_night());
 	LOG(LOGINFO,_("Gamma check, current: %d, target: %d"),
 			curr_temp,target_temp);
-	if( fabs(curr_temp - target_temp) > 100 ){
+	if( fabs(curr_temp - target_temp) >= 100 ){
 		// Disable current timer
 		IupSetAttribute(timer_gamma_check,"RUN","NO");
 		IupSetAttribute(timer_gamma_transition,"RUN","YES");
@@ -68,9 +70,9 @@ int guigamma_check(Ihandle *ih){
 void guigamma_init_timers(void){
 	transpeed = opt_get_trans_speed();
 
-	// Re-check every 20 minutes
+	// Re-check every 5 minutes
 	timer_gamma_check = IupTimer();
-	IupSetfAttribute(timer_gamma_check,"TIME","%d",1000*60*20);
+	IupSetfAttribute(timer_gamma_check,"TIME","%d",1000*60*5);
 	IupSetCallback(timer_gamma_check,"ACTION_CB",(Icallback)guigamma_check);
 
 	// Transition step size is 100 ms

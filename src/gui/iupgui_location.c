@@ -8,9 +8,15 @@
 static Ihandle *dialog_location=NULL;
 static Ihandle *list_method=NULL;
 static Ihandle *lbl_status=NULL;
+static Ihandle *vbox_method=NULL;
 static Ihandle *edt_lat=NULL;
 static Ihandle *edt_lon=NULL;
 static Ihandle *run_task=NULL;
+
+// Extra controls not always visible
+static Ihandle *edt_address=NULL;
+static Ihandle *btn_address=NULL;
+static Ihandle *hbox_address=NULL;
 
 // Runs geocode hostip callback
 static int _run_geocode(Ihandle *ih){
@@ -33,6 +39,39 @@ static int _run_geocode(Ihandle *ih){
 	return IUP_DEFAULT;
 }
 
+// Clears address on focus
+static int _address_clear(Ihandle *ih){
+	IupSetAttribute(edt_address,"VALUE","");
+	return IUP_DEFAULT;
+}
+
+// Address lookup function
+static int _address_lookup(Ihandle *ih){
+	char *result = IupGetAttribute(edt_address,"VALUE");
+	float lat,lon;
+	char city[100];
+
+	IupSetAttribute(list_method,"VISIBLE","YES");
+	IupSetAttribute(list_method,"VALUE","0");
+	IupSetAttribute(lbl_status,"VALUE","");
+	IupSetfAttribute(lbl_status,"APPEND",
+		_("Downloading info, this may be slow..."));
+	if(!location_address_lookup(result,&lat,&lon,city,100)){
+		IupSetAttribute(lbl_status,"APPEND",_("Unable to download data"));
+		return IUP_DEFAULT;
+	}
+	
+	IupSetfAttribute(lbl_status,"APPEND",_("city: %s"),city);
+	IupSetfAttribute(lbl_status,"APPEND",_("lat/lon: %.2f,%.2f"),lat,lon);
+	IupSetfAttribute(edt_lat,"VALUE","%f",lat);
+	IupSetfAttribute(edt_lon,"VALUE","%f",lon);
+
+	IupDestroy(hbox_address);
+	hbox_address = btn_address = edt_address = NULL;
+	IupRefresh(dialog_location);
+	return IUP_DEFAULT;
+}
+
 // List method changes
 static int _list_method_cb(Ihandle *ih,
 		char *text, int pos, int state){
@@ -51,9 +90,17 @@ static int _list_method_cb(Ihandle *ih,
 			IupSetAttribute(list_method,"VISIBLE","NO");
 		break;
 		case 2:{
-			char buffer[100]="Test";
-			LOG(LOGVERBOSE,_("Retrieving address..."));
-			IupGetText(_("Input address/zip:"),buffer);
+			edt_address = IupSetAtt(NULL,IupText(NULL),
+					"VALUE","Enter Address...",
+					"EXPAND","YES",NULL);
+			IupSetCallback(edt_address,"GETFOCUS_CB",(Icallback)_address_clear);
+			btn_address = IupSetAtt(NULL,IupButton(_("Lookup"),NULL),NULL);
+			IupSetCallback(btn_address,"ACTION",(Icallback)_address_lookup);
+			hbox_address = IupHbox(edt_address,btn_address,NULL);
+			IupInsert(vbox_method,lbl_status,hbox_address);
+			IupSetAttribute(list_method,"VISIBLE","NO");
+			IupMap(hbox_address);
+			IupRefresh(hbox_address);
 		break;
 		}
 	};
@@ -79,8 +126,7 @@ static int _location_save(Ihandle *ih){
 
 // Creates location dialog
 static void _location_create(void){
-	Ihandle *vbox_method,
-			*frame_method,
+	Ihandle *frame_method,
 
 			*lbl_lat,
 			*lbl_lon,
@@ -151,7 +197,7 @@ static void _location_create(void){
 
 	dialog_location = IupDialog(vbox_all);
 	IupSetAttribute(dialog_location,"TITLE",_("Location"));
-	IupSetAttribute(dialog_location,"SIZE","200x");
+	IupSetAttribute(dialog_location,"SIZE","200x150");
 	IupSetAttributeHandle(dialog_location,"ICON",himg_redshift);
 }
 

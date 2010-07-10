@@ -26,9 +26,6 @@
 #include "solar.h"
 #include "time.h"
 
-#define RAD(x)  ((x)*(M_PI/180))
-#define DEG(x)  ((x)*(180/M_PI))
-
 #ifdef _MSC_VER
 double copysign(double x, double y){
 	double temp;
