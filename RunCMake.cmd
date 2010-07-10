@@ -1,8 +1,6 @@
 @echo off
 setlocal
 
-set basedir=%~dp0
-cmake -H"%basedir%" -B"%basedir%buildWin32"
-
+cmake -H"." -B"%~dp0buildWin32"
 
 endlocal

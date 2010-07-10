@@ -27,7 +27,8 @@ static void _load_icons(void){
 			&w,&h,&n,0);
 	LOG(LOGVERBOSE,_("Main icon size: %dx%dx%d"),w,h,n);
 	himg_redshift = IupImageRGBA(w,h,img);
-	IupSetAttributeHandle(NULL,"ICON",himg_redshift);
+	IupSetHandle("MAIN_ICON",himg_redshift);
+	IupSetAttribute(NULL,"ICON","MAIN_ICON");
 	stbi_image_free(img);
 
 	img = stbi_load_from_memory(

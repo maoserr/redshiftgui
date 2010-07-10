@@ -8,12 +8,12 @@
 #ifdef _WIN32
 # define WINVER  0x0500
 # define WIN32_LEAN_AND_MEAN
+# ifdef _MSC_VER
+#  define _USE_MATH_DEFINES
+#  define _CRT_SECURE_NO_WARNINGS
+#  define snprintf sprintf_s
+# endif
 # include <windows.h>
-#endif
-
-#ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#define snprintf sprintf_s
 #endif
 
 #include <stdio.h>

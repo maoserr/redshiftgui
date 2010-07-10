@@ -93,10 +93,10 @@ int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 	}
 
 	if( (searchind=strstr(result, "Latitude: ")) )
-		*lat = atof(searchind+10);
+		*lat = (float)atof(searchind+10);
 
 	if( (searchind=strstr(result, "Longitude: ")) )
-		*lon = atof(searchind+11);
+		*lon = (float)atof(searchind+11);
 
 	if(result)
 		free(result);
@@ -145,10 +145,10 @@ int location_address_lookup(char *address,float *lat,float *lon,
 	}
 
 	if( (searchind=strstr(result,"<lat>")) )
-		*lat = atof(searchind+strlen("<lat>"));
+		*lat = (float)atof(searchind+strlen("<lat>"));
 
 	if( (searchind=strstr(result,"<lng>")) )
-		*lon = atof(searchind+strlen("<lng>"));
+		*lon = (float)atof(searchind+strlen("<lng>"));
 
 	if(result)
 		free(result);

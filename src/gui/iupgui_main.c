@@ -104,8 +104,8 @@ void guimain_update_info(void){
 		/* Current angular elevation of the sun */
 		elevation = solar_elevation(now,lat,lon);
 		elevation_next = solar_elevation(now+100,lat,lon);
-		x = cos(RAD(elevation))*(dim_back_w/2-dim_sun_w)+dim_back_w/2;
-		y = sin(RAD(elevation))*(dim_back_h/2-dim_sun_h)+dim_back_h/2;
+		x = cos(RAD(elevation))*(double)(dim_back_w/2-dim_sun_w)+dim_back_w/2;
+		y = sin(RAD(elevation))*(double)(dim_back_h/2-dim_sun_h)+dim_back_h/2;
 			//		if( elevation_next
 		IupSetfAttribute(lbl_sun,"CX","%d",x);
 		IupSetfAttribute(lbl_sun,"CY","%d",y);
