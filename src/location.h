@@ -13,7 +13,7 @@ typedef enum{
 } loc_method_t;
 
 /**\brief Geocode from www.hostip.info*/
-int location_geocode_hostip(void);
+int location_geocode_hostip(float *lat,float *lon,char *city,int bsize);
 
 /**\brief Initialize location lookup*/
 int location_init(void);

@@ -2,5 +2,5 @@
 
 fullname=`readlink -f $0`
 basedir=`dirname "$fullname"`
-cmake-gui -H"$basedir" -B"$basedir/buildLinux32"
+cmake -H"$basedir" -B"$basedir/build`uname``uname -m`"
 

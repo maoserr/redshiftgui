@@ -71,11 +71,8 @@ static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
 							NULL);
 					IupMap(menu_tray);
 				}
-#ifdef _WIN32
 				IupPopup(menu_tray,IUP_MOUSEPOS,IUP_MOUSEPOS);
-#else	// Need a workaround on GTK2 because MOUSEPOS doesn't seem to work
-				IupPopup(menu_tray,IUP_MOUSEPOS,IUP_CENTER);
-#endif
+				// Need a workaround on GTK2 because MOUSEPOS doesn't seem to work on lower bar
 				IupDestroy(menu_tray);
 				menu_tray = NULL;
 			}
