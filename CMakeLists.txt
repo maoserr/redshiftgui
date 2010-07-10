@@ -110,12 +110,12 @@ if(ENABLE_GTK)
 	find_package(GTK2 2.10 REQUIRED gtk)
 	cmake_policy(POP)
 elseif(ENABLE_IUP)
-	if(UNIX AND NOT APPLE)
+	if(UNIX)
 		cmake_policy(SET CMP0011 OLD)
 		cmake_policy(PUSH)
 		find_package(GTK2 2.10 REQUIRED gtk)
 		cmake_policy(POP)
-	endif(UNIX AND NOT APPLE)
+	endif(UNIX)
 
 	set(IUP_FIND_STATIC TRUE)
 	find_package(IUP)
@@ -158,6 +158,9 @@ if(WIN32)
 	set(RSG_LIBS ${RSG_LIBS} wsock32.lib ws2_32.lib Wldap32.lib)
 endif(WIN32)
 
+# Remove duplicate entries
+list(REMOVE_DUPLICATES RSG_INCLUDES)
+list(REMOVE_DUPLICATES RSG_LIBS)
 set(RSG_INCLUDE_DIRS ${RSG_INCLUDES} CACHE STRING "Redshift GUI includes")
 set(RSG_LIBRARIES ${RSG_LIBS} CACHE STRING "Redshift GUI libs")
 foreach(_inc ${RSG_INCLUDES})
@@ -217,3 +220,27 @@ set_target_properties(RSGBIN PROPERTIES
 	OUTPUT_NAME_DEBUG			${APP_NAME}_debug
 	RUNTIME_OUTPUT_DIRECTORY	${RSG_OUT_DIR})
 
+# Installation rules
+if(UNIX)
+	install(TARGETS RSGBIN DESTINATION bin)
+	install(DIRECTORY 
+		${PROJECT_SOURCE_DIR}/data/applications
+		${PROJECT_SOURCE_DIR}/data/icons
+		DESTINATION share)
+	set(CPACK_GENERATOR TGZ)
+elseif(WIN32)
+	install(TARGETS RSGBIN DESTINATION .)
+endif(UNIX)
+
+set(CPACK_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
+set(CPACK_PACKAGE_NAME "RedshiftGUI")
+set(CPACK_PACKAGE_VENDOR "Mao Yu")
+set(CPACK_PACKAGE_CONTACT "Mao Yu [maoserr@gmail.com]")
+set(CPACK_PACKAGE_VERSION_MAJOR ${RSG_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${RSG_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${RSG_VERSION_PATCH})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+	"Redshift GUI is a color temperature adjustment tool")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "RedshiftGUI")
+
+INCLUDE(CPack)

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "iup.h"
 #include "options.h"
-#include "gamma.h"
 #include "iupgui_main.h"
 #include "iupgui_gamma.h"
 #include "iupgui_settings.h"
@@ -21,7 +20,7 @@ static int _val_day_changed(Ihandle *ih){
 	int val = IupGetInt(ih,"VALUE");
 	int rounded = 100*((int)(val/100.0f));
 	IupSetfAttribute(label_day,"TITLE","%d° K",rounded);
-	gamma_state_set_temperature(opt_get_method(),rounded,opt_get_gamma());
+	guigamma_set_temp(rounded);
 	return IUP_DEFAULT;
 }
 
@@ -30,7 +29,7 @@ static int _val_night_changed(Ihandle *ih){
 	int val = IupGetInt(ih,"VALUE");
 	int rounded = 100*((int)(val/100.0f));
 	IupSetfAttribute(label_night,"TITLE","%d° K",rounded);
-	gamma_state_set_temperature(opt_get_method(),rounded,opt_get_gamma());
+	guigamma_set_temp(rounded);
 	return IUP_DEFAULT;
 }
 
@@ -116,7 +115,7 @@ static void _settings_create(void){
 	// Method selection
 	listmethod = IupList(NULL);
 	IupSetAttribute(listmethod,"DROPDOWN","YES");
-	IupSetAttribute(listmethod,"EXPAND","YES");
+	IupSetAttribute(listmethod,"EXPAND","HORIZONTAL");
 #ifdef ENABLE_RANDR
 	snprintf(list_count,3,"%d",++methods);
 	IupSetAttribute(listmethod,list_count,_("RANDR"));
@@ -145,7 +144,7 @@ static void _settings_create(void){
 	label_day = IupLabel(NULL);
 	IupSetfAttribute(label_day,"TITLE",_("%d° K"),opt_get_temp_day());
 	val_day = IupVal(NULL);
-	IupSetAttribute(val_day,"EXPAND","YES");
+	IupSetAttribute(val_day,"EXPAND","HORIZONTAL");
 	IupSetfAttribute(val_day,"MIN","%d",MIN_TEMP);
 	IupSetfAttribute(val_day,"MAX","%d",MAX_TEMP);
 	IupSetfAttribute(val_day,"VALUE","%d",opt_get_temp_day());
@@ -162,7 +161,7 @@ static void _settings_create(void){
 	label_night = IupLabel(NULL);
 	IupSetfAttribute(label_night,"TITLE",_("%d° K"),opt_get_temp_night());
 	val_night = IupVal(NULL);
-	IupSetAttribute(val_night,"EXPAND","YES");
+	IupSetAttribute(val_night,"EXPAND","HORIZONTAL");
 	IupSetfAttribute(val_night,"MIN","%d",MIN_TEMP);
 	IupSetfAttribute(val_night,"MAX","%d",MAX_TEMP);
 	IupSetfAttribute(val_night,"VALUE","%d",opt_get_temp_night());
@@ -179,7 +178,7 @@ static void _settings_create(void){
 	label_transpeed = IupLabel(NULL);
 	IupSetfAttribute(label_transpeed,"TITLE",_("%d° K/s"),opt_get_trans_speed());
 	val_transpeed = IupVal(NULL);
-	IupSetAttribute(val_transpeed,"EXPAND","YES");
+	IupSetAttribute(val_transpeed,"EXPAND","HORIZONTAL");
 	IupSetfAttribute(val_transpeed,"MIN","%d",MIN_SPEED);
 	IupSetfAttribute(val_transpeed,"MAX","%d",MAX_SPEED);
 	IupSetfAttribute(val_transpeed,"VALUE","%d",opt_get_trans_speed());
@@ -210,6 +209,7 @@ static void _settings_create(void){
 			frame_day,
 			frame_night,
 			frame_speed,
+			IupFill(),
 			hbox_buttons,
 			NULL);
 	IupSetfAttribute(vbox_all,"NMARGIN","%dx%d",5,5);

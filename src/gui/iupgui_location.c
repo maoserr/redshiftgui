@@ -92,7 +92,7 @@ static int _list_method_cb(Ihandle *ih,
 		case 2:{
 			edt_address = IupSetAtt(NULL,IupText(NULL),
 					"VALUE","Enter Address...",
-					"EXPAND","YES",NULL);
+					"EXPAND","HORIZONTAL",NULL);
 			IupSetCallback(edt_address,"GETFOCUS_CB",(Icallback)_address_clear);
 			btn_address = IupSetAtt(NULL,IupButton(_("Lookup"),NULL),NULL);
 			IupSetCallback(btn_address,"ACTION",(Icallback)_address_lookup);
@@ -130,8 +130,6 @@ static void _location_create(void){
 
 			*lbl_lat,
 			*lbl_lon,
-			*vbox_loc_titles,
-			*vbox_loc_values,
 			*hbox_loc,
 			*frame_loc,
 			*button_cancel,
@@ -144,7 +142,7 @@ static void _location_create(void){
 	list_method = IupSetAtt(NULL,IupList(NULL),"DROPDOWN","YES",
 		"1",_("Lookup by IP (hostip.info)"),
 		"2",_("Lookup by Address/Zip"),
-		"EXPAND","YES",NULL);
+		"EXPAND","HORIZONTAL",NULL);
 	IupSetCallback(list_method,"ACTION",(Icallback)_list_method_cb);
 	lbl_status = IupSetAtt(NULL,IupText(NULL),"EXPAND","YES",
 			"READONLY","YES",
@@ -159,19 +157,18 @@ static void _location_create(void){
 	IupSetAttribute(frame_method,"TITLE",_("Method"));
 
 	// Location input/display
-	lbl_lat = IupSetAtt(NULL,IupLabel(_("Latitude:")),"EXPAND","YES",NULL);
-	lbl_lon = IupSetAtt(NULL,IupLabel(_("Longitude:")),"EXPAND","YES",NULL);
-	vbox_loc_titles = IupVbox(lbl_lat,lbl_lon,NULL);
-	IupSetAttribute(vbox_loc_titles,"EXPAND","YES");
-	edt_lat = IupSetAtt(NULL,IupText(NULL),"EXPAND","YES",
+	lbl_lat = IupSetAtt(NULL,IupLabel(_("Latitude:")),NULL);
+	lbl_lon = IupSetAtt(NULL,IupLabel(_("Longitude:")),NULL);
+	edt_lat = IupSetAtt(NULL,IupText(NULL),
 			NULL);
-	edt_lon = IupSetAtt(NULL,IupText(NULL),"EXPAND","YES",
+	edt_lon = IupSetAtt(NULL,IupText(NULL),
 			NULL);
 	IupSetfAttribute(edt_lat,"VALUE","%.2f",opt_get_lat());
 	IupSetfAttribute(edt_lon,"VALUE","%.2f",opt_get_lon());
-	vbox_loc_values = IupVbox(edt_lat,edt_lon,NULL);
-	hbox_loc = IupHbox(vbox_loc_titles,vbox_loc_values,NULL);
+	hbox_loc = IupHbox(lbl_lat,edt_lat,IupFill(),
+			lbl_lon,edt_lon,NULL);
 	IupSetAttribute(hbox_loc,"MARGIN","5");
+	IupSetAttribute(hbox_loc,"ALIGNMENT","ACENTER");
 	frame_loc = IupFrame(hbox_loc);
 	IupSetAttribute(frame_loc,"TITLE",_("Location"));
 	

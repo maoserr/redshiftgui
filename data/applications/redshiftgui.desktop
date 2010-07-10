@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=0.1
+Name=Redshift GUI
+GenericName=Color temperature adjustment
+Comment=Color temperature adjustment tool
+Exec=redshiftgui
+Icon=redshiftgui
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true

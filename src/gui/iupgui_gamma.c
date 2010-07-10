@@ -10,6 +10,7 @@ static Ihandle *timer_gamma_transition=NULL;
 static int curr_temp=1000;
 static int target_temp=1000;
 static int transpeed;
+static int timers_disabled = 0;
 
 // Changes temperature
 static int _gamma_transition(Ihandle *ih){
@@ -47,9 +48,19 @@ int guigamma_get_temp(void){
 	return curr_temp;
 }
 
+// Sets the current temperature in GUI
+int guigamma_set_temp(int temp){
+	gamma_state_set_temperature(opt_get_method(),temp,opt_get_gamma());
+	curr_temp = temp;
+	return RET_FUN_SUCCESS;
+}
+
 // Check if temperature needs to be corrected
 int guigamma_check(Ihandle *ih){
 	gamma_method_t method=opt_get_method();
+
+	if( timers_disabled )
+		return IUP_DEFAULT;
 
 	curr_temp = gamma_state_get_temperature(method);
 	target_temp = gamma_calc_curr_target_temp(
@@ -64,6 +75,19 @@ int guigamma_check(Ihandle *ih){
 	}
 	guimain_update_info();
 	return IUP_DEFAULT;
+}
+
+// Disables gamma timers and checking
+void guigamma_disable(void){
+	IupSetAttribute(timer_gamma_check,"RUN","NO");
+	IupSetAttribute(timer_gamma_transition,"RUN","NO");
+	timers_disabled = 1;
+}
+
+// Enables gamma timers
+void guigamma_enable(void){
+	IupSetAttribute(timer_gamma_check,"RUN","YES");
+	timers_disabled = 0;
 }
 
 // Initialize timer to run gamma correction

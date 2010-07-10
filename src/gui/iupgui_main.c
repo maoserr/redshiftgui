@@ -3,6 +3,7 @@
 #include "systemtime.h"
 #include "solar.h"
 #include "options.h"
+#include "iupgui_main.h"
 #include "iupgui_settings.h"
 #include "iupgui_location.h"
 #include "iupgui_gamma.h"
@@ -11,6 +12,9 @@
 static Ihandle *dialog=NULL;
 static Ihandle *infotitle[4]={NULL,NULL,NULL,NULL};
 static Ihandle *infovals[4]={NULL,NULL,NULL,NULL};
+static Ihandle *lbl_elevation=NULL;
+static Ihandle *chk_manual=NULL;
+static Ihandle *val_manual=NULL;
 static Ihandle *lbl_sun=NULL;
 
 // exit status
@@ -32,11 +36,36 @@ static int _show_about(Ihandle *ih){
 	Ihandle *dialog_about = IupSetAtt(NULL,IupMessageDlg(),
 			"TITLE",_("About Redshift GUI"),
 			"VALUE",
-			_("Redshift GUI is based on Redshift by Jon Lund Steffensen\n"
+			_("Written by Mao Yu\n"
+				"Redshift GUI is based on Redshift by Jon Lund Steffensen\n"
 				"This program uses IUP and libcURL\n"
 				"Licensed under the GPL license"),NULL);
 	IupPopup(dialog_about,IUP_CENTER,IUP_CENTER);
 	IupDestroy(dialog_about);
+	return IUP_DEFAULT;
+}
+
+// Toggles manual override
+static int _toggle_manual(Ihandle *ih, int state){
+	if( state ){
+		guigamma_disable();
+		IupSetAttribute(val_manual,"VISIBLE","YES");
+		IupSetfAttribute(val_manual,"VALUE","%d",guigamma_get_temp());
+	}else{
+		guigamma_enable();
+		guigamma_check(ih);
+		IupSetAttribute(val_manual,"VISIBLE","OFF");
+	}
+	return IUP_DEFAULT;
+}
+
+// Change temperature manually
+static int _manual_temp(Ihandle *ih){
+	int val = IupGetInt(ih,"VALUE");
+	int rounded = 100*((int)(val/100.0f));
+	LOG(LOGVERBOSE,_("Setting manual temperature: %d"),rounded);
+	guigamma_set_temp(rounded);
+	guimain_update_info();
 	return IUP_DEFAULT;
 }
 
@@ -97,19 +126,31 @@ void guimain_update_info(void){
 	if ( !systemtime_get_time(&now) ){
 		LOG(LOGERR,_("Unable to read system time."));
 	}else{
-		int x,y;
+		float sunx,suny,x,y;
 		float lat=opt_get_lat();
 		float lon=opt_get_lon();
 		double elevation, elevation_next;
 		/* Current angular elevation of the sun */
 		elevation = solar_elevation(now,lat,lon);
 		elevation_next = solar_elevation(now+100,lat,lon);
-		x = cos(RAD(elevation))*(double)(dim_back_w/2-dim_sun_w)+dim_back_w/2;
-		y = sin(RAD(elevation))*(double)(dim_back_h/2-dim_sun_h)+dim_back_h/2;
-			//		if( elevation_next
-		IupSetfAttribute(lbl_sun,"CX","%d",x);
-		IupSetfAttribute(lbl_sun,"CY","%d",y);
+		LOG(LOGVERBOSE,_("Elevation - now: %f, next: %f"),
+				elevation,elevation_next);
+		LOG(LOGVERBOSE,_("Backdrop dims: %dx%d, sun dims: %dx%d"),
+				dim_back_w,dim_back_h,dim_sun_w,dim_sun_h);
+		/* Position of center of sun relative to (0,0) */
+		sunx = cos(RAD(elevation))*(double)(dim_back_w/2-dim_sun_w/2);
+		suny = -sin(RAD(elevation))*(double)(dim_back_h/2-dim_sun_h/2);
+		if( elevation_next > elevation )
+			// Sun is rising
+			sunx = -sunx;
+		/* Offset sun image by center of background and dimension of image */
+		x = (dim_back_w/2)+sunx-dim_sun_w/2;
+		y = (dim_back_h/2)+suny-dim_sun_h/2;
+		LOG(LOGVERBOSE,_("Sun coords: %.2fx%.2f"),x,y);
+		IupSetfAttribute(lbl_sun,"CX","%d",(int)x);
+		IupSetfAttribute(lbl_sun,"CY","%d",(int)y);
 		IupSetAttribute(lbl_sun,"ZORDER","TOP");
+		IupSetfAttribute(lbl_elevation,"TITLE",_("Elevation: %.1f°"),elevation);
 	}
 
 	IupSetfAttribute(infovals[0],"TITLE",_("%d° K"),guigamma_get_temp());
@@ -137,6 +178,8 @@ void guimain_dialog_init( int show ){
 			*fvboxtitle,
 			*fvboxinfo,
 			*frameinfo,
+			*vbox_manual,
+			*framemanual,
 			*dhbox,
 			*dvbox;
 	extern Ihandle *himg_redshift,*himg_sunback,*himg_sun;
@@ -179,8 +222,9 @@ void guimain_dialog_init( int show ){
 			lbl_backsun,
 			lbl_sun,
 			NULL);
+	lbl_elevation = IupLabel(_("Elevation: 0"));
 	// Create frame containing the sun control
-	framesun = IupFrame(IupVbox(vbox_sun,IupFill(),NULL));
+	framesun = IupFrame(IupVbox(vbox_sun,IupFill(),lbl_elevation,NULL));
 	IupSetAttribute(framesun,"TITLE",_("Sun elevation"));
 
 	// Info display
@@ -213,8 +257,20 @@ void guimain_dialog_init( int show ){
 			IupHbox(fvboxtitle,fvboxinfo,NULL));
 	IupSetAttribute(frameinfo,"TITLE",_("Status"));
 
+	// Manual override
+	chk_manual = IupSetAtt(NULL,IupToggle(_("Disable auto-adjust"),NULL)
+		,"EXPAND","YES",NULL);
+	IupSetCallback(chk_manual,"ACTION",(Icallback)_toggle_manual);
+	val_manual = IupSetAtt(NULL,IupVal(NULL),"MIN","3400","MAX","7000",
+		"VISIBLE","NO","EXPAND","HORIZONTAL",NULL);
+	IupSetCallback(val_manual,"VALUECHANGED_CB",(Icallback)_manual_temp);
+	vbox_manual = IupVbox(chk_manual,val_manual,NULL);
+	framemanual = IupFrame(vbox_manual);
+	IupSetAttribute(framemanual,"TITLE",_("Manual"));
+
 	// Layout box for sun and info
-	dhbox = IupHbox(framesun,IupFill(),frameinfo,NULL);
+	dhbox = IupHbox(framesun,IupFill(),
+		IupVbox(frameinfo,framemanual,NULL),NULL);
 
 	// Main layout box
 	dvbox = IupVbox(

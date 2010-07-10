@@ -6,6 +6,15 @@
 /**\brief Returns current temperature value as known by GUI */
 int guigamma_get_temp(void);
 
+/**\brief Sets the current temperature in GUI mode */
+int guigamma_set_temp(int temp);
+
+/**\brief Disables gamma timers */
+void guigamma_disable(void);
+
+/**\brief Enables gamma timers */
+void guigamma_enable(void);
+
 /**\brief Initializes timers to change gamma */
 void guigamma_init_timers(void);
 
