@@ -14,7 +14,7 @@ find_path(IUP_INCLUDE_DIR iup.h
 	HINTS ${_search_path_inc})
 if(IUP_FIND_STATIC AND UNIX)
 	set(CURR_COMP libiup.a)
-elseif(IUP_FIND_STATIC AND UNIX)
+else(IUP_FIND_STATIC AND UNIX)
 	set(CURR_COMP iup)
 endif(IUP_FIND_STATIC AND UNIX)
 find_library(IUP_MAIN_LIB ${CURR_COMP}
@@ -34,10 +34,6 @@ foreach(COMPONENT ${IUP_FIND_COMPONENTS})
 		${IUP_LIBRARIES_${COMPONENT}})
 	mark_as_advanced(IUP_LIBRARIES_${COMPONENT})
 endforeach(COMPONENT ${IUP_FIND_COMPONENTS})
-
-if(WIN32)
-	set(IUP_LIBRARIES ${IUP_LIBRARIES} comctl32)
-endif(WIN32)
 
 mark_as_advanced(IUP_INCLUDE_DIR)
 mark_as_advanced(IUP_MAIN_LIB)

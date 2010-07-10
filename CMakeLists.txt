@@ -155,7 +155,7 @@ find_package(CURL)
 set(RSG_INCLUDES ${RSG_INCLUDES} ${CURL_INCLUDE_DIRS})
 set(RSG_LIBS ${RSG_LIBS} ${CURL_LIBRARIES})
 if(WIN32)
-	set(RSG_LIBS ${RSG_LIBS} wsock32.lib ws2_32.lib Wldap32.lib)
+	set(RSG_LIBS ${RSG_LIBS} comctl32.lib wsock32.lib ws2_32.lib Wldap32.lib)
 endif(WIN32)
 
 # Remove duplicate entries
@@ -230,6 +230,12 @@ if(UNIX)
 	set(CPACK_GENERATOR TGZ)
 elseif(WIN32)
 	install(TARGETS RSGBIN DESTINATION .)
+	set(CPACK_GENERATOR NSIS ZIP)
+	set(CPACK_PACKAGE_EXECUTABLES "" "")
+	set(CPACK_NSIS_MENU_LINKS
+		"redshiftgui.exe" "RedshiftGUI"
+		"http://www.mao-yu.com" "Mao Yu's Homepage")
+	set(CPACK_NSIS_WELCOME_BITMAP "${PROJECT_SOURCE_DIR}/data\\\\NSIS_Welcome.bmp")
 endif(UNIX)
 
 set(CPACK_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
@@ -242,5 +248,6 @@ set(CPACK_PACKAGE_VERSION_PATCH ${RSG_VERSION_PATCH})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
 	"Redshift GUI is a color temperature adjustment tool")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "RedshiftGUI")
+set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
 
 INCLUDE(CPack)
