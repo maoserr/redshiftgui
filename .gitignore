@@ -3,5 +3,7 @@
 build*
 src/tags
 src/Doxyfile
+src/win32/*.manifest
+src/win32/*.rc
 docs/htmldoc
 
