@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
 <assemblyIdentity
-    version="3.0.0.0"
+    version="0.@RSG_VERSION@"
     processorArchitecture="amd64"
-    name="redshiftgui"
+    name="@APP_NAME@"
     type="win32"
 />
-<description>Redshift GUI</description>
+<description>@RSG_DESC@</description>
 <dependency>
     <dependentAssembly>
         <assemblyIdentity

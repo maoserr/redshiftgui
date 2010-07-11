@@ -1,21 +1,21 @@
 TECGRAF_ICON ICON "app.ico"
 
 1 VERSIONINFO
- FILEVERSION 0,0,1,0
- PRODUCTVERSION 0,0,1,0
+ FILEVERSION 0,@RSG_VERSION_MAJOR@,@RSG_VERSION_MINOR@,@RSG_VERSION_PATCH@
+ PRODUCTVERSION 0,@RSG_VERSION_MAJOR@,@RSG_VERSION_MINOR@,@RSG_VERSION_PATCH@
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "Maoserr\0"
-            VALUE "CompanyName", "Maoserr\0"
-            VALUE "FileDescription", "Redshift GUI\0"
-            VALUE "FileVersion", "0.0.1\0"
-            VALUE "LegalCopyright", "NA\0"
-            VALUE "OriginalFilename", "redshiftgui.exe\0"
-			VALUE "ProductName", "Redshift GUI\0"
-            VALUE "ProductVersion", "0.0.1\0"
+            VALUE "Comments", "@RSG_DESC@\0"
+            VALUE "CompanyName", "@RSG_AUTHOR@\0"
+            VALUE "FileDescription", "@PRO_NAME@\0"
+            VALUE "FileVersion", "@RSG_VERSION@\0"
+            VALUE "LegalCopyright", "@RSG_COPYRIGHT@\0"
+            VALUE "OriginalFilename", "@APP_NAME@.exe\0"
+			VALUE "ProductName", "@PRO_NAME@\0"
+            VALUE "ProductVersion", "@RSG_VERSION@\0"
         END
     END
 END
