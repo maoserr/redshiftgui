@@ -10,7 +10,7 @@ You'll need the following libraries to build this program:
 	- libcurl
 		- It is best build this statically on windows
 		- If you're using MSVC, make sure to use the /MT switch to build
-	- GTK2 (if you're building IUP statically)
+	- GTK2 on Linux (if you're building IUP statically)
 
 2. Building
 -----------
