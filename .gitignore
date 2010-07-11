@@ -2,5 +2,6 @@
 .bzr*
 build*
 src/tags
+src/Doxyfile
 docs/htmldoc
 

@@ -2,21 +2,29 @@
 cmake_minimum_required(VERSION 2.6)
 project("Redshift GUI")
 
+set(APP_NAME "redshiftgui")
+set(PRO_NAME "RedshiftGUI")
+
+# Project version
+set(RSG_VERSION_MAJOR 0)
+set(RSG_VERSION_MINOR 1)
+set(RSG_VERSION_PATCH 1)
+set(RSG_VERSION
+	"${RSG_VERSION_MAJOR}.${RSG_VERSION_MINOR}.${RSG_VERSION_PATCH}")
+# Project information
+set(RSG_COPYRIGHT "GPL")
+set(RSG_AUTHOR "Mao Yu")
+set(RSG_CONTACT "maoserr@gmail.com")
+set(RSG_BUGREPORT "http://github.com/maoserr/redshiftgui/issues")
+set(RSG_DESC "Monitor color temperature adjustment tool")
+
+
 # Appends ${ARGN} to ${_var} if ${_val} is defined
 macro(APPEND_IF_VAR _var _val)
 	if(${_val})
 		set(${_var} ${${_var}} ${ARGN})
 	endif(${_val})
 endmacro(APPEND_IF_VAR _var _val)
-
-set(APP_NAME "redshiftgui")
-
-# Project version
-set(RSG_VERSION_MAJOR 0)
-set(RSG_VERSION_MINOR 1)
-set(RSG_VERSION_PATCH 0)
-set(RSG_VERSION
-	"${RSG_VERSION_MAJOR}.${RSG_VERSION_MINOR}.${RSG_VERSION_PATCH}")
 
 # Project directories
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
@@ -100,6 +108,12 @@ elseif(WIN32)
 	# Resource file
 	include(AddMingwRC)
 	ADD_RC_FILE(${RSG_SRC_DIR}/win32 app.rc RSGSRC)
+	configure_file(${RSG_SRC_DIR}/win32/app.rc.in
+		${RSG_SRC_DIR}/win32/app.rc)
+	configure_file(${RSG_SRC_DIR}/win32/app.manifest.in
+		${RSG_SRC_DIR}/win32/app.manifest)
+	configure_file(${RSG_SRC_DIR}/win32/app.64.manifest.in
+		${RSG_SRC_DIR}/win32/app.64.manifest)
 endif(UNIX AND NOT APPLE)
 
 # 3rd party packages
@@ -190,8 +204,8 @@ endif(UNIX)
 # Preprocessor definitions
 unset(RSG_DEFS CACHE)
 set(RSG_DEFS ${RSG_DEFS}
-	-DPACKAGE="redshiftgui"
-	-DPACKAGE_BUGREPORT="https://bugs.launchpad.net/redshift"
+	-DPACKAGE="${APP_NAME}"
+	-DPACKAGE_BUGREPORT="${RSG_BUGREPORT}"
 	)
 CHECK_INCLUDE_FILE(libintl.h ENABLE_NLS)
 CHECK_INCLUDE_FILE(sys/signal.h HAVE_SYS_SIGNAL_H)
@@ -221,6 +235,15 @@ set_target_properties(RSGBIN PROPERTIES
 	OUTPUT_NAME_DEBUG			${APP_NAME}_debug
 	RUNTIME_OUTPUT_DIRECTORY	${RSG_OUT_DIR})
 
+# Documentation
+find_package(Doxygen COMPONENTS DOXYGEN_SKIP_DOT)
+if(DOXYGEN_FOUND)
+	configure_file(${PROJECT_SOURCE_DIR}/docs/Doxyfile.in
+		${RSG_SRC_DIR}/Doxyfile)
+	add_custom_target(docs ${DOXYGEN_EXECUTABLE}
+		WORKING_DIRECTORY ${RSG_SRC_DIR})
+endif(DOXYGEN_FOUND)
+
 # Installation rules
 if(UNIX)
 	install(TARGETS RSGBIN DESTINATION bin)
@@ -246,21 +269,24 @@ elseif(WIN32)
 	set(CPACK_GENERATOR NSIS ZIP)
 	set(CPACK_PACKAGE_EXECUTABLES "" "")
 	set(CPACK_NSIS_MENU_LINKS
-		"redshiftgui.exe" "RedshiftGUI"
+		"${APP_NAME}.exe" "${PRO_NAME}"
 		"http://www.mao-yu.com" "Mao Yu's Homepage")
 	set(CPACK_NSIS_WELCOME_BITMAP "${PROJECT_SOURCE_DIR}/data\\\\NSIS_Welcome.bmp")
 endif(UNIX)
 
 set(CPACK_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
-set(CPACK_PACKAGE_NAME "RedshiftGUI")
-set(CPACK_PACKAGE_VENDOR "Mao Yu")
-set(CPACK_PACKAGE_CONTACT "Mao Yu [maoserr@gmail.com]")
+set(CPACK_PACKAGE_NAME ${PRO_NAME})
+set(CPACK_PACKAGE_VENDOR ${RSG_AUTHOR})
+set(CPACK_PACKAGE_CONTACT "${RSG_AUTHOR} [${RSG_CONTACT}]")
 set(CPACK_PACKAGE_VERSION_MAJOR ${RSG_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${RSG_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${RSG_VERSION_PATCH})
+set(CPACK_PACKAGE_FILE_NAME
+	"${PRO_NAME}-${RSG_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-	"Redshift GUI is a color temperature adjustment tool")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "RedshiftGUI")
+	"${RSG_DESC}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${PRO_NAME})
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.txt")
 
 INCLUDE(CPack)
