@@ -151,6 +151,7 @@ void guimain_update_info(void){
 		IupSetfAttribute(lbl_sun,"CY","%d",(int)y);
 		IupSetAttribute(lbl_sun,"ZORDER","TOP");
 		IupSetfAttribute(lbl_elevation,"TITLE",_("Elevation: %.1f°"),elevation);
+		IupRefresh(lbl_sun);
 	}
 
 	IupSetfAttribute(infovals[0],"TITLE",_("%d° K"),guigamma_get_temp());
