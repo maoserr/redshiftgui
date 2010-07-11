@@ -1,21 +1,8 @@
-/* vidmode.h -- X VidMode gamma adjustment header
-   This file is part of Redshift.
-
-   Redshift is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   Redshift is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with Redshift.  If not, see <http://www.gnu.org/licenses/>.
-
-   Copyright (c) 2010  Jon Lund Steffensen <jonlst@gmail.com>
-*/
+/**\file		vidmode.h
+ * \author		Mao Yu,Jon Lund Steffensen
+ * \date		Modified: Saturday, July 10, 2010
+ * \brief		VidMode interface
+ */
 
 #ifndef _REDSHIFT_VIDMODE_H
 #define _REDSHIFT_VIDMODE_H
@@ -24,17 +11,31 @@
 #include "gamma.h"
 #include <X11/Xlib.h>
 
+/**\brief VidMode state storage */
 typedef struct {
+	/**\brief Display pointer */
 	Display *display;
+	/**\brief Screen number in use */
 	int screen_num;
+	/**\brief Size of the gamma ramps */
 	int ramp_size;
+	/**\brief Saved ramps */
 	uint16_t *saved_ramps;
 } vidmode_state_t;
 
+/**\brief Initialize VidMode */
 int vidmode_init(vidmode_state_t *state, int screen_num);
+
+/**\brief Frees VidMode state */
 void vidmode_free(vidmode_state_t *state);
+
+/**\brief Restores saved gamma ramps */
 void vidmode_restore(vidmode_state_t *state);
+
+/**\brief Sets temperature using VidMode */
 int vidmode_set_temperature(vidmode_state_t *state, int temp, gamma_s gamma);
+
+/**\brief Retrieves temperature using VidMode */
 int vidmode_get_temperature(vidmode_state_t *state);
 
 #endif /* ! _REDSHIFT_VIDMODE_H */

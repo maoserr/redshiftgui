@@ -94,10 +94,11 @@ void guigamma_enable(void){
 void guigamma_init_timers(void){
 	transpeed = opt_get_trans_speed();
 
-	// Re-check every 5 minutes
+	// Re-check every 5 minute
 	timer_gamma_check = IupTimer();
 	IupSetfAttribute(timer_gamma_check,"TIME","%d",1000*60*5);
 	IupSetCallback(timer_gamma_check,"ACTION_CB",(Icallback)guigamma_check);
+	IupSetAttribute(timer_gamma_check,"RUN","YES");
 
 	// Transition step size is 100 ms
 	timer_gamma_transition = IupTimer();

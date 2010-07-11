@@ -1,4 +1,8 @@
-/**\file		iupgui_main.h */
+/**\file		iupgui_main.h
+ * \author		Mao Yu
+ * \date		Modified: Saturday, July 10, 2010
+ * \brief		Main dialog
+ */
 
 #ifndef __IUPGUI_MAIN_H__
 #define __IUPGUI_MAIN_H__

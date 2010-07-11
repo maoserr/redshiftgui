@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <time.h>
 #include "logger.h"
 
 #define BUFSIZE 2048
@@ -175,6 +176,14 @@ LogReturn log_log(int level,
 				return LOGRET_FILE_LOG_ERR;
 		}
 		if( level<=global_inst->levelconsole ){
+			time_t rawtime;
+			struct tm *timeinfo;
+			char timebuffer[80];
+
+			time( &rawtime );
+			timeinfo = localtime( &rawtime );
+			strftime(timebuffer,80,"%I:%M %p",timeinfo);
+			printf("%s:",timebuffer);
 			if( fputs(buffer, stdout) == EOF )
 				return LOGRET_CONSOLE_LOG_ERR;
 		}

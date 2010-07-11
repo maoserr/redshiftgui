@@ -1,54 +1,51 @@
-/* solar.h -- Solar position header
-   This file is part of Redshift.
-
-   Redshift is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   Redshift is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with Redshift.  If not, see <http://www.gnu.org/licenses/>.
-
-   Copyright (c) 2010  Jon Lund Steffensen <jonlst@gmail.com>
-*/
+/**\file		solar.h
+ * \author		Mao Yu,Jon Lund Steffensen
+ * \date		Saturday, July 10, 2010
+ * \brief		Procedures to calculate solar elevation
+ */
 
 #ifndef _SOLAR_H
 #define _SOLAR_H
 
 #include "time.h"
 
-/* Model of atmospheric refraction near horizon (in degrees). */
+/**\brief Model of atmospheric refraction near horizon (in degrees). */
 #define SOLAR_ATM_REFRAC  0.833
 
+/**\brief Uh.... */
 #define SOLAR_ASTRO_TWILIGHT_ELEV   -18.0f
+/**\brief Uh.... */
 #define SOLAR_NAUT_TWILIGHT_ELEV    -12.0f
+/**\brief Uh.... */
 #define SOLAR_CIVIL_TWILIGHT_ELEV    -6.0f
+/**\brief Uh.... */
 #define SOLAR_DAYTIME_ELEV           (0.0f - SOLAR_ATM_REFRAC)
 
+/**\brief Converts degrees to radians */
 #define RAD(x)  ((x)*(M_PI/180))
+/**\brief Converts radians to degrees */
 #define DEG(x)  ((x)*(180/M_PI))
 
+/**\brief Solar times */
 typedef enum {
-	SOLAR_TIME_NOON = 0,
-	SOLAR_TIME_MIDNIGHT,
-	SOLAR_TIME_ASTRO_DAWN,
-	SOLAR_TIME_NAUT_DAWN,
-	SOLAR_TIME_CIVIL_DAWN,
-	SOLAR_TIME_SUNRISE,
-	SOLAR_TIME_SUNSET,
-	SOLAR_TIME_CIVIL_DUSK,
-	SOLAR_TIME_NAUT_DUSK,
-	SOLAR_TIME_ASTRO_DUSK,
-	SOLAR_TIME_MAX
+	SOLAR_TIME_NOON = 0,		/**< Uh... */
+	SOLAR_TIME_MIDNIGHT,		/**< Uh... */
+	SOLAR_TIME_ASTRO_DAWN,		/**< Uh... */
+	SOLAR_TIME_NAUT_DAWN,		/**< Uh... */
+	SOLAR_TIME_CIVIL_DAWN,		/**< Uh... */
+	SOLAR_TIME_SUNRISE,			/**< Uh... */
+	SOLAR_TIME_SUNSET,			/**< Uh... */
+	SOLAR_TIME_CIVIL_DUSK,		/**< Uh... */
+	SOLAR_TIME_NAUT_DUSK,		/**< Uh... */
+	SOLAR_TIME_ASTRO_DUSK,		/**< Uh... */
+	SOLAR_TIME_MAX				/**< Uh... */
 } solar_time_t;
 
 
+/**\brief Calculates solar elevation given date, latitude, and longitude */
 double solar_elevation(double date, double lat, double lon);
+
+/**\brief Solar table initialization function, no idea */
 void solar_table_fill(double date, double lat, double lon, double *table);
 
 #endif /* ! _SOLAR_H */

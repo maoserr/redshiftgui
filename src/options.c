@@ -1,8 +1,3 @@
-/**\file		options.c
- * \author		Mao Yu
- * \brief		Options.
- */
-
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -11,24 +6,37 @@
 #include "gamma.h"
 #include "options.h"
 
-/* Redshift options.*/
+/**\brief Redshift options.*/
 typedef struct{
+	/**\brief Latitude */
 	float lat;
+	/**\brief Longitude */
 	float lon;
+	/**\brief Daytime temperature */
 	int temp_day;
+	/**\brief Nighttime temperature */
 	int temp_night;
+	/**\brief Gamma changing method */
 	gamma_method_t method;
+	/**\brief Screen number */
 	int screen_num;
+	/**\brief Additional gamma adjustment */
 	gamma_s gamma;
+	/**\brief CRTC number (RANDR only) */
 	int crtc_num;
+	/**\brief Transition speed */
 	int trans_speed;
+	/**\brief Oneshot mode enabled? */
 	int one_shot;
+	/**\brief Console mode enabled? */
 	int nogui;
+	/**\brief Verbosity level */
 	int verbose;
 } rs_opts;
 
 static rs_opts Rs_opts;
 
+/* Retrieves configuration file full path */
 int opt_get_config_file(char buffer[],size_t bufsize){
 #ifndef _WIN32
 		char *home = getenv("HOME");
@@ -251,6 +259,7 @@ int opt_get_temp_night(void)
 int opt_get_verbosity(void)
 {return Rs_opts.verbose;}
 
+/* Writes the configuration file based on current state */
 void opt_write_config(void){
 	char Config_file[LONGEST_PATH];
 	FILE *fid_config;

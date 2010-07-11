@@ -1,17 +1,3 @@
-/**\file		redshiftgui.c
- * \author		Mao Yu
- * \date		Friday, June 11, 2010
- * \brief		Main code
- * \details
- * This code is forked from the redshift project
- * (https://bugs.launchpad.net/redshift) by:
- * Jon Lund Steffensen.
- *
- * The license for this project as a whole is same (GPL v3),
- * although some components of this code (such as argument parsing)
- * were originally under different license.
- */
-
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -266,6 +252,16 @@ int main(int argc, char *argv[]){
 	gamma_method_t method;
 	int ret;
 
+#ifdef _WIN32
+	// This attaches a console to the parent process if it has a console
+	if(AttachConsole(ATTACH_PARENT_PROCESS)){
+		// reopen stout handle as console window output
+		freopen("CONOUT$","wb",stdout);
+		// reopen stderr handle as console window output
+		freopen("CONOUT$","wb",stderr);
+	}
+#endif
+
 	if( log_init(NULL,LOGBOOL_FALSE,NULL) != LOGRET_OK ){
 		printf(_("Could not initialize logger.\n"));
 		return RET_MAIN_ERR;
@@ -332,13 +328,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	extern char ** __argv;
 	extern int __argc;
 
-	// This attaches a console to the parent process if it has a console
-	if(AttachConsole(ATTACH_PARENT_PROCESS)){
-		// reopen stout handle as console window output
-		freopen("CONOUT$","wb",stdout);
-		// reopen stderr handle as console window output
-		freopen("CONOUT$","wb",stderr);
-	}
 	return main(__argc,__argv);
 }
 #endif //_WIN32
+

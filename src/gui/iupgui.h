@@ -1,3 +1,9 @@
+/**\file		iupgui.h
+ * \author		Mao Yu
+ * \date		Modified: Saturday, July 10, 2010
+ * \brief		Main IUP entry point
+ */
+
 #ifndef __IUPGUI_H__
 #define __IUPGUI_H__
 

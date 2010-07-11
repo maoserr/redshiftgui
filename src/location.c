@@ -6,8 +6,11 @@
 #include <curl/types.h>
 #include <curl/easy.h>
 
+/**\brief cURL structure to store downloaded data */
 struct MemoryStruct {
+	/**\brief Buffer */
 	char *memory;
+	/**\brief Size of buffer */
 	size_t size;
 };
 static CURL *curl;

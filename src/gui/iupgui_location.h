@@ -1,5 +1,6 @@
 /**\file	iupgui_location.h
- * \date	Thursday, July 08, 2010
+ * \author	Mao Yu
+ * \date	Modified: Saturday, July 10, 2010
  * \brief	Location Dialog.
  */
 

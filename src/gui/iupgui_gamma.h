@@ -1,4 +1,8 @@
-/**\file		iupgui_gamma.h */
+/**\file		iupgui_gamma.h 
+ * \author		Mao Yu
+ * \date		Modified: Saturday, July 10, 2010
+ * \brief		GUI gamma adjustment functions
+ */
 
 #ifndef __IUPGUI_GAMMA_H__
 #define __IUPGUI_GAMMA_H__

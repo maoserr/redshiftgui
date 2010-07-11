@@ -1,6 +1,7 @@
 /**\file		options.h
  * \author		Mao Yu
- * \brief		Options.
+ * \date		Modified: Saturday, July 10, 2010
+ * \brief		Options handling.
  */
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
@@ -8,25 +9,35 @@
 #include "common.h"
 #include "gamma.h"
 
-/** Minimum temperature */
+/**\brief Minimum temperature */
 #define MIN_TEMP 3400
-/** Maximum temperature */
+/**\brief Maximum temperature */
 #define MAX_TEMP 7000
 
-/** Bounds for parameters. */
+/**\brief Minimum latitude */
 #define MIN_LAT   -90.0
+/**\brief Maximum latitude */
 #define MAX_LAT    90.0
+/**\brief Minimum longitude */
 #define MIN_LON  -180.0
+/**\brief Maximum longitude */
 #define MAX_LON   180.0
+/**\brief Minimum gamma value */
 #define MIN_GAMMA   0.1
+/**\brief Maximum gamma value */
 #define MAX_GAMMA  10.0
+/**\brief Minimum transition speed */
 #define MIN_SPEED     1
+/**\brief Maximum transition speed */
 #define MAX_SPEED  1000
 
-/** Default values for parameters. */
+/**\brief Default daytime temperature limit */
 #define DEFAULT_DAY_TEMP    6500
+/**\brief Default nighttime temperature limit */
 #define DEFAULT_NIGHT_TEMP  3600
+/**\brief Default gamma values */
 #define DEFAULT_GAMMA        1.0
+/**\brief Default transition speed */
 #define DEFAULT_TRANSPEED   1000
 
 /**\brief Retrieves full path of the configuration file.

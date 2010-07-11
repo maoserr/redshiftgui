@@ -1,5 +1,6 @@
 /**\file		gamma.h
- * \author		Mao Yu
+ * \author		Mao Yu,Jon Lund Steffensen
+ * \date		Modified: Saturday, July 10, 2010
  * \brief		Gamma/temperature adjustment functions.
  */
 
@@ -10,18 +11,21 @@
 
 /**\brief gamma structure */
 typedef struct{
+	/**\brief Red */
 	float r;
+	/**\brief Green */
 	float g;
+	/**\brief Blue */
 	float b;
 } gamma_s;
 
 /**\brief Enum of gamma adjustment methods */
 typedef enum {
-	GAMMA_METHOD_NONE,
-	GAMMA_METHOD_RANDR,
-	GAMMA_METHOD_VIDMODE,
-	GAMMA_METHOD_WINGDI,
-	GAMMA_METHOD_MAX
+	GAMMA_METHOD_NONE,		/**< No method defined */
+	GAMMA_METHOD_RANDR,		/**< Linux RANDR */
+	GAMMA_METHOD_VIDMODE,	/**< Linux VidMode */
+	GAMMA_METHOD_WINGDI,	/**< Win32 GDI */
+	GAMMA_METHOD_MAX		/**< Tracks the highest value */
 } gamma_method_t;
 
 /**\brief Retrieves method name as character */

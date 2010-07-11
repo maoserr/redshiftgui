@@ -1,8 +1,3 @@
-/**\file		gamma.c
- * \author		Mao Yu
- * \brief		Gamma/temperature adjustment functions.
- */
-
 #if !(defined(ENABLE_RANDR) ||			\
       defined(ENABLE_VIDMODE) ||		\
       defined(ENABLE_WINGDI))
@@ -33,15 +28,18 @@
 #define TRANSITION_LOW     SOLAR_CIVIL_TWILIGHT_ELEV
 #define TRANSITION_HIGH    3.0f
 
-/* Union of state data for gamma adjustment methods */
+/**\brief Union of state data for gamma adjustment methods */
 typedef union {
 #ifdef ENABLE_RANDR
+	/**\brief RANDR state */
 	randr_state_t randr;
 #endif
 #ifdef ENABLE_VIDMODE
+	/**\brief VidMode state */
 	vidmode_state_t vidmode;
 #endif
 #ifdef ENABLE_WINGDI
+	/**\brief Win GDI state */
 	w32gdi_state_t w32gdi;
 #endif
 } gamma_state_t;
