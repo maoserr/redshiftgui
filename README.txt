@@ -17,3 +17,13 @@ You'll need the following libraries to build this program:
 Run the Bash script on linux or the Batchfile on windows to generate the make files or projects.  Then you should be able to compile everything.
 	- This is the RunCMake.sh/.cmd file
 
+
+3. Todo list
+------------
+1) Set sun elevation for transition period
+2) Parameters for non-linear transition
+3) (Hard) Video captured image as reference point?
+	-Linux - v4l2 - http://v4l2spec.bytesex.org/spec/capture-example.html
+	-Win - http://msdn.microsoft.com/en-us/library/dd757692(v=VS.85).aspx
+4) Adjust gamma values
+5) Better google maps parsing
