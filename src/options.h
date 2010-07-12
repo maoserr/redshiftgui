@@ -127,6 +127,13 @@ int opt_parse_temperatures(char *val);
  */
 int opt_set_verbose(int val);
 
+#ifdef ENABLE_IUP
+/**\brief Starts GUI minimized.
+ * \param val Set to 1 to start minimized
+ */
+int opt_set_min(int val);
+#endif
+
 /**\brief Retrieves CRTC */
 int opt_get_crtc(void);
 
@@ -162,6 +169,11 @@ int opt_get_temp_night(void);
 
 /**\brief Retrieves verbosity level */
 int opt_get_verbosity(void);
+
+#ifdef ENABLE_IUP
+/**\brief Retrieves start minimized status */
+int opt_get_min(void);
+#endif//ENABLE_IUP
 
 /**\brief Writes the configuration file with current settings */
 void opt_write_config(void);

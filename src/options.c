@@ -32,6 +32,10 @@ typedef struct{
 	int nogui;
 	/**\brief Verbosity level */
 	int verbose;
+#ifdef ENABLE_IUP
+	/**\brief Start GUI minimized */
+	int startmin;
+#endif//ENABLE_IUP
 } rs_opts;
 
 static rs_opts Rs_opts;
@@ -209,6 +213,14 @@ int opt_set_verbose(int level){
 	return RET_FUN_SUCCESS;
 }
 
+#ifdef ENABLE_IUP
+// Sets start minimized
+int opt_set_min(int val){
+	Rs_opts.startmin = val;
+	return RET_FUN_SUCCESS;
+}
+#endif//ENABLE_IUP
+
 // Load defaults
 void opt_set_defaults(void){
 	opt_set_location(0,0);
@@ -221,6 +233,9 @@ void opt_set_defaults(void){
 	opt_set_oneshot(0);
 	opt_set_nogui(0);
 	opt_set_verbose(0);
+#ifdef ENABLE_IUP
+	opt_set_min(0);
+#endif//ENABLE_IUP
 }
 
 int opt_get_crtc(void)
@@ -258,6 +273,11 @@ int opt_get_temp_night(void)
 
 int opt_get_verbosity(void)
 {return Rs_opts.verbose;}
+
+#ifdef ENABLE_IUP
+int opt_get_min(void)
+{return Rs_opts.startmin;}
+#endif//ENABLE_IUP
 
 /* Writes the configuration file based on current state */
 void opt_write_config(void){

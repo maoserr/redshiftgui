@@ -56,6 +56,10 @@ static int _parse_options(int argc, char *argv[]){
 		_("<DAY:NIGHT> Color temperature to set at daytime/night"),ARGVAL_STRING);
 	args_addarg("v","verbose",
 		_("<LEVEL> Verbosity of output (0 = err/warn, 1 = info, 2 = verbose)"),ARGVAL_STRING);
+#ifdef ENABLE_IUP
+	args_addarg(NULL,"min",
+		_("Start GUI minimized"),ARGVAL_NONE);
+#endif//ENABLE_IUP
 	args_addarg("h","help",
 		_("Display this help message"),ARGVAL_NONE);
 	if( (args_parse(argc,argv) != ARGRET_OK) ){
@@ -100,6 +104,10 @@ static int _parse_options(int argc, char *argv[]){
 			err = (!opt_set_screen(atoi(val))) || err;
 		if( (val=args_getnamed("t")) )
 			err = (!opt_parse_temperatures(val)) || err;
+#ifdef ENABLE_IUP
+		if( (val=args_getnamed("min")) )
+			err = (!opt_set_min(1)) || err;
+#endif//ENABLE_IUP
 		if( err ){
 			return RET_FUN_FAILED;
 		}

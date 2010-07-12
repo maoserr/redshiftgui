@@ -61,7 +61,7 @@ static void _unload_icons(void){
 int iup_gui(int argc, char *argv[]){
 	IupOpen( &argc,&argv );
 	_load_icons();
-	guimain_dialog_init(1);
+	guimain_dialog_init(opt_get_min());
 	guigamma_init_timers();
 	IupMainLoop();
 	_unload_icons();

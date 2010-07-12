@@ -48,13 +48,17 @@ static int _show_about(Ihandle *ih){
 // Toggles manual override
 static int _toggle_manual(Ihandle *ih, int state){
 	if( state ){
+		extern Ihandle *himg_redshift_idle;
 		guigamma_disable();
 		IupSetAttribute(val_manual,"VISIBLE","YES");
 		IupSetfAttribute(val_manual,"VALUE","%d",guigamma_get_temp());
+		IupSetAttributeHandle(dialog,"TRAYIMAGE",himg_redshift_idle);
 	}else{
+		extern Ihandle *himg_redshift;
 		guigamma_enable();
 		guigamma_check(ih);
 		IupSetAttribute(val_manual,"VISIBLE","OFF");
+		IupSetAttributeHandle(dialog,"TRAYIMAGE",himg_redshift);
 	}
 	return IUP_DEFAULT;
 }
@@ -75,8 +79,10 @@ static int _toggle_main_dialog(Ihandle *ih){
 	char *visible=IupGetAttribute(dialog,"VISIBLE");
 	if( visible && strcmp(visible,"YES")==0 )
 		IupSetAttribute(dialog,"HIDETASKBAR","YES");
-	else
+	else{
 		IupSetAttribute(dialog,"HIDETASKBAR","NO");
+		IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
+	}
 	return IUP_DEFAULT;
 }
 
@@ -167,7 +173,7 @@ extern Ihandle *redshift_get_icon(void);
 extern Ihandle *redshift_get_idle_icon(void);
 
 // Main dialog
-void guimain_dialog_init( int show ){
+void guimain_dialog_init( int min ){
 	Ihandle *hbox_butt,
 			*button_about,
 			*button_loc,
@@ -294,7 +300,10 @@ void guimain_dialog_init( int show ){
 	IupSetAttributeHandle(dialog,"TRAYIMAGE",himg_redshift);
 	IupSetCallback(dialog,"TRAYCLICK_CB",(Icallback)_tray_click);
 
-	if( show )
+	IupMap(dialog);
+	if( min )
+		IupSetAttribute(dialog,"HIDETASKBAR","YES");
+	else
 		IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
 }
 
