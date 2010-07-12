@@ -62,7 +62,6 @@ int guigamma_check(Ihandle *ih){
 	if( timers_disabled )
 		return IUP_DEFAULT;
 
-	curr_temp = gamma_state_get_temperature(method);
 	target_temp = gamma_calc_curr_target_temp(
 			opt_get_lat(),opt_get_lon(),
 			opt_get_temp_day(),opt_get_temp_night());
@@ -105,6 +104,9 @@ void guigamma_init_timers(void){
 	IupSetfAttribute(timer_gamma_transition,"TIME","%d",100);
 	IupSetCallback(timer_gamma_transition,"ACTION_CB",(Icallback)_gamma_transition);
 
+	// Make sure gamma is synced up
+	curr_temp = gamma_state_get_temperature(opt_get_method());
+	gamma_state_set_temperature(opt_get_method(),curr_temp,opt_get_gamma());
 	guigamma_check(timer_gamma_check);
 }
 

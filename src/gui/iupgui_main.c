@@ -132,7 +132,7 @@ void guimain_update_info(void){
 	if ( !systemtime_get_time(&now) ){
 		LOG(LOGERR,_("Unable to read system time."));
 	}else{
-		float sunx,suny,x,y;
+		double sunx,suny,x,y;
 		float lat=opt_get_lat();
 		float lon=opt_get_lon();
 		double elevation, elevation_next;
