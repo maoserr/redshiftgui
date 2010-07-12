@@ -1,8 +1,55 @@
-/**\mainpage Redshift GUI
+/**\mainpage
  * \author	Mao Yu
  * \date	Updated: Saturday, July 10, 2010
+ *	\section Introduction
+ *	This program changes the monitor color temperature according to the time of
+ *	the day and sun elevation, similar to <a href="http://jonls.dk/redshift/">redshift</a>
+ *	and <a href="http://www.stereopsis.com/flux/">f.lux</a>. Actually, this
+ *	software is forked from redshift.
  *
+ *	\section Documentation
+ *	This is the developer documentation. For the project homepage, see
+ *	<a href="http://www.mao-yu.com/projects/redshiftgui.html">here</a>.
  *
+ *	RedshiftGUI utilizes gamma ramps to change the color temperature of the
+ *	monitor.  Currently the gamma ramps are calculated using 
+ *	<a href="http://www.vendian.org/mncharity/dir3/blackbody/">this</a> source.
  *
+ *	Note that this means if the gamma ramps are altered by other applications,
+ *	then it will conflict with RedshiftGUI.  Commonly SDL apps have access to
+ *	gamma ramps to alter the in game gamma.
  *
+ *	Take a look at the files section to see the general layout of the code.  The
+ *	code is divided into these sections:
+ *		-# Core functionality
+ *		-# Backends
+ *		-# GUI
+ *
+ *	\subsection Core
+ *	Core functionality was mostly copied from the redshift project, with images
+ *	and resources ripped also.  A few modifications such as Geocoding and
+ *	temperature retrieval was added.
+ *
+ *	\subsection Backends
+ *	Backends currently available for Unix
+ *		-# libxcb xrandr
+ *		-# xlib vidmode
+ *
+ *	XRandR is somewhat finicky and can return bad temperature values (see bugs
+ *	list), with vidmode being somewhat more robust in my testing.
+ *
+ *	Backends currently available for Win32
+ *		-# GDI
+ *
+ *	It appears directx might also be a possibility for a backend, but GDI seems
+ *	to work on most systems.
+ *
+ *	Backends for Mac? I'm not familiar with Mac video programming
+ *
+ *	\subsection GUI
+ *	This program uses the IUP library to implement cross platform GUI.  It is
+ *	the only pure C GUI library that I am aware of besides GTK+.  It seems to
+ *	have worked out well, but I statically linked it in so it is not a
+ *	dependency on Linux systems.
+ *	
  */
