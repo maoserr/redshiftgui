@@ -308,7 +308,7 @@ void guimain_dialog_init( int min ){
 	IupSetCallback(dialog,"TRAYCLICK_CB",(Icallback)_tray_click);
 
 	IupMap(dialog);
-	if( min )
+	if( opt_get_min() )
 		IupSetAttribute(dialog,"HIDETASKBAR","YES");
 	else
 		IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);

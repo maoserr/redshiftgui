@@ -14,6 +14,8 @@ static Ihandle *label_transpeed=NULL;
 static Ihandle *val_night=NULL;
 static Ihandle *val_day=NULL;
 static Ihandle *val_transpeed=NULL;
+static Ihandle *chk_min=NULL;
+static Ihandle *chk_disable=NULL;
 
 // Settings - temp day changed
 static int _val_day_changed(Ihandle *ih){
@@ -57,16 +59,10 @@ static int _setting_save(Ihandle *ih){
 	char *name_randr=gamma_get_method_name(GAMMA_METHOD_RANDR);
 	char *name_vidmode=gamma_get_method_name(GAMMA_METHOD_VIDMODE);
 	char *name_wingdi=gamma_get_method_name(GAMMA_METHOD_WINGDI);
-	
+	int min = !strcmp(IupGetAttribute(chk_min,"VALUE"),"ON");
+	int disable = !strcmp(IupGetAttribute(chk_disable,"VALUE"),"ON");
+
 	LOG(LOGVERBOSE,_("New day temp: %d, new night temp: %d"),vday,vnight);
-	if( strcmp(method,name_randr) == 0 )
-		opt_set_method(GAMMA_METHOD_RANDR);
-	else if( strcmp(method,name_vidmode) == 0 )
-		opt_set_method(GAMMA_METHOD_VIDMODE);
-	else if( strcmp(method,name_wingdi) == 0 )
-		opt_set_method(GAMMA_METHOD_WINGDI);
-	else
-		LOG(LOGERR,_("Unknown method set"));
 	if( opt_get_method() != oldmethod ){
 		LOG(LOGINFO,_("Gamma method changed to %s"),method);
 		gamma_state_free(oldmethod);
@@ -80,7 +76,17 @@ static int _setting_save(Ihandle *ih){
 			}
 		}
 	}
+	if( strcmp(method,name_randr) == 0 )
+		opt_set_method(GAMMA_METHOD_RANDR);
+	else if( strcmp(method,name_vidmode) == 0 )
+		opt_set_method(GAMMA_METHOD_VIDMODE);
+	else if( strcmp(method,name_wingdi) == 0 )
+		opt_set_method(GAMMA_METHOD_WINGDI);
+	else
+		LOG(LOGERR,_("Unknown method set"));
 
+	opt_set_min(min);
+	opt_set_disabled(disable);
 	opt_set_temperatures(vday,vnight);
 	opt_set_transpeed(IupGetInt(val_transpeed,"VALUE"));
 	opt_write_config();
@@ -102,6 +108,8 @@ static void _settings_create(void){
 
 			*vbox_transpeed,
 			*frame_speed,
+			
+			*frame_startup,
 
 			*button_cancel,
 			*button_save,
@@ -191,13 +199,26 @@ static void _settings_create(void){
 	frame_speed = IupFrame(vbox_transpeed);
 	IupSetAttribute(frame_speed,"TITLE","Transition Speed");
 
+	// Start minimized and/or disabled
+	chk_min = IupToggle(_("Start minimized"),NULL);
+	chk_disable = IupToggle(_("Start disabled"),NULL);
+	if(opt_get_min())
+		IupSetAttribute(chk_min,"VALUE","ON");
+	if(opt_get_disabled())
+		IupSetAttribute(chk_disable,"VALUE","ON");
+	frame_startup = IupFrame(IupSetAtt(NULL,
+					IupHbox(chk_min,IupFill(),chk_disable,NULL),
+					"MARGIN","5",NULL)
+				);
+	IupSetAttribute(frame_startup,"TITLE",_("Startup"));
+
 	// Buttons
 	button_cancel = IupButton(_("Cancel"),NULL);
-	IupSetfAttribute(button_cancel,"MINSIZE","%dx%d",60,24);
 	IupSetCallback(button_cancel,"ACTION",(Icallback)_setting_cancel);
+	IupSetfAttribute(button_cancel,"MINSIZE","%dx%d",60,24);
 	button_save = IupButton(_("Save"),NULL);
-	IupSetfAttribute(button_save,"MINSIZE","%dx%d",60,24);
 	IupSetCallback(button_save,"ACTION",(Icallback)_setting_save);
+	IupSetfAttribute(button_save,"MINSIZE","%dx%d",60,24);
 	hbox_buttons = IupHbox(
 			button_cancel,
 			button_save,
@@ -209,6 +230,7 @@ static void _settings_create(void){
 			frame_day,
 			frame_night,
 			frame_speed,
+			frame_startup,
 			IupFill(),
 			hbox_buttons,
 			NULL);
@@ -217,7 +239,6 @@ static void _settings_create(void){
 
 	dialog_settings=IupDialog(vbox_all);
 	IupSetAttribute(dialog_settings,"TITLE",_("Settings"));
-	IupSetfAttribute(dialog_settings,"RASTERSIZE","%dx%d",200,300);
 	IupSetAttributeHandle(dialog_settings,"ICON",himg_redshift);
 }
 

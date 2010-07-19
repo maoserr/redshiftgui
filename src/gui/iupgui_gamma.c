@@ -77,6 +77,8 @@ int guigamma_check(Ihandle *ih){
 
 // Disables gamma timers and checking
 void guigamma_disable(void){
+	guigamma_set_temp(DEFAULT_DAY_TEMP);
+	guimain_update_info();
 	IupSetAttribute(timer_gamma_check,"RUN","NO");
 	IupSetAttribute(timer_gamma_transition,"RUN","NO");
 	timers_disabled = 1;

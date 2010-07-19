@@ -298,8 +298,10 @@ void opt_write_config(void){
 
 	opt_get_config_file(Config_file,LONGEST_PATH);
 	fid_config = fopen(Config_file,"w");
-	fprintf(fid_config,"min=%d\n",opt_get_min());
-	fprintf(fid_config,"disabled=%d\n",opt_get_disabled());
+	if(opt_get_min())
+		fprintf(fid_config,"min\n");
+	if(opt_get_disabled())
+		fprintf(fid_config,"disable\n");
 	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
 	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());
