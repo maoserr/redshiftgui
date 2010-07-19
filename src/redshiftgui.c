@@ -59,6 +59,8 @@ static int _parse_options(int argc, char *argv[]){
 #ifdef ENABLE_IUP
 	args_addarg(NULL,"min",
 		_("Start GUI minimized"),ARGVAL_NONE);
+	args_addarg("d","disable",
+		_("Start GUI disabled"),ARGVAL_NONE);
 #endif//ENABLE_IUP
 	args_addarg("h","help",
 		_("Display this help message"),ARGVAL_NONE);
@@ -107,6 +109,8 @@ static int _parse_options(int argc, char *argv[]){
 #ifdef ENABLE_IUP
 		if( (val=args_getnamed("min")) )
 			err = (!opt_set_min(1)) || err;
+		if( (val=args_getnamed("d")) )
+			err = (!opt_set_disabled(1)) || err;
 #endif//ENABLE_IUP
 		if( err ){
 			return RET_FUN_FAILED;

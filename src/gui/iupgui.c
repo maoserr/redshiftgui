@@ -63,6 +63,8 @@ int iup_gui(int argc, char *argv[]){
 	_load_icons();
 	guimain_dialog_init(opt_get_min());
 	guigamma_init_timers();
+	if( opt_get_disabled() )
+		guigamma_disable();
 	IupMainLoop();
 	_unload_icons();
 	IupClose();

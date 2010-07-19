@@ -35,6 +35,8 @@ typedef struct{
 #ifdef ENABLE_IUP
 	/**\brief Start GUI minimized */
 	int startmin;
+	/**\brief Start GUI disabled */
+	int startdisabled;
 #endif//ENABLE_IUP
 } rs_opts;
 
@@ -219,6 +221,12 @@ int opt_set_min(int val){
 	Rs_opts.startmin = val;
 	return RET_FUN_SUCCESS;
 }
+
+// Sets start disabled
+int opt_set_disabled(int val){
+	Rs_opts.startdisabled = val;
+	return RET_FUN_SUCCESS;
+}
 #endif//ENABLE_IUP
 
 // Load defaults
@@ -235,6 +243,7 @@ void opt_set_defaults(void){
 	opt_set_verbose(0);
 #ifdef ENABLE_IUP
 	opt_set_min(0);
+	opt_set_disabled(0);
 #endif//ENABLE_IUP
 }
 
@@ -277,6 +286,9 @@ int opt_get_verbosity(void)
 #ifdef ENABLE_IUP
 int opt_get_min(void)
 {return Rs_opts.startmin;}
+
+int opt_get_disabled(void)
+{return Rs_opts.startdisabled;}
 #endif//ENABLE_IUP
 
 /* Writes the configuration file based on current state */
@@ -286,6 +298,8 @@ void opt_write_config(void){
 
 	opt_get_config_file(Config_file,LONGEST_PATH);
 	fid_config = fopen(Config_file,"w");
+	fprintf(fid_config,"min=%d\n",opt_get_min());
+	fprintf(fid_config,"disabled=%d\n",opt_get_disabled());
 	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
 	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());

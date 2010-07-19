@@ -1,3 +1,6 @@
+RedshiftGUI - Monitor color temperature adjustment GUI
+	http://www.mao-yu.com/projects/redshiftgui/
+
 I. Building
 ========
 

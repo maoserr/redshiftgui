@@ -36,7 +36,8 @@ static int _show_about(Ihandle *ih){
 	Ihandle *dialog_about = IupSetAtt(NULL,IupMessageDlg(),
 			"TITLE",_("About Redshift GUI"),
 			"VALUE",
-			_("Written by Mao Yu\n"
+			_("Homepage:\nhttp://www.mao-yu.com/projects/redshiftgui/\n\n"
+				"Written by Mao Yu\n"
 				"Redshift GUI is based on Redshift by Jon Lund Steffensen\n"
 				"This program uses IUP and libcURL\n"
 				"Licensed under the GPL license"),NULL);
@@ -88,7 +89,7 @@ static int _toggle_main_dialog(Ihandle *ih){
 
 // Tray click callback
 static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
-	static Ihandle *menu_tray=NULL;
+	// static Ihandle *menu_tray=NULL;
 	switch (but){
 		case 1:
 			if( pressed )
@@ -96,29 +97,35 @@ static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
 			break;
 		default:
 			if( pressed ){
-				// Bring up menu
-				if( !menu_tray ){
-					Ihandle *mitem_toggle,
-							*mitem_settings,
-							*mitem_about;
-					mitem_toggle = IupItem(_("Hide/Show"),NULL);
-					IupSetCallback(mitem_toggle,"ACTION",_toggle_main_dialog);
-					mitem_settings = IupItem(_("Settings"),NULL);
-					IupSetCallback(mitem_settings,"ACTION",guisettings_show);
-					mitem_about = IupItem(_("About"),NULL);
-					IupSetCallback(mitem_about,"ACTION",_show_about);
-					menu_tray = IupMenu(
-							mitem_toggle,
-							mitem_settings,
-							IupSeparator(),
-							mitem_about,
-							NULL);
-					IupMap(menu_tray);
-				}
-				IupPopup(menu_tray,IUP_MOUSEPOS,IUP_MOUSEPOS);
-				// Need a workaround on GTK2 because MOUSEPOS doesn't seem to work on lower bar
-				IupDestroy(menu_tray);
-				menu_tray = NULL;
+				int state = strcmp(IupGetAttribute(chk_manual,"VALUE"),"ON");
+				if( state )
+					IupSetAttribute(chk_manual,"VALUE","ON");
+				else
+					IupSetAttribute(chk_manual,"VALUE","OFF");
+				_toggle_manual(ih,state);
+				//// Bring up menu
+				//if( !menu_tray ){
+				//	Ihandle *mitem_toggle,
+				//			*mitem_settings,
+				//			*mitem_about;
+				//	mitem_toggle = IupItem(_("Hide/Show"),NULL);
+				//	IupSetCallback(mitem_toggle,"ACTION",_toggle_main_dialog);
+				//	mitem_settings = IupItem(_("Settings"),NULL);
+				//	IupSetCallback(mitem_settings,"ACTION",guisettings_show);
+				//	mitem_about = IupItem(_("About"),NULL);
+				//	IupSetCallback(mitem_about,"ACTION",_show_about);
+				//	menu_tray = IupMenu(
+				//			mitem_toggle,
+				//			mitem_settings,
+				//			IupSeparator(),
+				//			mitem_about,
+				//			NULL);
+				//	IupMap(menu_tray);
+				//}
+				//IupPopup(menu_tray,IUP_MOUSEPOS,IUP_MOUSEPOS);
+				//// Need a workaround on GTK2 because MOUSEPOS doesn't seem to work on lower bar
+				//IupDestroy(menu_tray);
+				//menu_tray = NULL;
 			}
 			break;
 	}
@@ -305,5 +312,10 @@ void guimain_dialog_init( int min ){
 		IupSetAttribute(dialog,"HIDETASKBAR","YES");
 	else
 		IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
+
+	if( opt_get_disabled() ){
+		IupSetAttribute(chk_manual,"VALUE","ON");
+		_toggle_manual(chk_manual,1);
+	}
 }
 

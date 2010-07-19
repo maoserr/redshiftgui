@@ -57,7 +57,6 @@ int guigamma_set_temp(int temp){
 
 // Check if temperature needs to be corrected
 int guigamma_check(Ihandle *ih){
-	gamma_method_t method=opt_get_method();
 
 	if( timers_disabled )
 		return IUP_DEFAULT;

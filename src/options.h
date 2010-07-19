@@ -132,6 +132,11 @@ int opt_set_verbose(int val);
  * \param val Set to 1 to start minimized
  */
 int opt_set_min(int val);
+
+/**\brief Starts GUI disabled.
+ * \param val Set to 1 to start disabled
+ */
+int opt_set_disabled(int val);
 #endif
 
 /**\brief Retrieves CRTC */
@@ -173,6 +178,9 @@ int opt_get_verbosity(void);
 #ifdef ENABLE_IUP
 /**\brief Retrieves start minimized status */
 int opt_get_min(void);
+
+/**\brief Retrieves start disabled status */
+int opt_get_disabled(void);
 #endif//ENABLE_IUP
 
 /**\brief Writes the configuration file with current settings */
