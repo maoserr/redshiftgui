@@ -201,13 +201,15 @@ static void _settings_create(void){
 
 	// Start minimized and/or disabled
 	chk_min = IupToggle(_("Start minimized"),NULL);
+	IupSetAttribute(chk_min,"EXPAND","HORIZONTAL");
 	chk_disable = IupToggle(_("Start disabled"),NULL);
+	IupSetAttribute(chk_disable,"EXPAND","HORIZONTAL");
 	if(opt_get_min())
 		IupSetAttribute(chk_min,"VALUE","ON");
 	if(opt_get_disabled())
 		IupSetAttribute(chk_disable,"VALUE","ON");
 	frame_startup = IupFrame(IupSetAtt(NULL,
-					IupHbox(chk_min,IupFill(),chk_disable,NULL),
+					IupVbox(chk_min,chk_disable,NULL),
 					"MARGIN","5",NULL)
 				);
 	IupSetAttribute(frame_startup,"TITLE",_("Startup"));
@@ -239,6 +241,7 @@ static void _settings_create(void){
 
 	dialog_settings=IupDialog(vbox_all);
 	IupSetAttribute(dialog_settings,"TITLE",_("Settings"));
+	IupSetAttribute(dialog_settings,"RASTERSIZE","250x");
 	IupSetAttributeHandle(dialog_settings,"ICON",himg_redshift);
 }
 
