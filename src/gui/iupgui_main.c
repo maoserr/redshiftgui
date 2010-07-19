@@ -15,6 +15,7 @@ static Ihandle *infovals[4]={NULL,NULL,NULL,NULL};
 static Ihandle *lbl_elevation=NULL;
 static Ihandle *chk_manual=NULL;
 static Ihandle *val_manual=NULL;
+static Ihandle *val_bright=NULL;
 static Ihandle *lbl_sun=NULL;
 
 // exit status
@@ -71,6 +72,15 @@ static int _manual_temp(Ihandle *ih){
 	LOG(LOGVERBOSE,_("Setting manual temperature: %d"),rounded);
 	guigamma_set_temp(rounded);
 	guimain_update_info();
+	return IUP_DEFAULT;
+}
+
+// Change brightness
+static int _bright(Ihandle *ih){
+	float val = IupGetFloat(ih,"VALUE");
+	LOG(LOGVERBOSE,_("Setting brightness: %f"),val);
+	opt_set_gamma(val,val,val);
+	guigamma_set_temp(guigamma_get_temp());
 	return IUP_DEFAULT;
 }
 
@@ -194,6 +204,7 @@ void guimain_dialog_init( int min ){
 			*frameinfo,
 			*vbox_manual,
 			*framemanual,
+			*framebright,
 			*dhbox,
 			*dvbox;
 	extern Ihandle *himg_redshift,*himg_sunback,*himg_sun;
@@ -282,9 +293,16 @@ void guimain_dialog_init( int min ){
 	framemanual = IupFrame(vbox_manual);
 	IupSetAttribute(framemanual,"TITLE",_("Manual"));
 
+	// Brightness
+	val_bright = IupSetAtt(NULL,IupVal(NULL),"MIN","0.1","MAX","1",
+		"VISIABLE","YES","EXPAND","HORIZONTAL","VALUE","1",NULL);
+	IupSetCallback(val_bright,"VALUECHANGED_CB",(Icallback)_bright);
+	framebright = IupFrame(IupVbox(val_bright,NULL));
+	IupSetAttribute(framebright,"TITLE",_("Brightness"));
+
 	// Layout box for sun and info
 	dhbox = IupHbox(framesun,IupFill(),
-		IupVbox(frameinfo,framemanual,NULL),NULL);
+		IupVbox(frameinfo,framemanual,framebright,NULL),NULL);
 
 	// Main layout box
 	dvbox = IupVbox(
