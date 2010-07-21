@@ -21,6 +21,9 @@ static Ihandle *lbl_sun=NULL;
 // exit status
 static int exit_stat=RET_FUN_SUCCESS;
 
+// If dialog needs to be positioned
+static int positioned=0;
+
 // Sets exit status
 int guimain_set_exit(int exit){
 	exit_stat = exit;
@@ -91,8 +94,11 @@ static int _toggle_main_dialog(Ihandle *ih){
 	if( visible && strcmp(visible,"YES")==0 )
 		IupSetAttribute(dialog,"HIDETASKBAR","YES");
 	else{
-		IupSetAttribute(dialog,"HIDETASKBAR","NO");
-		IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
+		if(!positioned){
+			positioned=1;
+			IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
+		}else
+			IupSetAttribute(dialog,"HIDETASKBAR","NO");
 	}
 	return IUP_DEFAULT;
 }
@@ -257,6 +263,10 @@ void guimain_dialog_init( int min ){
 	infotitle[1]=IupLabel(_("Day:"));
 	infotitle[2]=IupLabel(_("Night:"));
 	infotitle[3]=IupLabel(_("Location:"));
+	IupSetAttribute(infotitle[0],"EXPAND","HORIZONTAL");
+	IupSetAttribute(infotitle[1],"EXPAND","HORIZONTAL");
+	IupSetAttribute(infotitle[2],"EXPAND","HORIZONTAL");
+	IupSetAttribute(infotitle[3],"EXPAND","HORIZONTAL");
 	infovals[0]=IupLabel(NULL);
 	infovals[1]=IupLabel(NULL);
 	infovals[2]=IupLabel(NULL);
@@ -316,7 +326,7 @@ void guimain_dialog_init( int min ){
 	// Create main dialog
 	dialog = IupDialog(dvbox);
 	IupSetAttribute(dialog,"TITLE",_("Redshift GUI"));
-	IupSetAttribute(dialog,"RESIZE","NO");
+	//IupSetAttribute(dialog,"RESIZE","NO");
 	IupSetAttribute(dialog,"MAXBOX","NO");
 	IupSetAttribute(dialog,"TRAY","YES");
 	IupSetAttribute(dialog,"TRAYTIP","Redshift GUI");
@@ -335,5 +345,7 @@ void guimain_dialog_init( int min ){
 		IupSetAttribute(chk_manual,"VALUE","ON");
 		_toggle_manual(chk_manual,1);
 	}
+	IupSetAttribute(dialog,"MINSIZE",
+			IupGetAttribute(dialog,"RASTERSIZE"));
 }
 
