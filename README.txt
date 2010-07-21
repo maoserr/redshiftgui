@@ -2,7 +2,7 @@ RedshiftGUI - Monitor color temperature adjustment GUI
 	http://www.mao-yu.com/projects/redshiftgui/
 
 I. Building
-========
+===========
 
 1. Prerequisites for building
 -----------------------------
@@ -21,8 +21,8 @@ Run the Bash script on linux or the Batchfile on windows to generate the make fi
 	- This is the RunCMake.sh/.cmd file
 
 
-3. Todo list
-------------
+II. Todo list
+=============
 1) Set sun elevation for transition period
 2) Parameters for non-linear transition
 3) (Hard) Video captured image as reference point?
@@ -30,3 +30,12 @@ Run the Bash script on linux or the Batchfile on windows to generate the make fi
 	-Win - http://msdn.microsoft.com/en-us/library/dd757692(v=VS.85).aspx
 4) Adjust gamma values
 5) Better google maps parsing
+
+
+III. Changelog
+==============
+
+Tuesday, July 20, 2010 - (Version 0.1.2)
+----------------------------------------
+Added brightness control, ability to start minimized or disabled
+

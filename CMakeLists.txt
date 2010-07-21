@@ -8,7 +8,7 @@ set(PRO_NAME "RedshiftGUI")
 # Project version
 set(RSG_VERSION_MAJOR 0)
 set(RSG_VERSION_MINOR 1)
-set(RSG_VERSION_PATCH 1)
+set(RSG_VERSION_PATCH 2)
 set(RSG_VERSION
 	"${RSG_VERSION_MAJOR}.${RSG_VERSION_MINOR}.${RSG_VERSION_PATCH}")
 # Project information
