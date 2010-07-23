@@ -21,9 +21,6 @@ static Ihandle *lbl_sun=NULL;
 // exit status
 static int exit_stat=RET_FUN_SUCCESS;
 
-// If dialog needs to be positioned
-static int positioned=0;
-
 // Sets exit status
 int guimain_set_exit(int exit){
 	exit_stat = exit;
@@ -89,6 +86,8 @@ static int _bright(Ihandle *ih){
 
 // Toggles main dialog (and also "Hide" button callback)
 static int _toggle_main_dialog(Ihandle *ih){
+	// If dialog needs to be positioned
+	static int positioned=0;
 	// Single down click
 	char *visible=IupGetAttribute(dialog,"VISIBLE");
 	if( visible && strcmp(visible,"YES")==0 )
@@ -99,6 +98,7 @@ static int _toggle_main_dialog(Ihandle *ih){
 			IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
 		}else
 			IupSetAttribute(dialog,"HIDETASKBAR","NO");
+		guimain_update_info();
 	}
 	return IUP_DEFAULT;
 }
