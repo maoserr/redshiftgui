@@ -1,8 +1,3 @@
-/* Ported from javascript code by U.S. Department of Commerce,
-   National Oceanic & Atmospheric Administration:
-   http://www.srrb.noaa.gov/highlights/sunrise/calcdetails.html
-   It is based on equations from "Astronomical Algorithms" by
-   Jean Meeus. */
 #include "common.h"
 #include "solar.h"
 #include "time.h"
@@ -257,8 +252,7 @@ time_of_solar_elevation(double t, double t_noon,
    lat: Latitude of location
    lon: Longitude of location
    Return: Solar angular elevation in radians */
-static double
-solar_elevation_from_time(double t, double lat, double lon)
+static double solar_elevation_from_time(double t, double lat, double lon)
 {
 	/* Minutes from midnight */
 	double jd = jd_from_jcent(t);
@@ -275,15 +269,24 @@ solar_elevation_from_time(double t, double lat, double lon)
    lat: Latitude of location
    lon: Longitude of location
    Return: Solar angular elevation in degrees */
-double
-solar_elevation(double date, double lat, double lon)
+double solar_elevation(double date, double lat, double lon)
 {
 	double jd = jd_from_epoch(date);
-	return DEG(solar_elevation_from_time(jcent_from_jd(jd), lat, lon));
+	double jd_next = jd_from_epoch(date+100);
+	double elev = DEG(solar_elevation_from_time(jcent_from_jd(jd),
+				lat, lon));
+	double elev_next = DEG(solar_elevation_from_time(jcent_from_jd(jd_next),
+				lat, lon));
+	// Sun is rising
+	if( elev_next > elev )
+		elev=180-elev;
+	// Make degrees in the III quadrant negative for niceness
+	if( elev > 180 )
+		elev=elev-360;
+	return elev;
 }
 
-void
-solar_table_fill(double date, double lat, double lon, double *table)
+void solar_table_fill(double date, double lat, double lon, double *table)
 {
 	/* Calculate Julian day */
 	double jd = jd_from_epoch(date);

@@ -2,6 +2,12 @@
  * \author		Mao Yu,Jon Lund Steffensen
  * \date		Saturday, July 10, 2010
  * \brief		Procedures to calculate solar elevation
+ * \details
+ * Ported from javascript code by U.S. Department of Commerce,
+ * National Oceanic & Atmospheric Administration:
+ * http://www.srrb.noaa.gov/highlights/sunrise/calcdetails.html
+ * It is based on equations from "Astronomical Algorithms" by
+ * Jean Meeus.
  */
 
 #ifndef _SOLAR_H
