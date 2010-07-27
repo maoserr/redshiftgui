@@ -8,6 +8,8 @@
 
 /**\brief Redshift options.*/
 typedef struct{
+	/**\brief Brightness */
+	float brightness;
 	/**\brief Latitude */
 	float lat;
 	/**\brief Longitude */
@@ -38,6 +40,8 @@ typedef struct{
 	/**\brief Start GUI disabled */
 	int startdisabled;
 #endif//ENABLE_IUP
+	/**\brief Temperature map (Advanced) */
+	int *map;
 } rs_opts;
 
 static rs_opts Rs_opts;
@@ -57,6 +61,32 @@ int opt_get_config_file(char buffer[],size_t bufsize){
 			return 1;
 		}
 		return 0;
+}
+
+// Load defaults
+void opt_set_defaults(void){
+	opt_set_brightness(1.0);
+	opt_set_location(0,0);
+	opt_set_temperatures(DEFAULT_DAY_TEMP,DEFAULT_NIGHT_TEMP);
+	opt_set_gamma(DEFAULT_GAMMA,DEFAULT_GAMMA,DEFAULT_GAMMA);
+	opt_set_method(GAMMA_METHOD_NONE);
+	opt_set_screen(-1);
+	opt_set_crtc(-1);
+	opt_set_transpeed(1000);
+	opt_set_oneshot(0);
+	opt_set_nogui(0);
+	opt_set_verbose(0);
+#ifdef ENABLE_IUP
+	opt_set_min(0);
+	opt_set_disabled(0);
+#endif//ENABLE_IUP
+	opt_parse_map("");
+}
+
+// Sets brightness
+int opt_set_brightness(double brightness){
+	Rs_opts.brightness = (float)brightness;
+	return RET_FUN_SUCCESS;
 }
 
 // Sets the CRTC
@@ -229,22 +259,11 @@ int opt_set_disabled(int val){
 }
 #endif//ENABLE_IUP
 
-// Load defaults
-void opt_set_defaults(void){
-	opt_set_location(0,0);
-	opt_set_temperatures(DEFAULT_DAY_TEMP,DEFAULT_NIGHT_TEMP);
-	opt_set_gamma(DEFAULT_GAMMA,DEFAULT_GAMMA,DEFAULT_GAMMA);
-	opt_set_method(GAMMA_METHOD_NONE);
-	opt_set_screen(-1);
-	opt_set_crtc(-1);
-	opt_set_transpeed(1000);
-	opt_set_oneshot(0);
-	opt_set_nogui(0);
-	opt_set_verbose(0);
-#ifdef ENABLE_IUP
-	opt_set_min(0);
-	opt_set_disabled(0);
-#endif//ENABLE_IUP
+// Parse temperature map
+int opt_parse_map(char *map){
+
+
+	return RET_FUN_SUCCESS;
 }
 
 int opt_get_crtc(void)
