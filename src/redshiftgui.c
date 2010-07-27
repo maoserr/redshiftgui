@@ -36,6 +36,8 @@
 
 // Internal function to parse arguments
 static int _parse_options(int argc, char *argv[]){
+	args_addarg("b","bright",
+		_("<BRIGHTNESS> Brightness (0.1 - 1)"),ARGVAL_STRING);
 	args_addarg("c","crt",
 		_("<CRTC> CRTC to apply adjustment to (RANDR only)"),ARGVAL_STRING);
 	args_addarg("g","gamma",
@@ -56,6 +58,8 @@ static int _parse_options(int argc, char *argv[]){
 		_("<DAY:NIGHT> Color temperature to set at daytime/night"),ARGVAL_STRING);
 	args_addarg("v","verbose",
 		_("<LEVEL> Verbosity of output (0 = err/warn, 1 = info, 2 = verbose)"),ARGVAL_STRING);
+	args_addarg(NULL,"map",
+		_("(Advanced) Temperature map"),ARGVAL_STRING);
 #ifdef ENABLE_IUP
 	args_addarg(NULL,"min",
 		_("Start GUI minimized"),ARGVAL_NONE);
@@ -86,8 +90,8 @@ static int _parse_options(int argc, char *argv[]){
 
 		log_setlevel(0);	// This will be overridden by the verbose option
 		opt_set_defaults();
-		if( (val=args_getnamed("v")) )
-			err = (!opt_set_verbose(atoi(val))) || err;
+		if( (val=args_getnamed("b")) )
+			err = (!opt_set_brightness(atof(val))) || err;
 		if( (val=args_getnamed("c")) )
 			err = (!opt_set_crtc(atoi(val))) || err;
 		if( (val=args_getnamed("g")) )
@@ -106,12 +110,16 @@ static int _parse_options(int argc, char *argv[]){
 			err = (!opt_set_screen(atoi(val))) || err;
 		if( (val=args_getnamed("t")) )
 			err = (!opt_parse_temperatures(val)) || err;
+		if( (val=args_getnamed("v")) )
+			err = (!opt_set_verbose(atoi(val))) || err;
 #ifdef ENABLE_IUP
 		if( (val=args_getnamed("min")) )
 			err = (!opt_set_min(1)) || err;
 		if( (val=args_getnamed("d")) )
 			err = (!opt_set_disabled(1)) || err;
 #endif//ENABLE_IUP
+		if( (val=args_getnamed("map")) )
+			err = (!opt_parse_map(val)) || err;
 		if( err ){
 			return RET_FUN_FAILED;
 		}

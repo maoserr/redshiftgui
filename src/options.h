@@ -50,6 +50,11 @@ int opt_get_config_file(char buffer[],size_t bufsize);
  */
 void opt_set_defaults(void);
 
+/**\brief Sets the brightness value
+ * \param brightness Brightness scale (0.1 - 1)
+ */
+int opt_set_brightness(double brightness);
+
 /**\brief Sets the CRTC to apply adjustment to.
  * \param val integer value of CRTC
  */
@@ -139,6 +144,11 @@ int opt_set_min(int val);
 int opt_set_disabled(int val);
 #endif
 
+/**\brief Parses temperature map
+ * \param map String containing new temperature map.
+ */
+int opt_parse_map(char *map);
+
 /**\brief Retrieves CRTC */
 int opt_get_crtc(void);
 
@@ -182,6 +192,9 @@ int opt_get_min(void);
 /**\brief Retrieves start disabled status */
 int opt_get_disabled(void);
 #endif//ENABLE_IUP
+
+/**\brief Retrieves current temperature map */
+int *opt_get_map(void);
 
 /**\brief Writes the configuration file with current settings */
 void opt_write_config(void);
