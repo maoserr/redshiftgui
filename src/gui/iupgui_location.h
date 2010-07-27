@@ -10,7 +10,4 @@
 /**\brief Shows the location dialog.*/
 int guilocation_show(Ihandle *ih);
 
-/**\brief Closes the location dialog. */
-int guilocation_close(Ihandle *ih);
-
 #endif//__IUPGUI_LOCATION_H__

@@ -45,7 +45,6 @@ static int _val_speed_changed(Ihandle *ih){
 
 // Setting - cancel
 static int _setting_cancel(Ihandle *ih){
-	guigamma_check(ih);
 	return IUP_CLOSE;
 }
 
@@ -90,7 +89,6 @@ static int _setting_save(Ihandle *ih){
 	opt_set_temperatures(vday,vnight);
 	opt_set_transpeed(IupGetInt(val_transpeed,"VALUE"));
 	opt_write_config();
-	guigamma_check(ih);
 	return IUP_CLOSE;
 }
 
@@ -219,14 +217,19 @@ static Ihandle *_settings_create_startup(void){
 
 // Create solar elevations frame
 static Ihandle *_settings_create_elev(void){
-	Ihandle *frame_elev;
+	Ihandle *lbl_elev,*frame_elev;
 
 	edt_elev = IupSetAtt(NULL,IupText(NULL),
 			"EXPAND","YES","MULTILINE","YES",
 			"VISIBLELINES","4",
 			"SCROLLBAR","VERTICAL",NULL);
+	lbl_elev = IupSetAtt(NULL,
+			IupLabel(_("Enter comma separated list of\n"
+					"elevation to temperature pairs,\n"
+					"in between values are linearly \n"
+					"interpolated.")),"WORDWRAP","YES",NULL);
 	frame_elev=IupFrame(IupSetAtt(NULL,
-				edt_elev,
+				IupVbox(edt_elev,lbl_elev,NULL),
 				"MARGIN","5",NULL)
 				);
 
@@ -294,6 +297,7 @@ int guisettings_show(Ihandle *ih){
 	IupPopup(dialog_settings,IUP_CENTER,IUP_CENTER);
 	IupDestroy(dialog_settings);
 	dialog_settings = NULL;
+	guigamma_check(ih);
 	if( !guimain_exit_normal() )
 		return IUP_CLOSE;
 	return IUP_DEFAULT;
