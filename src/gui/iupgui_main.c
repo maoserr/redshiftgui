@@ -96,6 +96,9 @@ static int _toggle_main_dialog(Ihandle *ih){
 		if(!positioned){
 			positioned=1;
 			IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
+			IupSetAttribute(dialog,"MINSIZE",
+				IupGetAttribute(dialog,"RASTERSIZE"));
+			IupRefresh(dialog);
 		}else
 			IupSetAttribute(dialog,"HIDETASKBAR","NO");
 		guimain_update_info();
@@ -158,20 +161,16 @@ void guimain_update_info(void){
 		double sunx,suny,x,y;
 		float lat=opt_get_lat();
 		float lon=opt_get_lon();
-		double elevation, elevation_next;
+		double elevation;
 		/* Current angular elevation of the sun */
 		elevation = solar_elevation(now,lat,lon);
-		elevation_next = solar_elevation(now+100,lat,lon);
-		LOG(LOGVERBOSE,_("Elevation - now: %f, next: %f"),
-				elevation,elevation_next);
+		LOG(LOGVERBOSE,_("Elevation - now: %f"),
+				elevation);
 		LOG(LOGVERBOSE,_("Backdrop dims: %dx%d, sun dims: %dx%d"),
 				dim_back_w,dim_back_h,dim_sun_w,dim_sun_h);
 		/* Position of center of sun relative to (0,0) */
 		sunx = cos(RAD(elevation))*(double)(dim_back_w/2-dim_sun_w/2);
 		suny = -sin(RAD(elevation))*(double)(dim_back_h/2-dim_sun_h/2);
-		if( elevation_next > elevation )
-			// Sun is rising
-			sunx = -sunx;
 		/* Offset sun image by center of background and dimension of image */
 		x = (dim_back_w/2)+sunx-dim_sun_w/2;
 		y = (dim_back_h/2)+suny-dim_sun_h/2;
@@ -339,13 +338,11 @@ void guimain_dialog_init( int min ){
 	if( opt_get_min() )
 		IupSetAttribute(dialog,"HIDETASKBAR","YES");
 	else
-		IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
+		_toggle_main_dialog(dialog);
 
 	if( opt_get_disabled() ){
 		IupSetAttribute(chk_manual,"VALUE","ON");
 		_toggle_manual(chk_manual,1);
 	}
-	IupSetAttribute(dialog,"MINSIZE",
-			IupGetAttribute(dialog,"RASTERSIZE"));
 }
 
