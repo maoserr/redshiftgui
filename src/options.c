@@ -6,13 +6,6 @@
 #include "gamma.h"
 #include "options.h"
 
-/**\brief Magic numbers for different temperatures in temperature map. */
-enum{
-	DAY_TEMP = -1,
-	NIGHT_TEMP = -2,
-	END_MAP = -3
-};
-
 /**\brief Pairs for elevation to temperature map */
 typedef struct{
 	double elev;
@@ -47,8 +40,6 @@ typedef struct{
 	int nogui;
 	/**\brief Verbosity level */
 	int verbose;
-	/**\brief Elevation to temperature map */
-	pair *map;
 #ifdef ENABLE_IUP
 	/**\brief Start GUI minimized */
 	int startmin;
@@ -56,16 +47,16 @@ typedef struct{
 	int startdisabled;
 #endif//ENABLE_IUP
 	/**\brief Temperature map (Advanced) */
-	int *map;
+	pair *map;
 } rs_opts;
 
 static rs_opts Rs_opts;
 static pair default_map[5]={
-	{177.0,	DAY_TEMP},
-	{3.0,	DAY_TEMP},
-	{-6.0,	NIGHT_TEMP},
-	{-174.0,NIGHT_TEMP},
-	{0,END_MAP}
+	{177.0,	100},
+	{3.0,	100},
+	{-6.0,	0},
+	{-174.0,0},
+	{-1,-1}
 };
 
 /* Retrieves configuration file full path */
@@ -287,6 +278,9 @@ int opt_parse_map(char *map){
 
 	return RET_FUN_SUCCESS;
 }
+
+int opt_get_brightness(void)
+{return Rs_opts.brightness;}
 
 int opt_get_crtc(void)
 {return Rs_opts.crtc_num;}
