@@ -6,6 +6,12 @@
 #include "gamma.h"
 #include "options.h"
 
+/**\brief Pairs for elevation to temperature map */
+typedef struct{
+	double elev;
+	int temp;
+} pair;
+
 /**\brief Redshift options.*/
 typedef struct{
 	/**\brief Brightness */
@@ -41,10 +47,17 @@ typedef struct{
 	int startdisabled;
 #endif//ENABLE_IUP
 	/**\brief Temperature map (Advanced) */
-	int *map;
+	pair *map;
 } rs_opts;
 
 static rs_opts Rs_opts;
+static pair default_map[5]={
+	{177.0,	100},
+	{3.0,	100},
+	{-6.0,	0},
+	{-174.0,0},
+	{-1,-1}
+};
 
 /* Retrieves configuration file full path */
 int opt_get_config_file(char buffer[],size_t bufsize){
@@ -265,6 +278,9 @@ int opt_parse_map(char *map){
 
 	return RET_FUN_SUCCESS;
 }
+
+int opt_get_brightness(void)
+{return Rs_opts.brightness;}
 
 int opt_get_crtc(void)
 {return Rs_opts.crtc_num;}

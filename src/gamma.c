@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "gamma.h"
+#include "options.h"
 #include "solar.h"
 #include "systemtime.h"
 
@@ -45,6 +46,7 @@ typedef union {
 } gamma_state_t;
 
 static gamma_state_t state;
+static gamma_ramp_s ramp = {NULL,NULL,NULL,0};
 
 static void gamma_interp_color(float a,
 		const float *c1, const float *c2, float *c)
@@ -56,6 +58,10 @@ static void gamma_interp_color(float a,
 
 char *gamma_get_method_name(gamma_method_t method){
 	switch( method ){
+		case GAMMA_METHOD_NONE:
+			return _("None");
+		case GAMMA_METHOD_AUTO:
+			return _("Auto");
 		case GAMMA_METHOD_RANDR:
 			return _("RANDR");
 		case GAMMA_METHOD_VIDMODE:
@@ -67,24 +73,28 @@ char *gamma_get_method_name(gamma_method_t method){
 	}
 }
 
-void gamma_ramp_fill(uint16_t *gamma_r, uint16_t *gamma_g,
-		uint16_t *gamma_b, int size, int temp, gamma_s gamma)
+gamma_ramp_s *gamma_ramp_fill(int size, int temp)
 {
 	int i;
 	/* Calculate white point */
 	float white_point[3];
 	float alpha = (temp % 100) / 100.0f;
 	int temp_index = ((temp - 1000) / 100)*3;
+	float brightness = opt_get_brightness();
+	gamma_s tweak = opt_get_gamma();
 	gamma_interp_color(alpha, &blackbody_color[temp_index],
 			  &blackbody_color[temp_index+3], white_point);
 
 	for (i = 0; i < size; i++) {
-		gamma_r[i] = (uint16_t)(pow((float)i/size, 1.0f/gamma.r) *
-			UINT16_MAX * white_point[0]);
-		gamma_g[i] = (uint16_t)(pow((float)i/size, 1.0f/gamma.g) *
-			UINT16_MAX * white_point[1]);
-		gamma_b[i] = (uint16_t)(pow((float)i/size, 1.0f/gamma.b) *
-			UINT16_MAX * white_point[2]);
+		gamma_r[i] = (uint16_t)(brightness*
+				(pow((float)i/size,1.0f/tweak.r)*
+				 UINT16_MAX * white_point[0]));
+		gamma_g[i] = (uint16_t)(brightness*
+				(pow((float)i/size,1.0f/tweak.g)*
+				 UINT16_MAX * white_point[1]));
+		gamma_b[i] = (uint16_t)(brightness*
+				(pow((float)i/size,1.0f/tweak.b)*
+				 UINT16_MAX * white_point[2]));
 	}
 }
 
@@ -100,11 +110,12 @@ int gamma_find_temp(float ratio){
 			return (i*100+1000);
 		}
 	}
+	LOG(LOGERROR,_("Unable to find color temperature"));
 	return RET_FUN_FAILED;
 }
 
 
-/* Initialize gamma adjustment method. If method is negative
+/* Initialize gamma adjustment method. If method is none
    try all methods until one that works is found. */
 gamma_method_t gamma_init_method(int screen_num, int crtc_num,
 		gamma_method_t method)

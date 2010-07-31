@@ -3,6 +3,7 @@
 #include "options.h"
 #include "location.h"
 #include "iupgui_main.h"
+#include "iupgui_gamma.h"
 #include "iupgui_location.h"
 
 static Ihandle *dialog_location=NULL;
@@ -109,8 +110,7 @@ static int _list_method_cb(Ihandle *ih,
 
 // Button cancel
 static int _location_cancel(Ihandle *ih){
-	guilocation_close(ih);
-	return IUP_DEFAULT;
+	return IUP_CLOSE;
 }
 
 // Button save
@@ -119,9 +119,7 @@ static int _location_save(Ihandle *ih){
 	float lon = IupGetFloat(edt_lon,"VALUE");
 	opt_set_location(lat,lon);
 	opt_write_config();
-	guimain_update_info();
-	guilocation_close(ih);
-	return IUP_DEFAULT;
+	return IUP_CLOSE;
 }
 
 // Creates location dialog
@@ -204,20 +202,11 @@ int guilocation_show(Ihandle *ih){
 		_location_create();
 	}
 	IupPopup(dialog_location,IUP_CENTER,IUP_CENTER);
+	IupDestroy( dialog_location );
+	dialog_location = NULL;
+	guigamma_check(ih);
 	if( !guimain_exit_normal() )
 		return IUP_CLOSE;
 	return IUP_DEFAULT;
 }
 
-// Closes location dialog
-int guilocation_close(Ihandle *ih){
-	if( dialog_location ){
-		IupDestroy( dialog_location );
-		dialog_location = NULL;
-	}
-	if( run_task ){
-		IupDestroy( run_task );
-		run_task = NULL;
-	}
-	return IUP_DEFAULT;
-}
