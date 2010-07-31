@@ -345,7 +345,5 @@ void guimain_dialog_init( int min ){
 		IupSetAttribute(chk_manual,"VALUE","ON");
 		_toggle_manual(chk_manual,1);
 	}
-	IupSetAttribute(dialog,"MINSIZE",
-			IupGetAttribute(dialog,"RASTERSIZE"));
 }
 
