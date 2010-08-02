@@ -119,29 +119,20 @@ int
 vidmode_set_temperature(vidmode_state_t *state, int temp, gamma_s gamma)
 {
 	/* Create new gamma ramps */
-	uint16_t *gamma_ramps = malloc(3*state->ramp_size*sizeof(uint16_t));
-	if (gamma_ramps == NULL) {
-		perror("malloc");
+	gamma_ramp_s ramp;
+
+	ramp = gamma_ramp_fill(state->ramp_size,temp);
+	if( !ramp.size )
 		return RET_FUN_FAILED;
-	}
-
-	uint16_t *gamma_r = &gamma_ramps[0*state->ramp_size];
-	uint16_t *gamma_g = &gamma_ramps[1*state->ramp_size];
-	uint16_t *gamma_b = &gamma_ramps[2*state->ramp_size];
-
-	gamma_ramp_fill(gamma_r, gamma_g, gamma_b, state->ramp_size,
-		       temp, gamma);
 
 	/* Set new gamma ramps */
 	if( !XF86VidModeSetGammaRamp(state->display, state->screen_num,
-				    state->ramp_size, gamma_r, gamma_g,
-				    gamma_b)){
+				    ramp.size, ramp.r, ramp.g,
+				    ramp.b)){
 		LOG(LOGERR, _("X request failed: %s\n"),
 			"XF86VidModeSetGammaRamp");
-		free(gamma_ramps);
 		return RET_FUN_FAILED;
 	}
-	free(gamma_ramps);
 	return RET_FUN_SUCCESS;
 }
 int vidmode_get_temperature(vidmode_state_t *state){

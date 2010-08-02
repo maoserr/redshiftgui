@@ -46,14 +46,73 @@ typedef union {
 } gamma_state_t;
 
 static gamma_state_t state;
-static gamma_ramp_s ramp = {NULL,NULL,NULL,0};
+static gamma_ramp_s ramp = {NULL,NULL,NULL,NULL,0};
 
+// Interpolates between two RGB colors
 static void gamma_interp_color(float a,
 		const float *c1, const float *c2, float *c)
 {
 	c[0] = (1.0f-a)*c1[0] + a*c2[0];
 	c[1] = (1.0f-a)*c1[1] + a*c2[1];
 	c[2] = (1.0f-a)*c1[2] + a*c2[2];
+}
+
+// Frees gamma ramps
+static int gamma_free_ramps(void){
+	if( ramp.all ){
+		free(ramp.all);
+		ramp.all = NULL;
+		ramp.r = NULL;
+		ramp.g = NULL;
+		ramp.b = NULL;
+		ramp.size = 0;
+	}
+	return RET_FUN_SUCCESS;
+}
+
+// Re-allocates ramps if needed
+static int gamma_realloc_ramps(int size){
+	if( ramp.size != size ){
+		gamma_free_ramps();
+		ramp.all = (uint16_t*)malloc(sizeof(uint16_t)*3*size);
+		if( !ramp.all ){
+			LOG(LOGERR,_("Unable to allocate new gamma ramps."));
+			return RET_FUN_FAILED;
+		}
+		ramp.r = ramp.all;
+		ramp.g = ramp.r+size;
+		ramp.b = ramp.g+size;
+		ramp.size = size;
+	}
+	return RET_FUN_SUCCESS;
+}
+
+gamma_ramp_s gamma_ramp_fill(int size, int temp)
+{
+	int i;
+	/* Calculate white point */
+	float white_point[3];
+	float alpha = (temp % 100) / 100.0f;
+	int temp_index = ((temp - 1000) / 100)*3;
+	float brightness = opt_get_brightness();
+	gamma_s tweak = opt_get_gamma();
+	gamma_interp_color(alpha, &blackbody_color[temp_index],
+			  &blackbody_color[temp_index+3], white_point);
+
+	if(!gamma_realloc_ramps(size))
+		return ramp;
+	for (i = 0; i < size; i++) {
+		ramp.r[i] = (uint16_t)(brightness*
+				(pow((float)i/size,1.0f/tweak.r)*
+				 UINT16_MAX * white_point[0]));
+		ramp.g[i] = (uint16_t)(brightness*
+				(pow((float)i/size,1.0f/tweak.g)*
+				 UINT16_MAX * white_point[1]));
+		ramp.b[i] = (uint16_t)(brightness*
+				(pow((float)i/size,1.0f/tweak.b)*
+				 UINT16_MAX * white_point[2]));
+	}
+	return ramp;
 }
 
 char *gamma_get_method_name(gamma_method_t method){
@@ -73,31 +132,6 @@ char *gamma_get_method_name(gamma_method_t method){
 	}
 }
 
-gamma_ramp_s *gamma_ramp_fill(int size, int temp)
-{
-	int i;
-	/* Calculate white point */
-	float white_point[3];
-	float alpha = (temp % 100) / 100.0f;
-	int temp_index = ((temp - 1000) / 100)*3;
-	float brightness = opt_get_brightness();
-	gamma_s tweak = opt_get_gamma();
-	gamma_interp_color(alpha, &blackbody_color[temp_index],
-			  &blackbody_color[temp_index+3], white_point);
-
-	for (i = 0; i < size; i++) {
-		gamma_r[i] = (uint16_t)(brightness*
-				(pow((float)i/size,1.0f/tweak.r)*
-				 UINT16_MAX * white_point[0]));
-		gamma_g[i] = (uint16_t)(brightness*
-				(pow((float)i/size,1.0f/tweak.g)*
-				 UINT16_MAX * white_point[1]));
-		gamma_b[i] = (uint16_t)(brightness*
-				(pow((float)i/size,1.0f/tweak.b)*
-				 UINT16_MAX * white_point[2]));
-	}
-}
-
 int gamma_find_temp(float ratio){
 	int i;
 	int gam_val_size=SIZEOF(blackbody_color);
@@ -110,7 +144,7 @@ int gamma_find_temp(float ratio){
 			return (i*100+1000);
 		}
 	}
-	LOG(LOGERROR,_("Unable to find color temperature"));
+	LOG(LOGERR,_("Unable to find color temperature"));
 	return RET_FUN_FAILED;
 }
 
@@ -199,6 +233,7 @@ void gamma_state_restore(gamma_method_t method)
 /* Free the state associated with the appropriate adjustment method. */
 void gamma_state_free(gamma_method_t method)
 {
+	gamma_free_ramps();
 	switch (method) {
 #ifdef ENABLE_RANDR
 	case GAMMA_METHOD_RANDR:

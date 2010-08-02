@@ -6,6 +6,7 @@
 
 #ifndef _REDSHIFT_RANDR_H
 #define _REDSHIFT_RANDR_H
+#ifdef ENABLE_RANDR
 
 #include "gamma.h"
 #include <stdint.h>
@@ -55,4 +56,5 @@ int randr_set_temperature(randr_state_t *state, int temp, gamma_s gamma);
 int randr_get_temperature(randr_state_t *state);
 
 
+#endif /*ENABLE_RANDR*/
 #endif /* ! _REDSHIFT_RANDR_H */

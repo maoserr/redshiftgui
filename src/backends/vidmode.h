@@ -6,6 +6,7 @@
 
 #ifndef _REDSHIFT_VIDMODE_H
 #define _REDSHIFT_VIDMODE_H
+#ifdef ENABLE_VIDMODE
 
 #include <stdint.h>
 #include "gamma.h"
@@ -38,4 +39,5 @@ int vidmode_set_temperature(vidmode_state_t *state, int temp, gamma_s gamma);
 /**\brief Retrieves temperature using VidMode */
 int vidmode_get_temperature(vidmode_state_t *state);
 
+#endif /*ENABLE_VIDMODE*/
 #endif /* ! _REDSHIFT_VIDMODE_H */

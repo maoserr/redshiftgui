@@ -15,6 +15,8 @@ randr_init(randr_state_t *state, int screen_num, int crtc_num)
 
 	/* Open X server connection */
 	int preferred_screen;
+	LOG(LOGINFO,_("Initializing RANDR backend"));
+
 	state->conn = xcb_connect(NULL, &preferred_screen);
 
 	if (screen_num < 0) screen_num = preferred_screen;
@@ -230,7 +232,9 @@ randr_set_temperature_for_crtc(randr_state_t *state, int crtc_num, int temp,
 			       gamma_s gamma)
 {
 	xcb_generic_error_t *error;
-	
+	gamma_ramp_s ramp;
+	unsigned int ramp_size;
+
 	if (crtc_num >= state->crtc_count || crtc_num < 0) {
 		LOG(LOGERR, _("CRTC %d does not exist. "),
 			state->crtc_num);
@@ -245,38 +249,26 @@ randr_set_temperature_for_crtc(randr_state_t *state, int crtc_num, int temp,
 	}
 
 	xcb_randr_crtc_t crtc = state->crtcs[crtc_num].crtc;
-	unsigned int ramp_size = state->crtcs[crtc_num].ramp_size;
+	ramp_size = state->crtcs[crtc_num].ramp_size;
 
-	/* Create new gamma ramps */
-	uint16_t *gamma_ramps = malloc(3*ramp_size*sizeof(uint16_t));
-	if (gamma_ramps == NULL) {
-		perror("malloc");
+	ramp = gamma_ramp_fill(ramp_size,temp);
+	if( !ramp.size )
 		return RET_FUN_FAILED;
-	}
-
-	uint16_t *gamma_r = &gamma_ramps[0*ramp_size];
-	uint16_t *gamma_g = &gamma_ramps[1*ramp_size];
-	uint16_t *gamma_b = &gamma_ramps[2*ramp_size];
-
-	gamma_ramp_fill(gamma_r, gamma_g, gamma_b, ramp_size,
-		       temp, gamma);
 
 	/* Set new gamma ramps */
 	xcb_void_cookie_t gamma_set_cookie =
 		xcb_randr_set_crtc_gamma_checked(state->conn, crtc,
-						 ramp_size, gamma_r,
-						 gamma_g, gamma_b);
+						 ramp_size, ramp.r,
+						 ramp.g, ramp.b);
 	error = xcb_request_check(state->conn, gamma_set_cookie);
 
 	if (error) {
 		LOG(LOGERR, _("`%s' returned error %d"),
 			"RANDR Set CRTC Gamma", error->error_code);
-		free(gamma_ramps);
 		return RET_FUN_FAILED;
 	}
 	LOG(LOGVERBOSE,_("Set gamma[CRTC %d], end points: (%d,%d)"),
-			crtc_num,gamma_r[ramp_size-1],gamma_b[ramp_size-1]);
-	free(gamma_ramps);
+			crtc_num,ramp.r[ramp_size-1],ramp.b[ramp_size-1]);
 
 	return RET_FUN_SUCCESS;
 }

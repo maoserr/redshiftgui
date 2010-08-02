@@ -6,6 +6,7 @@
 
 #ifndef _REDSHIFT_W32GDI_H
 #define _REDSHIFT_W32GDI_H
+#ifdef ENABLE_WINGDI
 
 #include <wingdi.h>
 
@@ -32,4 +33,5 @@ int w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma);
 /**\brief Retrieves current temperature */
 int w32gdi_get_temperature(w32gdi_state_t *state);
 
+#endif /*ENABLE_WINGDI*/
 #endif /* ! _REDSHIFT_W32GDI_H */

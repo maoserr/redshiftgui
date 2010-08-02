@@ -65,7 +65,7 @@ typedef enum {
 char *gamma_get_method_name(gamma_method_t method);
 
 /**\brief Updates gamma ramp structure */
-gamma_ramp_s *gamma_ramp_fill(int size,int temp);
+gamma_ramp_s gamma_ramp_fill(int size,int temp);
 
 /**\brief Find the temperature based on red:blue ratio */
 int gamma_find_temp(float ratio);
