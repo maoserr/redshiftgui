@@ -16,11 +16,11 @@
 		
 			<li><a href="http://www.mao-yu.com/">Home</a></li>
 			
-			<li><a href="http://www.mao-yu.com/projects/" class="active">Projects</a></li>
+			<li><a href="http://www.mao-yu.com/projects" class="active">Projects</a></li>
 			
-			<li><a href="http://www.mao-yu.com/resources/">Resources</a></li>
+			<li><a href="http://www.mao-yu.com/resources">Resources</a></li>
 			
-			<li><a href="http://www.mao-yu.com/notes/">Notes</a></li>
+			<li><a href="http://www.mao-yu.com/notes">Notes</a></li>
 			
 		</ul>
 		<a href="http://www.mao-yu.com/"><img src="DoxyLogo.png" alt="Logo" style="float:left"/></a>
@@ -81,14 +81,17 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 
 
 <h3><a class="anchor" id="index_d"></a>- d -</h3><ul>
+<li>DEFAULT_BRIGHTNESS
+: <a class="el" href="gamma_8h.html#ad27ad76d41bf29c6b9f95e8c41b86398">gamma.h</a>
+</li>
 <li>DEFAULT_DAY_TEMP
-: <a class="el" href="options_8h.html#a9e9d0f15c45990999c7098c8e2e413d3">options.h</a>
+: <a class="el" href="gamma_8h.html#a9e9d0f15c45990999c7098c8e2e413d3">gamma.h</a>
 </li>
 <li>DEFAULT_GAMMA
-: <a class="el" href="options_8h.html#af9c6741651c9377df24997b1d46a37e2">options.h</a>
+: <a class="el" href="gamma_8h.html#af9c6741651c9377df24997b1d46a37e2">gamma.h</a>
 </li>
 <li>DEFAULT_NIGHT_TEMP
-: <a class="el" href="options_8h.html#ad4a199aeb824f454ae97c8185b530da2">options.h</a>
+: <a class="el" href="gamma_8h.html#ad4a199aeb824f454ae97c8185b530da2">gamma.h</a>
 </li>
 <li>DEFAULT_TRANSPEED
 : <a class="el" href="options_8h.html#a41b522b8231550db8f032512d8921f7f">options.h</a>
@@ -115,6 +118,9 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 <li>gamma_init_method()
 : <a class="el" href="gamma_8h.html#a1a6a407d5b13d25b1b5c0a69f6a9fef3">gamma.h</a>
 </li>
+<li>GAMMA_METHOD_AUTO
+: <a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4aa5675995c428e1b21705551f1e2c4659c">gamma.h</a>
+</li>
 <li>GAMMA_METHOD_MAX
 : <a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4aa4cd88ca71a7d9b457ff709cccf4d862b">gamma.h</a>
 </li>
@@ -134,7 +140,7 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 : <a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4aad381791f61d5df5178499f2a7634fd9b">gamma.h</a>
 </li>
 <li>gamma_ramp_fill()
-: <a class="el" href="gamma_8h.html#aab44972391d208630e97e4953d16c12f">gamma.h</a>
+: <a class="el" href="gamma_8h.html#af978b19e1eb5b77aa0f5a69f982a6f4b">gamma.h</a>
 </li>
 <li>gamma_state_free()
 : <a class="el" href="gamma_8h.html#a2b5e5eafaca21397f3dfd78d6eaa7f1d">gamma.h</a>
@@ -166,9 +172,6 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 <li>guigamma_set_temp()
 : <a class="el" href="iupgui__gamma_8h.html#a11b7ea3823ece2ed26050e65ffdc684a">iupgui_gamma.h</a>
 </li>
-<li>guilocation_close()
-: <a class="el" href="iupgui__location_8h.html#ab38336e6b5fb5dacc42f02142640300d">iupgui_location.h</a>
-</li>
 <li>guilocation_show()
 : <a class="el" href="iupgui__location_8h.html#a0f858eb25351066b90f1584f3b082a2d">iupgui_location.h</a>
 </li>
@@ -183,9 +186,6 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 </li>
 <li>guimain_update_info()
 : <a class="el" href="iupgui__main_8h.html#a745b39a09c4885f94fcaf69967c1350d">iupgui_main.h</a>
-</li>
-<li>guisettings_close()
-: <a class="el" href="iupgui__settings_8h.html#a45b1db9af5468eebbba71ebaad6f57c7">iupgui_settings.h</a>
 </li>
 <li>guisettings_show()
 : <a class="el" href="iupgui__settings_8h.html#a69a08400682476095fb8b11d97a140fc">iupgui_settings.h</a>
@@ -251,7 +251,7 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 : <a class="el" href="common_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">common.h</a>
 </li>
 <li>MAX_GAMMA
-: <a class="el" href="options_8h.html#a7307baab149844198c7075f7bdb4330c">options.h</a>
+: <a class="el" href="gamma_8h.html#a7307baab149844198c7075f7bdb4330c">gamma.h</a>
 </li>
 <li>MAX_LAT
 : <a class="el" href="options_8h.html#a7ce12d8a28541150544bc0dfeb789e13">options.h</a>
@@ -263,13 +263,13 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 : <a class="el" href="options_8h.html#ac2cd96d53dd3ba6407db6766c3d92b26">options.h</a>
 </li>
 <li>MAX_TEMP
-: <a class="el" href="options_8h.html#aed8ea54a2630aaf2ae3f2bd5fa886959">options.h</a>
+: <a class="el" href="gamma_8h.html#aed8ea54a2630aaf2ae3f2bd5fa886959">gamma.h</a>
 </li>
 <li>MIN
 : <a class="el" href="common_8h.html#a74e75242132eaabbc1c512488a135926">common.h</a>
 </li>
 <li>MIN_GAMMA
-: <a class="el" href="options_8h.html#a730cd6a37517702fe0f3d4012b031220">options.h</a>
+: <a class="el" href="gamma_8h.html#a730cd6a37517702fe0f3d4012b031220">gamma.h</a>
 </li>
 <li>MIN_LAT
 : <a class="el" href="options_8h.html#afb7fd15722eccf2cd90338aac9f88318">options.h</a>
@@ -281,12 +281,15 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 : <a class="el" href="options_8h.html#ad5f5efaa5cb771bd06da4bfe6046809e">options.h</a>
 </li>
 <li>MIN_TEMP
-: <a class="el" href="options_8h.html#a2522d2568f63855838c3ecfb44084710">options.h</a>
+: <a class="el" href="gamma_8h.html#a2522d2568f63855838c3ecfb44084710">gamma.h</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_o"></a>- o -</h3><ul>
+<li>opt_get_brightness()
+: <a class="el" href="options_8h.html#a8f9aad4d09142c82e23a22ac364d0cc9">options.h</a>
+</li>
 <li>opt_get_config_file()
 : <a class="el" href="options_8h.html#a946a796622862627656a9749c0854562">options.h</a>
 </li>
@@ -301,6 +304,9 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 </li>
 <li>opt_get_lon()
 : <a class="el" href="options_8h.html#a239fa469db56c92964760c2ee32a1310">options.h</a>
+</li>
+<li>opt_get_map()
+: <a class="el" href="options_8h.html#a933a6cff901e79e14359eec6288f1cea">options.h</a>
 </li>
 <li>opt_get_method()
 : <a class="el" href="options_8h.html#a6e3bbaae85075e2587250c28b233340d">options.h</a>
@@ -332,11 +338,17 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 <li>opt_parse_location()
 : <a class="el" href="options_8h.html#a1768638ee780444eb1fdce8a820bd30b">options.h</a>
 </li>
+<li>opt_parse_map()
+: <a class="el" href="options_8h.html#a905bdb2a7b39fa2a923ce3bb215ea498">options.h</a>
+</li>
 <li>opt_parse_method()
 : <a class="el" href="options_8h.html#a8336c58754eada7677cc011262b9b614">options.h</a>
 </li>
 <li>opt_parse_temperatures()
 : <a class="el" href="options_8h.html#a3922296222b006cd96f1950eaac30ba4">options.h</a>
+</li>
+<li>opt_set_brightness()
+: <a class="el" href="options_8h.html#af5cb58146de7f531ab35916d8460eaee">options.h</a>
 </li>
 <li>opt_set_crtc()
 : <a class="el" href="options_8h.html#a27fb0570e7c6c392aaab0c67602cef20">options.h</a>
