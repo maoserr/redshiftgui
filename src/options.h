@@ -25,6 +25,12 @@
 /**\brief Default transition speed */
 #define DEFAULT_TRANSPEED   1000
 
+/**\brief Pairs for elevation to temperature map */
+typedef struct{
+	double elev;
+	int temp;
+} pair;
+
 /**\brief Retrieves full path of the configuration file.
  * \param buffer buffer to store the configuration file.
  * \param bufsize size of the buffer.
@@ -129,6 +135,11 @@ int opt_set_min(int val);
 int opt_set_disabled(int val);
 #endif
 
+/**\brief Sets temperature map
+ * \param map Array of pairs containing temperature map.
+ */
+int opt_set_map(pair map[]);
+
 /**\brief Parses temperature map
  * \param map String containing new temperature map.
  */
@@ -182,9 +193,12 @@ int opt_get_disabled(void);
 #endif//ENABLE_IUP
 
 /**\brief Retrieves current temperature map */
-int *opt_get_map(void);
+pair *opt_get_map(void);
 
 /**\brief Writes the configuration file with current settings */
 void opt_write_config(void);
+
+/**\brief Frees resources used by options */
+void opt_free(void);
 
 #endif//__OPTIONS_H__

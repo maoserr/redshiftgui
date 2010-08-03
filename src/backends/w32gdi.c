@@ -21,65 +21,70 @@
 #include "gamma.h"
 #include "w32gdi.h"
 
+/**\brief Win32 GDI state info */
+typedef struct {
+	/**\brief HDC context */
+	HDC hDC;
+	/**\brief Saved ramps */
+	WORD *saved_ramps;
+} w32gdi_state_t;
+
 #define GAMMA_RAMP_SIZE  256
 
-int
-w32gdi_init(w32gdi_state_t *state)
+int w32gdi_init(int screen_num,int crtc_num)
 {
 	int cmcap;
 
 	/* Open device context */
-	state->hDC = GetDC(NULL);
-	if (state->hDC == NULL) {
+	state.hDC = GetDC(NULL);
+	if (state.hDC == NULL) {
 		LOG(LOGERR,_("Unable to open device context."));
 		return RET_FUN_FAILED;
 	}
 
 	/* Check support for gamma ramps */
-	cmcap = GetDeviceCaps(state->hDC, COLORMGMTCAPS);
+	cmcap = GetDeviceCaps(state.hDC, COLORMGMTCAPS);
 	if (cmcap != CM_GAMMA_RAMP) {
 		LOG(LOGERR,_("Display device does not support gamma ramps."));
 		return RET_FUN_FAILED;
 	}
 
 	/* Allocate space for saved gamma ramps */
-	state->saved_ramps = malloc(3*GAMMA_RAMP_SIZE*sizeof(WORD));
-	if (state->saved_ramps == NULL) {
+	state.saved_ramps = malloc(3*GAMMA_RAMP_SIZE*sizeof(WORD));
+	if (state.saved_ramps == NULL) {
 		perror("malloc");
-		ReleaseDC(NULL, state->hDC);
+		ReleaseDC(NULL, state.hDC);
 		return RET_FUN_FAILED;
 	}
 
 	/* Save current gamma ramps so we can restore them at program exit */
-	if( !GetDeviceGammaRamp(state->hDC, state->saved_ramps) ){
+	if( !GetDeviceGammaRamp(state.hDC, state.saved_ramps) ){
 		LOG(LOGERR,_("Unable to save current gamma ramp."));
-		ReleaseDC(NULL, state->hDC);
+		ReleaseDC(NULL, state.hDC);
 		return RET_FUN_FAILED;
 	}
 
 	return RET_FUN_SUCCESS;
 }
 
-void
-w32gdi_free(w32gdi_state_t *state)
+int w32gdi_free(void)
 {
 	/* Free saved ramps */
-	free(state->saved_ramps);
+	free(state.saved_ramps);
 
 	/* Release device context */
-	ReleaseDC(NULL, state->hDC);
+	ReleaseDC(NULL, state.hDC);
+	return RET_FUN_SUCCESS;
 }
 
-void
-w32gdi_restore(w32gdi_state_t *state)
+void w32gdi_restore(void)
 {
 	/* Restore gamma ramps */
-	if( !SetDeviceGammaRamp(state->hDC, state->saved_ramps) )
+	if( !SetDeviceGammaRamp(state.hDC, state.saved_ramps) )
 		LOG(LOGERR,_("Unable to restore gamma ramps."));
 }
 
-int
-w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma)
+int w32gdi_set_temperature(int temp, gamma_s gamma)
 {
 	WORD *gamma_r, *gamma_g, *gamma_b;
 
@@ -98,7 +103,7 @@ w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma)
 		       temp, gamma);
 
 	/* Set new gamma ramps */
-	if( !SetDeviceGammaRamp(state->hDC, gamma_ramps)) {
+	if( !SetDeviceGammaRamp(state.hDC, gamma_ramps)) {
 		LOG(LOGERR,_("Unable to set gamma ramps."));
 		free(gamma_ramps);
 		return RET_FUN_FAILED;
@@ -109,15 +114,24 @@ w32gdi_set_temperature(w32gdi_state_t *state, int temp, gamma_s gamma)
 	return RET_FUN_SUCCESS;
 }
 
-int w32gdi_get_temperature(w32gdi_state_t *state){
+int w32gdi_get_temperature(void){
 	WORD gamma_ramp[3][256];
 	float rb_ratio;
 	
-	if( !GetDeviceGammaRamp(state->hDC,gamma_ramp) ){
+	if( !GetDeviceGammaRamp(state.hDC,gamma_ramp) ){
 		LOG(LOGERR,_("Unable to get gamma ramps."));
 		return RET_FUN_FAILED;
 	}
 	rb_ratio = (float)gamma_ramp[0][255]/(float)gamma_ramp[2][255];
 	return gamma_find_temp(rb_ratio);
+}
+
+int w32gdi_load_funcs(gamma_method_s *method){
+	method->func_init = &w32gdi_init;
+	method->func_end = &w32gdi_free;
+	method->func_set_temp = &w32gdi_set_temperature;
+	method->func_get_temp = &w32gdi_get_temperature;
+	method->name = "WinGDI";
+	return RET_FUN_SUCCESS;
 }
 

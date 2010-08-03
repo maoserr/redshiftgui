@@ -33,7 +33,7 @@ static int _gamma_transition(Ihandle *ih){
 	}
 
 	LOG(LOGVERBOSE,_("Transition color: %uK"),curr_temp);
-	if( !gamma_state_set_temperature(opt_get_method(),
+	if( !gamma_state_set_temperature(
 				curr_temp,opt_get_gamma()) ){
 		LOG(LOGERR,_("Temperature adjustment failed."));
 		IupSetAttribute(timer_gamma_transition,"RUN","NO");
@@ -50,7 +50,7 @@ int guigamma_get_temp(void){
 
 // Sets the current temperature in GUI
 int guigamma_set_temp(int temp){
-	gamma_state_set_temperature(opt_get_method(),temp,opt_get_gamma());
+	gamma_state_set_temperature(temp,opt_get_gamma());
 	curr_temp = temp;
 	return RET_FUN_SUCCESS;
 }
@@ -106,8 +106,8 @@ void guigamma_init_timers(void){
 	IupSetCallback(timer_gamma_transition,"ACTION_CB",(Icallback)_gamma_transition);
 
 	// Make sure gamma is synced up
-	curr_temp = gamma_state_get_temperature(opt_get_method());
-	gamma_state_set_temperature(opt_get_method(),curr_temp,opt_get_gamma());
+	curr_temp = gamma_state_get_temperature();
+	gamma_state_set_temperature(curr_temp,opt_get_gamma());
 	guigamma_check(timer_gamma_check);
 }
 

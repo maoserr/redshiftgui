@@ -136,13 +136,12 @@ static int _do_oneshot(void){
 	int temp = gamma_calc_curr_target_temp(
 				opt_get_lat(),opt_get_lon(),
 				opt_get_temp_day(),opt_get_temp_night());
-	gamma_method_t method = opt_get_method();
 
-	LOG(LOGINFO,_("Current color temperature: %uK"),gamma_state_get_temperature(method));
+	LOG(LOGINFO,_("Current color temperature: %uK"),gamma_state_get_temperature());
 	LOG(LOGINFO,_("Target color temperature: %uK"), temp);
 
 	/* Adjust temperature */
-	if ( !gamma_state_set_temperature(method, temp, opt_get_gamma()) ){
+	if ( !gamma_state_set_temperature(temp, opt_get_gamma()) ){
 		LOG(LOGERR,_("Temperature adjustment failed."));
 		return RET_FUN_FAILED;
 	}
@@ -204,7 +203,6 @@ static int _do_oneshot(void){
 #endif /* ! HAVE_SYS_SIGNAL_H */
 
 static void transition_to_temp(int curr, int target, int speed){
-	gamma_method_t method=opt_get_method();
 	int currtemp = curr;
 
 	do{
@@ -219,7 +217,7 @@ static void transition_to_temp(int curr, int target, int speed){
 		}
 
 		LOG(LOGVERBOSE,_("Transition color: %uK"),currtemp);
-		if( !gamma_state_set_temperature(method,currtemp,opt_get_gamma()) ){
+		if( !gamma_state_set_temperature(currtemp,opt_get_gamma()) ){
 			LOG(LOGERR,_("Temperature adjustment failed."));
 			exiting = 1;
 			break;
@@ -228,7 +226,7 @@ static void transition_to_temp(int curr, int target, int speed){
 	}while(!exiting);
 
 	LOG(LOGVERBOSE,_("Target color reached: %uK"),target);
-	if( !gamma_state_set_temperature(method,target,opt_get_gamma()) ){
+	if( !gamma_state_set_temperature(target,opt_get_gamma()) ){
 		LOG(LOGERR,_("Temperature adjustment failed."));
 		exiting = 1;
 	}
@@ -237,11 +235,10 @@ static void transition_to_temp(int curr, int target, int speed){
 /* Change gamma continuously until break signal. */
 static int _do_console(void)
 {
-	gamma_method_t method=opt_get_method();
 	int target_temp;
 	int transpeed = opt_get_trans_speed();
 	int sec_countdown=0;
-	int saved_temp = gamma_state_get_temperature(method);
+	int saved_temp = gamma_state_get_temperature();
 	int curr_temp = saved_temp;
 
 	LOG(LOGVERBOSE,_("Original temp: %uK"),saved_temp);
@@ -249,7 +246,7 @@ static int _do_console(void)
 	do{
 		// Re-check every 20 minutes
 		if( sec_countdown <= 0 ){
-			curr_temp=gamma_state_get_temperature(method);
+			curr_temp=gamma_state_get_temperature();
 			target_temp=gamma_calc_curr_target_temp(
 				opt_get_lat(),opt_get_lon(),
 				opt_get_temp_day(),opt_get_temp_night());
@@ -261,16 +258,15 @@ static int _do_console(void)
 		SLEEP(1000);
 	}while(!exiting);
 	exiting=0;
-	curr_temp=gamma_state_get_temperature(method);
+	curr_temp=gamma_state_get_temperature();
 	// Use a constant 2000K/s transition speed to exit
-	transition_to_temp(curr_temp,saved_temp,2000);
-	gamma_state_restore(method);
+	transition_to_temp(curr_temp,DEFAULT_DAY_TEMP,2000);
 	return RET_FUN_SUCCESS;
 }
 
 int main(int argc, char *argv[]){
 	gamma_method_t method;
-	int ret;
+	int ret=RET_MAIN_ERR;
 
 #ifdef _WIN32
 	// This attaches a console to the parent process if it has a console
@@ -287,25 +283,22 @@ int main(int argc, char *argv[]){
 		return RET_MAIN_ERR;
 	}
 
-	if( !(_parse_options(argc,argv)) ){
-		args_free();
-		log_end();
-		return RET_MAIN_ERR;
-	}
+	if( !(_parse_options(argc,argv)) )
+		goto end;
+
 	// Initialize gamma method
+	if( !gamma_load_methods() )
+		goto end;
+
 	method = gamma_init_method(opt_get_screen(),opt_get_crtc(),
 			opt_get_method());
-	if( !method ){
-		args_free();
-		log_end();
-		return RET_MAIN_ERR;
-	}
-	opt_set_method(method);
+	if( !method )
+		goto end;
+
 	// Initialize location method
 	if( !location_init() ){
-		args_free();
-		log_end();
-		return RET_MAIN_ERR;
+		gamma_state_free();
+		goto end;
 	}
 	
 	if(opt_get_oneshot()){
@@ -329,12 +322,13 @@ int main(int argc, char *argv[]){
 #endif
 	}
 	location_end();
-	if( ret ) // Free if no error occurred
-		gamma_state_free(opt_get_method());
+	gamma_state_free();
 
-	// Else we go to GUI mode
+	end:
+	opt_free();
 	args_free();
 	log_end();
+
 	if( ret )
 		return RET_MAIN_OK;
 	else

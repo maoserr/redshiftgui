@@ -12,32 +12,23 @@
 #include "gamma.h"
 #include <X11/Xlib.h>
 
-/**\brief VidMode state storage */
-typedef struct {
-	/**\brief Display pointer */
-	Display *display;
-	/**\brief Screen number in use */
-	int screen_num;
-	/**\brief Size of the gamma ramps */
-	int ramp_size;
-	/**\brief Saved ramps */
-	uint16_t *saved_ramps;
-} vidmode_state_t;
-
 /**\brief Initialize VidMode */
-int vidmode_init(vidmode_state_t *state, int screen_num);
+int vidmode_init(int screen_num,int crtc_num);
 
 /**\brief Frees VidMode state */
-void vidmode_free(vidmode_state_t *state);
+int vidmode_free(void);
 
 /**\brief Restores saved gamma ramps */
-void vidmode_restore(vidmode_state_t *state);
+void vidmode_restore(void);
 
 /**\brief Sets temperature using VidMode */
-int vidmode_set_temperature(vidmode_state_t *state, int temp, gamma_s gamma);
+int vidmode_set_temperature(int temp, gamma_s gamma);
 
 /**\brief Retrieves temperature using VidMode */
-int vidmode_get_temperature(vidmode_state_t *state);
+int vidmode_get_temperature(void);
+
+/**\brief Loads VidMode functions into methods structure */
+int vidmode_load_funcs(gamma_method_s *method);
 
 #endif /*ENABLE_VIDMODE*/
 #endif /* ! _REDSHIFT_VIDMODE_H */
