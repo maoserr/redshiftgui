@@ -81,9 +81,6 @@ gamma_ramp_s gamma_get_ramps(int size);
 /**\brief Updates gamma ramp structure */
 gamma_ramp_s gamma_ramp_fill(int size,int temp);
 
-/**\brief Retrieves current active method name */
-char *gamma_get_active_method_name(void);
-
 /**\brief Retrieves method name by id */
 char *gamma_get_method_name(gamma_method_t method);
 

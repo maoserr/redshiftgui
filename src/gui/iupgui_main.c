@@ -79,7 +79,7 @@ static int _manual_temp(Ihandle *ih){
 static int _bright(Ihandle *ih){
 	float val = IupGetFloat(ih,"VALUE");
 	LOG(LOGVERBOSE,_("Setting brightness: %f"),val);
-	opt_set_gamma(val,val,val);
+	opt_set_brightness(val);
 	guigamma_set_temp(guigamma_get_temp());
 	return IUP_DEFAULT;
 }

@@ -146,7 +146,7 @@ int opt_set_map(pair map[]);
 int opt_parse_map(char *map);
 
 /**\brief Retrieves brightness */
-int opt_get_brightness(void);
+float opt_get_brightness(void);
 
 /**\brief Retrieves CRTC */
 int opt_get_crtc(void);

@@ -233,6 +233,8 @@ static void _settings_create(void){
 			*frame_startup,
 			*frame_elev,
 
+			*tabs_all,
+
 			*button_cancel,
 			*button_save,
 			*hbox_buttons,
@@ -245,6 +247,23 @@ static void _settings_create(void){
 	frame_speed = _settings_create_tran();
 	frame_startup = _settings_create_startup();
 	frame_elev = _settings_create_elev();
+
+	// Tabs containing settings
+	tabs_all = IupTabs(
+			IupVbox(
+				frame_method,
+				frame_day,
+				frame_night,
+				frame_startup,
+				NULL),
+			IupVbox(
+				frame_speed,
+				frame_elev,
+				NULL),
+			NULL);
+	IupSetAttributes(tabs_all,"TABTITLE0=Basic,"
+			"TABTITLE1=Transition");
+
 	// Buttons
 	button_cancel = IupButton(_("Cancel"),NULL);
 	IupSetCallback(button_cancel,"ACTION",(Icallback)_setting_cancel);
@@ -259,12 +278,7 @@ static void _settings_create(void){
 
 	// Box containing all
 	vbox_all = IupVbox(
-			frame_method,
-			frame_day,
-			frame_night,
-			frame_speed,
-			frame_startup,
-			frame_elev,
+			tabs_all,
 			IupFill(),
 			hbox_buttons,
 			NULL);

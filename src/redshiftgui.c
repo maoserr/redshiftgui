@@ -14,16 +14,6 @@
 # include <sys/signal.h>
 #endif
 
-#ifdef ENABLE_RANDR
-# include "backends/randr.h"
-#endif
-#ifdef ENABLE_VIDMODE
-# include "backends/vidmode.h"
-#endif
-#ifdef ENABLE_WINGDI
-# include "backends/w32gdi.h"
-#endif
-
 #if defined(ENABLE_IUP)
 # include "gui/iupgui.h"
 #elif defined(ENABLE_GTK)
@@ -45,7 +35,17 @@ static int _parse_options(int argc, char *argv[]){
 	args_addarg("l","latlon",
 		_("<LAT:LON> Latitude and longitude"),ARGVAL_STRING);
 	args_addarg("m","method",
-		_("<METHOD> Method to use (RANDR, VidMode, or WinGDI"),ARGVAL_STRING);
+		_("<METHOD> Method to use (Auto"
+#ifdef ENABLE_RANDR
+			", RANDR"
+#endif
+#ifdef ENABLE_VIDMODE
+			", VidMode"
+#endif
+#ifdef ENABLE_WINGDI
+			", WinGDI"
+#endif
+			")"),ARGVAL_STRING);
 	args_addarg("n","no-gui",
 		_("Run in console mode (no GUI)."),ARGVAL_NONE);
 	args_addarg("o","oneshot",

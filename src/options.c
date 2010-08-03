@@ -93,6 +93,7 @@ void opt_set_defaults(void){
 // Sets brightness
 int opt_set_brightness(double brightness){
 	Rs_opts.brightness = (float)brightness;
+	LOG(LOGVERBOSE,_("Option brightness: %f"),Rs_opts.brightness);
 	return RET_FUN_SUCCESS;
 }
 
@@ -175,7 +176,9 @@ int opt_set_method(gamma_method_t method){
 // Parses the method to change the monitor temperature
 int opt_parse_method(char *val){
 	int ret;
-	if (strcmp(val, "randr") == 0 || strcmp(val, "RANDR") == 0) {
+	if (strcmp(val, "auto") == 0 || strcmp(val, "Auto") == 0 ){
+		ret = opt_set_method(GAMMA_METHOD_AUTO);
+	}else if (strcmp(val, "randr") == 0 || strcmp(val, "RANDR") == 0) {
 #ifdef ENABLE_RANDR
 		ret = opt_set_method(GAMMA_METHOD_RANDR);
 #else
@@ -279,7 +282,7 @@ int opt_parse_map(char *map){
 	return RET_FUN_SUCCESS;
 }
 
-int opt_get_brightness(void)
+float opt_get_brightness(void)
 {return Rs_opts.brightness;}
 
 int opt_get_crtc(void)
@@ -343,7 +346,7 @@ void opt_write_config(void){
 	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
 	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());
-	fprintf(fid_config,"method=%s\n",gamma_get_active_method_name());
+	fprintf(fid_config,"method=%s\n",gamma_get_method_name(opt_get_method()));
 	fclose(fid_config);
 }
 

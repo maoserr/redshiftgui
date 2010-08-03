@@ -317,41 +317,81 @@ ArgReturn args_parse(int argc, char *argv[]){
 	return ARGRET_OK;
 }
 
+static ArgReturn _parse_line(ArgChar buffer[]){
+	ArgChar name[11];
+	char *sep;
+	ArgItem *item;
+	
+	if( buffer[0] == '\0' ){
+		DEBUG("End of configuration.\n");
+		return ARGRET_FILE_READ_ERROR;
+	}
+
+	sep = strchr(buffer,'=');
+	DEBUG("Parsing line %s\n",buffer);
+	if( sep && (sep-buffer) <= 10 ){
+		(*sep) = '\0';
+		strncpy(name,buffer,10);
+		item = _args_setval(name,++sep);
+		if( !item ){
+			DEBUG("Found unknown value %s.\n",name);
+			_args_setunknown(name);
+		}
+	}else if( strlen(buffer)<=10 ){
+		DEBUG("Found flag %s.\n",name);
+		item = _args_setval(buffer,NULL);
+		if( !item ){
+			DEBUG("Found unknown %s.\n",name);
+			_args_setunknown(name);
+		}
+	}
+	return ARGRET_OK;
+}
+
 // Function to parse arguments from a file
 ArgReturn args_parsefile(ArgStr filename)
 {
-	static ArgChar buffer[1024];
-	static ArgChar name[12];
-	static ArgChar value[512];
-	size_t buflen;
-	ArgItem *item;
+	ArgChar *buffer;
+	int buflen=1024;
+	int currchar;
+	fpos_t currpos;
+	int currlen=0;
 	FILE *fp = fopen(filename,"r");
 	if ( !fp )
 		return ARGRET_INVALID_FILE;
+	
+	buffer = (ArgChar*)malloc(sizeof(ArgChar)*buflen);
 
-	while( fgets(buffer,1024,fp) ){
-		buflen = strlen(buffer);
-		if( buflen >= 1023 )
-			return ARGRET_FILE_LINE_TOO_LONG;
-		// Skip lines starting with # or empty lines
-		if( buffer[0] == '#' || buffer[0] == '\n' )
-			continue;
-		DEBUG("Parsing line %s",buffer);
-		if( sscanf(buffer,"%10[^=]=%510[^\n]",name,value) == 2 ){
-			item = _args_setval(name,value);
-			if( !item ){
-				DEBUG("Found unknown value %s.\n",name);
-				_args_setunknown(name);
+	fgetpos( fp, &currpos );
+	while( 1 ){
+		currchar = fgetc(fp);
+		DEBUG("%c",currchar);
+		++currlen;
+		if( (currchar==EOF) || (currchar=='\n') ){
+			int i;
+			if( currchar==EOF ){
+				DEBUG("\nEOF Detected");
 			}
-		}else if( sscanf(buffer,"%10s",name) == 1 ){
-			DEBUG("Found flag %s.\n",name);
-			item = _args_setval(name,NULL);
-			if( !item ){
-				DEBUG("Found unknown %s.\n",name);
-				_args_setunknown(name);
+			DEBUG("\nFound newline or EOF (len %d)\n",currlen);
+			if( currlen >= buflen )
+				buffer = (ArgChar*)realloc(buffer,currlen);
+
+			fsetpos(fp,&currpos);
+			for( i=0; i<currlen; ++i){
+				buffer[i]=fgetc(fp);
 			}
+			buffer[--i]='\0';
+			DEBUG("Buffer contents: %s\n",buffer);
+			// Skip lines starting with # or empty lines
+			if( (buffer[0]!='#') && (buffer[0]!='\n') )
+				_parse_line(buffer);
+			fgetpos(fp, &currpos);
+			currlen = 0;
 		}
+		if( (currchar==EOF) )
+			break;
 	}
+	free(buffer);
 	if( ferror(fp) ){
 		fclose(fp);
 		return ARGRET_FILE_READ_ERROR;

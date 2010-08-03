@@ -83,6 +83,7 @@ gamma_ramp_s gamma_ramp_fill(int size, int temp)
 	gamma_interp_color(alpha, &blackbody_color[temp_index],
 			  &blackbody_color[temp_index+3], white_point);
 
+	LOG(LOGVERBOSE,_("Gamma brightness: %f"),brightness);
 	if(!curr_ramp.size)
 		return curr_ramp;
 	for (i = 0; i < size; i++) {
@@ -97,13 +98,6 @@ gamma_ramp_s gamma_ramp_fill(int size, int temp)
 				 UINT16_MAX * white_point[2]));
 	}
 	return curr_ramp;
-}
-
-char *gamma_get_active_method_name(void){
-	if( methods[active_method].name )
-		return methods[active_method].name;
-	else
-		return "None";
 }
 
 char *gamma_get_method_name(gamma_method_t method){
