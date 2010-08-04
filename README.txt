@@ -47,3 +47,8 @@ Tuesday, July 20, 2010 - (Version 0.1.2)
  * Added brightness control
  * Ability to start minimized or disabled
 
+IV. Limitations
+===============
+1. WinGDI has a lower limit on gamma ramps, so brightness cannot go below a
+   certain limit.
+

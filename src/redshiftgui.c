@@ -24,6 +24,22 @@
 #define RET_MAIN_OK 0
 #define RET_MAIN_ERR -1
 
+#ifdef ENABLE_RANDR
+# define RANDR_TXT ", RANDR"
+#else
+# define RANDR_TXT ""
+#endif
+#ifdef ENABLE_VIDMODE
+# define VIDMODE_TXT ", VidMode"
+#else
+# define VIDMODE_TXT ""
+#endif
+#ifdef ENABLE_WINGDI
+# define WINGDI_TXT ", WinGDI"
+#else
+# define WINGDI_TXT ""
+#endif
+
 // Internal function to parse arguments
 static int _parse_options(int argc, char *argv[]){
 	args_addarg("b","bright",
@@ -35,17 +51,7 @@ static int _parse_options(int argc, char *argv[]){
 	args_addarg("l","latlon",
 		_("<LAT:LON> Latitude and longitude"),ARGVAL_STRING);
 	args_addarg("m","method",
-		_("<METHOD> Method to use (Auto"
-#ifdef ENABLE_RANDR
-			", RANDR"
-#endif
-#ifdef ENABLE_VIDMODE
-			", VidMode"
-#endif
-#ifdef ENABLE_WINGDI
-			", WinGDI"
-#endif
-			")"),ARGVAL_STRING);
+		_("<METHOD> Method to use (Auto" RANDR_TXT VIDMODE_TXT WINGDI_TXT ")"),ARGVAL_STRING);
 	args_addarg("n","no-gui",
 		_("Run in console mode (no GUI)."),ARGVAL_NONE);
 	args_addarg("o","oneshot",
@@ -83,8 +89,9 @@ static int _parse_options(int argc, char *argv[]){
 			LOG(LOGWARN,_("Invalid/empty config: %s"),Config_file);
 
 		if( args_check("h") ){
-			printf(_("Redshift GUI help:\n"));
+			printf(_("RedshiftGUI (%s) help:\n"),PACKAGE_VER);
 			args_print();
+			printf(_("\nReport bugs to %s\n"),PACKAGE_BUGREPORT);
 			return RET_FUN_FAILED;
 		}
 

@@ -338,7 +338,7 @@ static ArgReturn _parse_line(ArgChar buffer[]){
 			_args_setunknown(name);
 		}
 	}else if( strlen(buffer)<=10 ){
-		DEBUG("Found flag %s.\n",name);
+		DEBUG("Found flag %s.\n",buffer);
 		item = _args_setval(buffer,NULL);
 		if( !item ){
 			DEBUG("Found unknown %s.\n",name);

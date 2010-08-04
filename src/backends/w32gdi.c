@@ -19,7 +19,6 @@
 
 #include "common.h"
 #include "gamma.h"
-#include "w32gdi.h"
 
 /**\brief Win32 GDI state info */
 typedef struct {
@@ -30,6 +29,8 @@ typedef struct {
 } w32gdi_state_t;
 
 #define GAMMA_RAMP_SIZE  256
+
+static w32gdi_state_t state={NULL,NULL};
 
 int w32gdi_init(int screen_num,int crtc_num)
 {
@@ -86,43 +87,26 @@ void w32gdi_restore(void)
 
 int w32gdi_set_temperature(int temp, gamma_s gamma)
 {
-	WORD *gamma_r, *gamma_g, *gamma_b;
-
-	/* Create new gamma ramps */
-	WORD *gamma_ramps = malloc(3*GAMMA_RAMP_SIZE*sizeof(WORD));
-	if (gamma_ramps == NULL) {
-		perror("malloc");
-		return RET_FUN_FAILED;
-	}
-
-	gamma_r = &gamma_ramps[0*GAMMA_RAMP_SIZE];
-	gamma_g = &gamma_ramps[1*GAMMA_RAMP_SIZE];
-	gamma_b = &gamma_ramps[2*GAMMA_RAMP_SIZE];
-
-	gamma_ramp_fill(gamma_r, gamma_g, gamma_b, GAMMA_RAMP_SIZE,
-		       temp, gamma);
+	gamma_ramp_s ramp=gamma_ramp_fill(GAMMA_RAMP_SIZE,temp);
 
 	/* Set new gamma ramps */
-	if( !SetDeviceGammaRamp(state.hDC, gamma_ramps)) {
+	if( !SetDeviceGammaRamp(state.hDC,ramp.all)) {
 		LOG(LOGERR,_("Unable to set gamma ramps."));
-		free(gamma_ramps);
 		return RET_FUN_FAILED;
 	}
-
-	free(gamma_ramps);
 
 	return RET_FUN_SUCCESS;
 }
 
 int w32gdi_get_temperature(void){
-	WORD gamma_ramp[3][256];
+	gamma_ramp_s ramp=gamma_get_ramps(GAMMA_RAMP_SIZE);
 	float rb_ratio;
 	
-	if( !GetDeviceGammaRamp(state.hDC,gamma_ramp) ){
+	if( !GetDeviceGammaRamp(state.hDC,ramp.all) ){
 		LOG(LOGERR,_("Unable to get gamma ramps."));
 		return RET_FUN_FAILED;
 	}
-	rb_ratio = (float)gamma_ramp[0][255]/(float)gamma_ramp[2][255];
+	rb_ratio = (float)ramp.r[255]/(float)ramp.b[255];
 	return gamma_find_temp(rb_ratio);
 }
 
