@@ -39,7 +39,7 @@ int opt_get_config_file(char buffer[],size_t bufsize);
 
 /**\brief Load default values for all fields.
  */
-void opt_set_defaults(void);
+void opt_init(void);
 
 /**\brief Sets the brightness value
  * \param brightness Brightness scale (0.1 - 1)
@@ -138,7 +138,7 @@ int opt_set_disabled(int val);
 /**\brief Sets temperature map
  * \param map Array of pairs containing temperature map.
  */
-int opt_set_map(pair map[]);
+int opt_set_map(pair map[],int size);
 
 /**\brief Parses temperature map
  * \param map String containing new temperature map.
@@ -193,7 +193,7 @@ int opt_get_disabled(void);
 #endif//ENABLE_IUP
 
 /**\brief Retrieves current temperature map */
-pair *opt_get_map(void);
+pair *opt_get_map(int *size);
 
 /**\brief Writes the configuration file with current settings */
 void opt_write_config(void);

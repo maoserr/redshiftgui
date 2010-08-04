@@ -95,8 +95,9 @@ static int _parse_options(int argc, char *argv[]){
 			return RET_FUN_FAILED;
 		}
 
-		log_setlevel(0);	// This will be overridden by the verbose option
-		opt_set_defaults();
+		opt_init();
+		if( (val=args_getnamed("v")) )
+			err = (!opt_set_verbose(atoi(val))) || err;
 		if( (val=args_getnamed("b")) )
 			err = (!opt_set_brightness(atof(val))) || err;
 		if( (val=args_getnamed("c")) )
@@ -117,8 +118,6 @@ static int _parse_options(int argc, char *argv[]){
 			err = (!opt_set_screen(atoi(val))) || err;
 		if( (val=args_getnamed("t")) )
 			err = (!opt_parse_temperatures(val)) || err;
-		if( (val=args_getnamed("v")) )
-			err = (!opt_set_verbose(atoi(val))) || err;
 #ifdef ENABLE_IUP
 		if( (val=args_getnamed("min")) )
 			err = (!opt_set_min(1)) || err;

@@ -42,15 +42,16 @@ typedef struct{
 #endif//ENABLE_IUP
 	/**\brief Temperature map (Advanced) */
 	pair *map;
+	/**\brief Temperature map size (Advanced) */
+	int map_size;
 } rs_opts;
 
 static rs_opts Rs_opts;
-static pair default_map[5]={
+static pair default_map[]={
 	{177.0,	100},
 	{3.0,	100},
 	{-6.0,	0},
 	{-174.0,0},
-	{-1,-1}
 };
 
 /* Retrieves configuration file full path */
@@ -71,7 +72,9 @@ int opt_get_config_file(char buffer[],size_t bufsize){
 }
 
 // Load defaults
-void opt_set_defaults(void){
+void opt_init(void){
+	Rs_opts.map=NULL;
+	opt_set_verbose(0);
 	opt_set_brightness(1.0);
 	opt_set_location(0,0);
 	opt_set_temperatures(DEFAULT_DAY_TEMP,DEFAULT_NIGHT_TEMP);
@@ -82,12 +85,10 @@ void opt_set_defaults(void){
 	opt_set_transpeed(1000);
 	opt_set_oneshot(0);
 	opt_set_nogui(0);
-	opt_set_verbose(0);
 #ifdef ENABLE_IUP
 	opt_set_min(0);
 	opt_set_disabled(0);
 #endif//ENABLE_IUP
-	opt_set_map(default_map);
 }
 
 // Sets brightness
@@ -270,15 +271,56 @@ int opt_set_disabled(int val){
 #endif//ENABLE_IUP
 
 // Set temperature map
-int opt_set_map(pair map[]){
-	Rs_opts.map = map;
+int opt_set_map(pair map[],int size){
+	int i=0;
+	if( Rs_opts.map )
+		free(Rs_opts.map);
+	Rs_opts.map = (pair*)malloc(sizeof(pair)*size);
+	if( !Rs_opts.map ){
+		LOG(LOGERR,_("Map allocation error"));
+		return RET_FUN_FAILED;
+	}
+	memcpy(Rs_opts.map,map,sizeof(pair)*size);
+	Rs_opts.map_size=size;
 	return RET_FUN_SUCCESS;
 }
 
 // Parse temperature map
 int opt_parse_map(char *map){
-
-
+	char *currstr=map; /* Pointer string */
+	char *currsep,*currend;
+	int cnt=0;
+	int i;
+	pair *curr_map;
+	while( (currstr=strchr(currstr,',')) ){
+		if( (currstr=strchr(currstr,';')) )
+			++cnt;
+		else
+			break;
+	}
+	if( cnt<=0 ){
+		LOG(LOGERR,_("Map empty."));
+		return RET_FUN_FAILED;
+	}
+	curr_map = (pair*)malloc(sizeof(pair)*cnt);
+	if( !curr_map ){
+		LOG(LOGERR,_("Map memory allocation error"));
+		return RET_FUN_FAILED;
+	}
+	currstr=map;
+	for( i=0; i<cnt; ++i ){
+		currsep=strchr(currstr,',');
+		currend=strchr(currstr,';');
+		curr_map[i].elev=atof(currstr);
+		curr_map[i].temp=atoi(++currsep);
+		LOG(LOGVERBOSE,_("Map line: %f,%d"),curr_map[i].elev,
+				curr_map[i].temp);
+		currstr=++currend;
+	}
+	if( Rs_opts.map )
+		free(Rs_opts.map);
+	Rs_opts.map = curr_map;
+	Rs_opts.map_size=cnt;
 	return RET_FUN_SUCCESS;
 }
 
@@ -329,8 +371,15 @@ int opt_get_disabled(void)
 {return Rs_opts.startdisabled;}
 #endif//ENABLE_IUP
 
-pair *opt_get_map(void)
-{return Rs_opts.map;}
+pair *opt_get_map(int *size){
+	if( !Rs_opts.map ){
+		(*size)=SIZEOF(default_map);
+		return default_map;
+	}else{
+		(*size)=Rs_opts.map_size;
+		return Rs_opts.map;
+	}
+}
 
 /* Writes the configuration file based on current state */
 void opt_write_config(void){
@@ -352,7 +401,7 @@ void opt_write_config(void){
 
 /* Frees resources used by options */
 void opt_free(void){
-
-
-
+	LOG(LOGVERBOSE,_("Freeing options"));
+	if( Rs_opts.map )
+		free(Rs_opts.map);
 }
