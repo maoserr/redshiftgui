@@ -35,7 +35,15 @@ II. Todo list
 III. Changelog
 ==============
 
+(Version 0.1.3)
+---------------
+ * Added auto method in options
+ * Added temperature map for elevation->temperature adjustment
+ * Made brightness control work
+ * Refactored much of the gamma code
+
 Tuesday, July 20, 2010 - (Version 0.1.2)
 ----------------------------------------
-Added brightness control, ability to start minimized or disabled
+ * Added brightness control
+ * Ability to start minimized or disabled
 

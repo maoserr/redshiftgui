@@ -51,6 +51,20 @@ typedef struct{
 	int size;
 } gamma_ramp_s;
 
+/**\brief Gamma method functions */
+typedef struct{
+	/**\brief Function to initialize method */
+	int (*func_init)(int screen_num,int crtc_num);
+	/**\brief Function to shutdown method */
+	int (*func_end)(void);
+	/**\brief Function to set the temperature */
+	int (*func_set_temp)(int temp, gamma_s gamma);
+	/**\brief Function to get the temperature */
+	int (*func_get_temp)(void);
+	/**\brief Method name. */
+	char *name;
+} gamma_method_s;
+
 /**\brief Enum of gamma adjustment methods */
 typedef enum {
 	GAMMA_METHOD_NONE,		/**< No method defined */
@@ -61,24 +75,33 @@ typedef enum {
 	GAMMA_METHOD_MAX		/**< Tracks the highest value */
 } gamma_method_t;
 
-/**\brief Retrieves method name as character */
-char *gamma_get_method_name(gamma_method_t method);
+/**\brief Re-allocates ramps if size changed, otherwise return pointer to ramp */
+gamma_ramp_s gamma_get_ramps(int size);
 
 /**\brief Updates gamma ramp structure */
-gamma_ramp_s *gamma_ramp_fill(int size,int temp);
+gamma_ramp_s gamma_ramp_fill(int size,int temp);
+
+/**\brief Retrieves method name by id */
+char *gamma_get_method_name(gamma_method_t method);
 
 /**\brief Find the temperature based on red:blue ratio */
 int gamma_find_temp(float ratio);
+
+/**\brief Load methods available */
+int gamma_load_methods(void);
+
+/**\brief Looks up method by name */
+gamma_method_t gamma_lookup_method(char *name);
 
 /**\brief Initialize gamma changing method. */
 gamma_method_t gamma_init_method(int screen_num, int crtc_num,
 		gamma_method_t method);
 
-/**\brief Restores saved gamma state. */
-void gamma_state_restore(gamma_method_t method);
+/**\brief Restores gamma ramps to default values */
+int gamma_state_restore(void);
 
 /**\brief Free the state associated with the appropriate adjustment method. */
-void gamma_state_free(gamma_method_t method);
+int gamma_state_free(void);
 
 /**\brief Calculate temperature based on elevation. */
 int gamma_calc_temp(double elevation, int temp_day, int temp_night);
@@ -88,10 +111,9 @@ int gamma_calc_curr_target_temp(float lat, float lon,
 		int temp_day, int temp_night);
 
 /**\brief Sets the temperature */
-int gamma_state_set_temperature(gamma_method_t method,
-			    int temp, gamma_s gamma);
+int gamma_state_set_temperature(int temp, gamma_s gamma);
 
 /**\brief Retrieves current temperature */
-int gamma_state_get_temperature(gamma_method_t method);
+int gamma_state_get_temperature(void);
 
 #endif//__GAMMA_H__

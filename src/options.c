@@ -6,12 +6,6 @@
 #include "gamma.h"
 #include "options.h"
 
-/**\brief Pairs for elevation to temperature map */
-typedef struct{
-	double elev;
-	int temp;
-} pair;
-
 /**\brief Redshift options.*/
 typedef struct{
 	/**\brief Brightness */
@@ -93,12 +87,13 @@ void opt_set_defaults(void){
 	opt_set_min(0);
 	opt_set_disabled(0);
 #endif//ENABLE_IUP
-	opt_parse_map("");
+	opt_set_map(default_map);
 }
 
 // Sets brightness
 int opt_set_brightness(double brightness){
 	Rs_opts.brightness = (float)brightness;
+	LOG(LOGVERBOSE,_("Option brightness: %f"),Rs_opts.brightness);
 	return RET_FUN_SUCCESS;
 }
 
@@ -181,7 +176,9 @@ int opt_set_method(gamma_method_t method){
 // Parses the method to change the monitor temperature
 int opt_parse_method(char *val){
 	int ret;
-	if (strcmp(val, "randr") == 0 || strcmp(val, "RANDR") == 0) {
+	if (strcmp(val, "auto") == 0 || strcmp(val, "Auto") == 0 ){
+		ret = opt_set_method(GAMMA_METHOD_AUTO);
+	}else if (strcmp(val, "randr") == 0 || strcmp(val, "RANDR") == 0) {
 #ifdef ENABLE_RANDR
 		ret = opt_set_method(GAMMA_METHOD_RANDR);
 #else
@@ -272,6 +269,12 @@ int opt_set_disabled(int val){
 }
 #endif//ENABLE_IUP
 
+// Set temperature map
+int opt_set_map(pair map[]){
+	Rs_opts.map = map;
+	return RET_FUN_SUCCESS;
+}
+
 // Parse temperature map
 int opt_parse_map(char *map){
 
@@ -279,7 +282,7 @@ int opt_parse_map(char *map){
 	return RET_FUN_SUCCESS;
 }
 
-int opt_get_brightness(void)
+float opt_get_brightness(void)
 {return Rs_opts.brightness;}
 
 int opt_get_crtc(void)
@@ -326,6 +329,9 @@ int opt_get_disabled(void)
 {return Rs_opts.startdisabled;}
 #endif//ENABLE_IUP
 
+pair *opt_get_map(void)
+{return Rs_opts.map;}
+
 /* Writes the configuration file based on current state */
 void opt_write_config(void){
 	char Config_file[LONGEST_PATH];
@@ -340,7 +346,13 @@ void opt_write_config(void){
 	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
 	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());
-	fprintf(fid_config,"method=%s\n",
-			gamma_get_method_name(opt_get_method()));
+	fprintf(fid_config,"method=%s\n",gamma_get_method_name(opt_get_method()));
 	fclose(fid_config);
+}
+
+/* Frees resources used by options */
+void opt_free(void){
+
+
+
 }
