@@ -47,6 +47,7 @@
 </div>
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Data Structures</a> &#124;
 <a href="#define-members">Defines</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
@@ -59,6 +60,10 @@
 <code>#include &quot;<a class="el" href="common_8h.html">common.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="gamma_8h.html">gamma.h</a>&quot;</code><br/>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpair.html">pair</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Pairs for elevation to temperature map.  <a href="structpair.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afb7fd15722eccf2cd90338aac9f88318"></a><!-- doxytag: member="options.h::MIN_LAT" ref="afb7fd15722eccf2cd90338aac9f88318" args="" -->
@@ -86,8 +91,8 @@ Defines</h2></td></tr>
 Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a946a796622862627656a9749c0854562">opt_get_config_file</a> (char buffer[], size_t bufsize)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Retrieves full path of the configuration file.  <a href="#a946a796622862627656a9749c0854562"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adb26441f613bbc2dd69cb4511e7e2209"></a><!-- doxytag: member="options.h::opt_set_defaults" ref="adb26441f613bbc2dd69cb4511e7e2209" args="(void)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#adb26441f613bbc2dd69cb4511e7e2209">opt_set_defaults</a> (void)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a837b8cbb08e95ec2e36be81cd80919c8"></a><!-- doxytag: member="options.h::opt_init" ref="a837b8cbb08e95ec2e36be81cd80919c8" args="(void)" -->
+void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a837b8cbb08e95ec2e36be81cd80919c8">opt_init</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Load default values for all fields. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#af5cb58146de7f531ab35916d8460eaee">opt_set_brightness</a> (double brightness)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Sets the brightness value.  <a href="#af5cb58146de7f531ab35916d8460eaee"></a><br/></td></tr>
@@ -121,8 +126,8 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="opti
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Sets the verbosity of the logging level.  <a href="#a5bf1ce3319f4051088698d3b9c91a435"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a905bdb2a7b39fa2a923ce3bb215ea498">opt_parse_map</a> (char *map)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Parses temperature map.  <a href="#a905bdb2a7b39fa2a923ce3bb215ea498"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f9aad4d09142c82e23a22ac364d0cc9"></a><!-- doxytag: member="options.h::opt_get_brightness" ref="a8f9aad4d09142c82e23a22ac364d0cc9" args="(void)" -->
-int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a8f9aad4d09142c82e23a22ac364d0cc9">opt_get_brightness</a> (void)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a43bef8983202e172380e49f8bcf65d40"></a><!-- doxytag: member="options.h::opt_get_brightness" ref="a43bef8983202e172380e49f8bcf65d40" args="(void)" -->
+float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a43bef8983202e172380e49f8bcf65d40">opt_get_brightness</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Retrieves brightness. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af04d55d60ddfcb3a33f0cb89f761ce97"></a><!-- doxytag: member="options.h::opt_get_crtc" ref="af04d55d60ddfcb3a33f0cb89f761ce97" args="(void)" -->
 int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#af04d55d60ddfcb3a33f0cb89f761ce97">opt_get_crtc</a> (void)</td></tr>
@@ -160,12 +165,15 @@ int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="optio
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a01136da841f17e8a0b785579b50a2385"></a><!-- doxytag: member="options.h::opt_get_verbosity" ref="a01136da841f17e8a0b785579b50a2385" args="(void)" -->
 int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a01136da841f17e8a0b785579b50a2385">opt_get_verbosity</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Retrieves verbosity level. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a933a6cff901e79e14359eec6288f1cea"></a><!-- doxytag: member="options.h::opt_get_map" ref="a933a6cff901e79e14359eec6288f1cea" args="(void)" -->
-int *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a933a6cff901e79e14359eec6288f1cea">opt_get_map</a> (void)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a034220419adbf8624b01d833c245fd01"></a><!-- doxytag: member="options.h::opt_get_map" ref="a034220419adbf8624b01d833c245fd01" args="(int *size)" -->
+<a class="el" href="structpair.html">pair</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a034220419adbf8624b01d833c245fd01">opt_get_map</a> (int *size)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Retrieves current temperature map. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8487e47bca104a0717e56b04529fba82"></a><!-- doxytag: member="options.h::opt_write_config" ref="a8487e47bca104a0717e56b04529fba82" args="(void)" -->
 void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a8487e47bca104a0717e56b04529fba82">opt_write_config</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Writes the configuration file with current settings. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6609a0f77092f088f9b549f49c4c4f0c"></a><!-- doxytag: member="options.h::opt_free" ref="a6609a0f77092f088f9b549f49c4c4f0c" args="(void)" -->
+void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8h.html#a6609a0f77092f088f9b549f49c4c4f0c">opt_free</a> (void)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Frees resources used by options. <br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Options handling. </p>

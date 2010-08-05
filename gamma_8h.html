@@ -66,6 +66,8 @@ Data Structures</h2></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">gamma structure  <a href="structgamma__s.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgamma__ramp__s.html">gamma_ramp_s</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">gamma ramp structure  <a href="structgamma__ramp__s.html#_details">More...</a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgamma__method__s.html">gamma_method_s</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Gamma method functions.  <a href="structgamma__method__s.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a730cd6a37517702fe0f3d4012b031220"></a><!-- doxytag: member="gamma.h::MIN_GAMMA" ref="a730cd6a37517702fe0f3d4012b031220" args="" -->
@@ -108,23 +110,32 @@ Enumerations</h2></td></tr>
  <a href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a623ce0af7ab48a9577a958bf7cb1b103"></a><!-- doxytag: member="gamma.h::gamma_get_method_name" ref="a623ce0af7ab48a9577a958bf7cb1b103" args="(gamma_method_t method)" -->
-char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#a623ce0af7ab48a9577a958bf7cb1b103">gamma_get_method_name</a> (<a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a> method)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Retrieves method name as character. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4270e21ae882bfb0c95b9153cbbf7d0"></a><!-- doxytag: member="gamma.h::gamma_get_ramps" ref="ad4270e21ae882bfb0c95b9153cbbf7d0" args="(int size)" -->
+<a class="el" href="structgamma__ramp__s.html">gamma_ramp_s</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#ad4270e21ae882bfb0c95b9153cbbf7d0">gamma_get_ramps</a> (int size)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Re-allocates ramps if size changed, otherwise return pointer to ramp. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af978b19e1eb5b77aa0f5a69f982a6f4b"></a><!-- doxytag: member="gamma.h::gamma_ramp_fill" ref="af978b19e1eb5b77aa0f5a69f982a6f4b" args="(int size, int temp)" -->
 <a class="el" href="structgamma__ramp__s.html">gamma_ramp_s</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#af978b19e1eb5b77aa0f5a69f982a6f4b">gamma_ramp_fill</a> (int size, int temp)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Updates gamma ramp structure. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a623ce0af7ab48a9577a958bf7cb1b103"></a><!-- doxytag: member="gamma.h::gamma_get_method_name" ref="a623ce0af7ab48a9577a958bf7cb1b103" args="(gamma_method_t method)" -->
+char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#a623ce0af7ab48a9577a958bf7cb1b103">gamma_get_method_name</a> (<a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a> method)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Retrieves method name by id. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefa51aa6d57831158f8de973a3c0d2c1"></a><!-- doxytag: member="gamma.h::gamma_find_temp" ref="aefa51aa6d57831158f8de973a3c0d2c1" args="(float ratio)" -->
 int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#aefa51aa6d57831158f8de973a3c0d2c1">gamma_find_temp</a> (float ratio)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Find the temperature based on red:blue ratio. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab21ec23056b2c793d4166776fb172795"></a><!-- doxytag: member="gamma.h::gamma_load_methods" ref="ab21ec23056b2c793d4166776fb172795" args="(void)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#ab21ec23056b2c793d4166776fb172795">gamma_load_methods</a> (void)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Load methods available. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a145b6e88d3fa51983effe3b7d6f327ba"></a><!-- doxytag: member="gamma.h::gamma_lookup_method" ref="a145b6e88d3fa51983effe3b7d6f327ba" args="(char *name)" -->
+<a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#a145b6e88d3fa51983effe3b7d6f327ba">gamma_lookup_method</a> (char *name)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Looks up method by name. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a6a407d5b13d25b1b5c0a69f6a9fef3"></a><!-- doxytag: member="gamma.h::gamma_init_method" ref="a1a6a407d5b13d25b1b5c0a69f6a9fef3" args="(int screen_num, int crtc_num, gamma_method_t method)" -->
 <a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#a1a6a407d5b13d25b1b5c0a69f6a9fef3">gamma_init_method</a> (int screen_num, int crtc_num, <a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a> method)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Initialize gamma changing method. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef2f9501a53e3526b36ef4912eca8256"></a><!-- doxytag: member="gamma.h::gamma_state_restore" ref="aef2f9501a53e3526b36ef4912eca8256" args="(gamma_method_t method)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#aef2f9501a53e3526b36ef4912eca8256">gamma_state_restore</a> (<a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a> method)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Restores saved gamma state. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b5e5eafaca21397f3dfd78d6eaa7f1d"></a><!-- doxytag: member="gamma.h::gamma_state_free" ref="a2b5e5eafaca21397f3dfd78d6eaa7f1d" args="(gamma_method_t method)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#a2b5e5eafaca21397f3dfd78d6eaa7f1d">gamma_state_free</a> (<a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a> method)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a98014d46f81f11f2f49e78a9b4cf08"></a><!-- doxytag: member="gamma.h::gamma_state_restore" ref="a7a98014d46f81f11f2f49e78a9b4cf08" args="(void)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#a7a98014d46f81f11f2f49e78a9b4cf08">gamma_state_restore</a> (void)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Restores gamma ramps to default values. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa94145953b097d61ea82ed989ced0490"></a><!-- doxytag: member="gamma.h::gamma_state_free" ref="aa94145953b097d61ea82ed989ced0490" args="(void)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#aa94145953b097d61ea82ed989ced0490">gamma_state_free</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Free the state associated with the appropriate adjustment method. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afbe23233161544fe4dadd76e586bc061"></a><!-- doxytag: member="gamma.h::gamma_calc_temp" ref="afbe23233161544fe4dadd76e586bc061" args="(double elevation, int temp_day, int temp_night)" -->
 int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#afbe23233161544fe4dadd76e586bc061">gamma_calc_temp</a> (double elevation, int temp_day, int temp_night)</td></tr>
@@ -132,11 +143,11 @@ int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad454b09b0fac5b9f7fe6b4328f4e6dd6"></a><!-- doxytag: member="gamma.h::gamma_calc_curr_target_temp" ref="ad454b09b0fac5b9f7fe6b4328f4e6dd6" args="(float lat, float lon, int temp_day, int temp_night)" -->
 int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#ad454b09b0fac5b9f7fe6b4328f4e6dd6">gamma_calc_curr_target_temp</a> (float lat, float lon, int temp_day, int temp_night)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Calculates the target temperature for now. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a158714672a61c16877585aa9303638cb"></a><!-- doxytag: member="gamma.h::gamma_state_set_temperature" ref="a158714672a61c16877585aa9303638cb" args="(gamma_method_t method, int temp, gamma_s gamma)" -->
-int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#a158714672a61c16877585aa9303638cb">gamma_state_set_temperature</a> (<a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a> method, int temp, <a class="el" href="structgamma__s.html">gamma_s</a> gamma)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae04457ec6cb32fa505e370875bf38c29"></a><!-- doxytag: member="gamma.h::gamma_state_set_temperature" ref="ae04457ec6cb32fa505e370875bf38c29" args="(int temp, gamma_s gamma)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#ae04457ec6cb32fa505e370875bf38c29">gamma_state_set_temperature</a> (int temp, <a class="el" href="structgamma__s.html">gamma_s</a> gamma)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Sets the temperature. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca4d9538ca243bc0148be96aa387ecdd"></a><!-- doxytag: member="gamma.h::gamma_state_get_temperature" ref="aca4d9538ca243bc0148be96aa387ecdd" args="(gamma_method_t method)" -->
-int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#aca4d9538ca243bc0148be96aa387ecdd">gamma_state_get_temperature</a> (<a class="el" href="gamma_8h.html#a4e1e2153d76179c22aab41695fa27b4a">gamma_method_t</a> method)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad86a3afc50e4a8e3908106f8e6eb9b50"></a><!-- doxytag: member="gamma.h::gamma_state_get_temperature" ref="ad86a3afc50e4a8e3908106f8e6eb9b50" args="(void)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamma_8h.html#ad86a3afc50e4a8e3908106f8e6eb9b50">gamma_state_get_temperature</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Retrieves current temperature. <br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>

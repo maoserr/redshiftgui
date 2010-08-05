@@ -47,7 +47,6 @@
 </div>
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Data Structures</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <h1>backends/w32gdi.h File Reference</h1>  </div>
@@ -58,27 +57,26 @@
 <a href="#_details">More...</a></p>
 <code>#include &lt;wingdi.h&gt;</code><br/>
 <table class="memberdecls">
-<tr><td colspan="2"><h2><a name="nested-classes"></a>
-Data Structures</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structw32gdi__state__t.html">w32gdi_state_t</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Win32 GDI state info.  <a href="structw32gdi__state__t.html#_details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a36f33ff101abc3a699ca331ab9217d6b"></a><!-- doxytag: member="w32gdi.h::w32gdi_init" ref="a36f33ff101abc3a699ca331ab9217d6b" args="(w32gdi_state_t *state)" -->
-int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#a36f33ff101abc3a699ca331ab9217d6b">w32gdi_init</a> (<a class="el" href="structw32gdi__state__t.html">w32gdi_state_t</a> *state)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac899157beb77ac0d2db18c26ba8843c8"></a><!-- doxytag: member="w32gdi.h::w32gdi_init" ref="ac899157beb77ac0d2db18c26ba8843c8" args="(int screen_num, int crtc_num)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#ac899157beb77ac0d2db18c26ba8843c8">w32gdi_init</a> (int screen_num, int crtc_num)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Initialize windows GDI. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e6c72c7eb11c726600e3c0934d7efa9"></a><!-- doxytag: member="w32gdi.h::w32gdi_free" ref="a5e6c72c7eb11c726600e3c0934d7efa9" args="(w32gdi_state_t *state)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#a5e6c72c7eb11c726600e3c0934d7efa9">w32gdi_free</a> (<a class="el" href="structw32gdi__state__t.html">w32gdi_state_t</a> *state)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5aa56a166fcf53cf4424345ce4e8ef4b"></a><!-- doxytag: member="w32gdi.h::w32gdi_free" ref="a5aa56a166fcf53cf4424345ce4e8ef4b" args="(void)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#a5aa56a166fcf53cf4424345ce4e8ef4b">w32gdi_free</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Frees the GDI context. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa683000b7ae0154acf60a4585a697eab"></a><!-- doxytag: member="w32gdi.h::w32gdi_restore" ref="aa683000b7ae0154acf60a4585a697eab" args="(w32gdi_state_t *state)" -->
-void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#aa683000b7ae0154acf60a4585a697eab">w32gdi_restore</a> (<a class="el" href="structw32gdi__state__t.html">w32gdi_state_t</a> *state)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d00b118f1c2c6e3e9746b11b1aea767"></a><!-- doxytag: member="w32gdi.h::w32gdi_restore" ref="a6d00b118f1c2c6e3e9746b11b1aea767" args="(void)" -->
+void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#a6d00b118f1c2c6e3e9746b11b1aea767">w32gdi_restore</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Restores saved gamma ramps. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba8ad43424b3300e0ab6972b57db433e"></a><!-- doxytag: member="w32gdi.h::w32gdi_set_temperature" ref="aba8ad43424b3300e0ab6972b57db433e" args="(w32gdi_state_t *state, int temp, gamma_s gamma)" -->
-int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#aba8ad43424b3300e0ab6972b57db433e">w32gdi_set_temperature</a> (<a class="el" href="structw32gdi__state__t.html">w32gdi_state_t</a> *state, int temp, <a class="el" href="structgamma__s.html">gamma_s</a> gamma)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7dd674c90593556c62076a3c0d2a4230"></a><!-- doxytag: member="w32gdi.h::w32gdi_set_temperature" ref="a7dd674c90593556c62076a3c0d2a4230" args="(int temp, gamma_s gamma)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#a7dd674c90593556c62076a3c0d2a4230">w32gdi_set_temperature</a> (int temp, <a class="el" href="structgamma__s.html">gamma_s</a> gamma)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Sets the temperature. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace8ae279b47c45236a02405d76d60ecb"></a><!-- doxytag: member="w32gdi.h::w32gdi_get_temperature" ref="ace8ae279b47c45236a02405d76d60ecb" args="(w32gdi_state_t *state)" -->
-int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#ace8ae279b47c45236a02405d76d60ecb">w32gdi_get_temperature</a> (<a class="el" href="structw32gdi__state__t.html">w32gdi_state_t</a> *state)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afe0ac62604179826e1112d6480526273"></a><!-- doxytag: member="w32gdi.h::w32gdi_get_temperature" ref="afe0ac62604179826e1112d6480526273" args="(void)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#afe0ac62604179826e1112d6480526273">w32gdi_get_temperature</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Retrieves current temperature. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64bcba8a6126c297762805318a90b6af"></a><!-- doxytag: member="w32gdi.h::w32gdi_load_funcs" ref="a64bcba8a6126c297762805318a90b6af" args="(gamma_method_s *method)" -->
+int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="w32gdi_8h.html#a64bcba8a6126c297762805318a90b6af">w32gdi_load_funcs</a> (<a class="el" href="structgamma__method__s.html">gamma_method_s</a> *method)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Load WinGDI functions into methods structure. <br/></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Win32 GDI interface. </p>
