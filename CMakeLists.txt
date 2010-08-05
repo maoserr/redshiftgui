@@ -8,13 +8,14 @@ set(PRO_NAME "RedshiftGUI")
 # Project version
 set(RSG_VERSION_MAJOR 0)
 set(RSG_VERSION_MINOR 1)
-set(RSG_VERSION_PATCH 2)
+set(RSG_VERSION_PATCH 3)
 set(RSG_VERSION
 	"${RSG_VERSION_MAJOR}.${RSG_VERSION_MINOR}.${RSG_VERSION_PATCH}")
 # Project information
 set(RSG_COPYRIGHT "GPL")
 set(RSG_AUTHOR "Mao Yu")
 set(RSG_CONTACT "maoserr@gmail.com")
+set(RSG_HOMEPAGE "http://www.mao-yu.com/projects/redshiftgui/")
 set(RSG_BUGREPORT "http://github.com/maoserr/redshiftgui/issues")
 set(RSG_DESC "Monitor color temperature adjustment tool")
 
@@ -205,6 +206,7 @@ endif(UNIX)
 unset(RSG_DEFINITIONS CACHE)
 set(RSG_DEFS ${RSG_DEFS}
 	-DPACKAGE="${APP_NAME}"
+	-DPACKAGE_HOME="${RSG_HOMEPAGE}"
 	-DPACKAGE_BUGREPORT="${RSG_BUGREPORT}"
 	-DPACKAGE_VER="${RSG_VERSION}"
 	)

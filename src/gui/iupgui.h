@@ -7,6 +7,12 @@
 #ifndef __IUPGUI_H__
 #define __IUPGUI_H__
 
+/**\brief About dialog */
+int gui_about(Ihandle *ih);
+
+/**\brief Popups */
+int gui_popup(char *title,char *msg,char *type);
+
 /**\brief Main IUP GUI loop */
 int iup_gui(int argc, char *argv[]);
 

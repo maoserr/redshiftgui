@@ -100,3 +100,5 @@ unsigned char png_redshift[] = {
     176,239,127,209,1,128,255,0,141,172,69,134,80,107,241,237,0,0,0,0,73,
     69,78,68,174,66,96,130
 };
+
+unsigned int png_redshift_size = sizeof(png_redshift)/sizeof(png_redshift[0]);

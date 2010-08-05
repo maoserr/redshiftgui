@@ -15,6 +15,7 @@
 #endif
 
 #if defined(ENABLE_IUP)
+# include <iup.h>
 # include "gui/iupgui.h"
 #elif defined(ENABLE_GTK)
 # include "gui/gtkgui.h"
@@ -88,6 +89,7 @@ static int _parse_options(int argc, char *argv[]){
 				&& ((args_parsefile(Config_file)) != ARGRET_OK) )
 			LOG(LOGWARN,_("Invalid/empty config: %s"),Config_file);
 
+		opt_init();
 		if( args_check("h") ){
 			printf(_("RedshiftGUI (%s) help:\n"),PACKAGE_VER);
 			args_print();
@@ -95,7 +97,6 @@ static int _parse_options(int argc, char *argv[]){
 			return RET_FUN_FAILED;
 		}
 
-		opt_init();
 		if( (val=args_getnamed("v")) )
 			err = (!opt_set_verbose(atoi(val))) || err;
 		if( (val=args_getnamed("b")) )

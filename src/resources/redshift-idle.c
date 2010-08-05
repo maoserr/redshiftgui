@@ -101,3 +101,6 @@ unsigned char png_redshift_idle[] = {
     127,121,35,230,0,240,63,95,18,141,255,171,152,108,8,0,0,0,0,73,69,78,
     68,174,66,96,130
 };
+
+unsigned int png_redshift_idle_size = sizeof(png_redshift_idle)/sizeof(png_redshift_idle[0]);
+

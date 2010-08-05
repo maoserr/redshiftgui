@@ -3,6 +3,7 @@
 #include "systemtime.h"
 #include "solar.h"
 #include "options.h"
+#include "iupgui.h"
 #include "iupgui_main.h"
 #include "iupgui_settings.h"
 #include "iupgui_location.h"
@@ -101,21 +102,6 @@ static int _main_preview(Ihandle *ih){
 	IupSetCallback(timer_prev,"ACTION_CB",(Icallback)_preview_timer);
 	IupSetAttribute(timer_prev,"TIME","20");
 	IupSetAttribute(timer_prev,"RUN","YES");
-	return IUP_DEFAULT;
-}
-
-// Show about dialog
-static int _show_about(Ihandle *ih){
-	Ihandle *dialog_about = IupSetAtt(NULL,IupMessageDlg(),
-			"TITLE",_("About Redshift GUI"),
-			"VALUE",
-			_("Homepage:\nhttp://www.mao-yu.com/projects/redshiftgui/\n\n"
-				"Written by Mao Yu\n"
-				"Redshift GUI is based on Redshift by Jon Lund Steffensen\n"
-				"This program uses IUP and libcURL\n"
-				"Licensed under the GPL license"),NULL);
-	IupPopup(dialog_about,IUP_CENTER,IUP_CENTER);
-	IupDestroy(dialog_about);
 	return IUP_DEFAULT;
 }
 
@@ -277,9 +263,9 @@ static Ihandle *_main_create_sun(void){
 	// Create frame containing the sun control
 	framesun = IupFrame(IupSetAttributes(
 			IupVbox(vbox_sun,
-				btn_preview,
 				IupFill(),
 				lbl_elevation,
+				btn_preview,
 				NULL),"MARGIN=5"));
 	IupSetAttribute(framesun,"TITLE",_("Sun elevation"));
 	return framesun;
@@ -380,7 +366,7 @@ void guimain_dialog_init( int min ){
 	// -About
 	button_about = IupButton(_("About"),NULL);
 	IupSetfAttribute(button_about,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_about,"ACTION",(Icallback)_show_about);
+	IupSetCallback(button_about,"ACTION",(Icallback)gui_about);
 	// -Location
 	button_loc = IupButton(_("Location"),NULL);
 	IupSetfAttribute(button_loc,"MINSIZE","%dx%d",60,24);

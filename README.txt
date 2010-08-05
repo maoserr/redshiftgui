@@ -35,12 +35,13 @@ II. Todo list
 III. Changelog
 ==============
 
-(Version 0.1.3)
+Thursday, August 05, 2010 (Version 0.1.3)
 ---------------
  * Added auto method in options
  * Added temperature map for elevation->temperature adjustment
  * Made brightness control work
  * Refactored much of the gamma code
+ * Add preview mode
 
 Tuesday, July 20, 2010 - (Version 0.1.2)
 ----------------------------------------

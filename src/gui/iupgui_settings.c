@@ -1,6 +1,7 @@
 #include "common.h"
 #include "iup.h"
 #include "options.h"
+#include "iupgui.h"
 #include "iupgui_main.h"
 #include "iupgui_gamma.h"
 #include "iupgui_settings.h"
@@ -17,6 +18,9 @@ static Ihandle *val_transpeed=NULL;
 static Ihandle *chk_min=NULL;
 static Ihandle *chk_disable=NULL;
 static Ihandle *edt_elev=NULL;
+
+// Buffer to hold elevation map value
+static char *txt_val=NULL;
 
 // Settings - temp day changed
 static int _val_day_changed(Ihandle *ih){
@@ -58,25 +62,41 @@ static int _setting_save(Ihandle *ih){
 	gamma_method_t newmethod;
 	int min = !strcmp(IupGetAttribute(chk_min,"VALUE"),"ON");
 	int disable = !strcmp(IupGetAttribute(chk_disable,"VALUE"),"ON");
+	char *elev_map = IupGetAttribute(edt_elev,"VALUE");
+	int methodsuccess=0;
+
 
 	LOG(LOGVERBOSE,_("New day temp: %d, new night temp: %d"),vday,vnight);
 	if( !(newmethod=gamma_lookup_method(method)) ){
 		LOG(LOGERR,_("Invalid method selected"));
 	}else{
-		opt_set_method(newmethod);
 		if( newmethod != oldmethod ){
 			LOG(LOGINFO,_("Gamma method changed to %s"),method);
 			gamma_state_free();
 			if( !gamma_init_method(opt_get_screen(),opt_get_crtc(),
-					opt_get_method())){
+					newmethod)){
 				LOG(LOGERR,_("Unable to set new gamma method, reverting..."));
 				if(!gamma_init_method(opt_get_screen(),opt_get_crtc(),
 						oldmethod)){
 					LOG(LOGERR,_("Unable to revert to old method."));
-					guimain_set_exit(RET_FUN_FAILED);
 				}
-			}
-		}
+			}else
+				methodsuccess=1;
+		}else
+			methodsuccess=1;
+	}
+	if( !methodsuccess ){
+		gui_popup(_("Error"),
+				_("There was an error setting the new method.\nSettings NOT saved."),
+				"ERROR");
+		return IUP_CLOSE;
+	}
+	opt_set_method(newmethod);
+	if( !opt_parse_map(elev_map) ){
+		gui_popup(_("Error"),
+				_("Unable to parse new temperature map,\nPlease try again."),
+				"ERROR");
+		return IUP_DEFAULT;
 	}
 	opt_set_min(min);
 	opt_set_disabled(disable);
@@ -205,16 +225,32 @@ static Ihandle *_settings_create_startup(void){
 // Create solar elevations frame
 static Ihandle *_settings_create_elev(void){
 	Ihandle *lbl_elev,*frame_elev;
+	int size;
+	pair *map = opt_get_map(&size);
+	int i;
 
+	// Assume a size of 20 char per line
+#define LINE_SIZE 20
+	txt_val = (char*)malloc(size*sizeof(char)*LINE_SIZE);
+
+	for( i=0; i<size; ++i ){
+		// Use up LINE_SIZE of buffer, with NULL terminator being overwritten on
+		// next loop
+		snprintf(txt_val+LINE_SIZE*i,LINE_SIZE+1,"%9.2f,%7d%%;\n",
+				map[i].elev,map[i].temp);
+	}
 	edt_elev = IupSetAtt(NULL,IupText(NULL),
 			"EXPAND","YES","MULTILINE","YES",
 			"VISIBLELINES","4",
 			"SCROLLBAR","VERTICAL",NULL);
+	IupSetAttribute(edt_elev,"VALUE",txt_val);
+
 	lbl_elev = IupSetAtt(NULL,
 			IupLabel(_("Enter comma separated list of\n"
 					"elevation to temperature pairs,\n"
 					"in between values are linearly \n"
-					"interpolated.")),"WORDWRAP","YES",NULL);
+					"interpolated.\n"
+					"(0% - night, 100% - day temp.)")),"WORDWRAP","YES",NULL);
 	frame_elev=IupFrame(IupSetAtt(NULL,
 				IupVbox(edt_elev,lbl_elev,NULL),
 				"MARGIN","5",NULL)
@@ -297,7 +333,9 @@ int guisettings_show(Ihandle *ih){
 		_settings_create();
 	IupPopup(dialog_settings,IUP_CENTER,IUP_CENTER);
 	IupDestroy(dialog_settings);
+	free(txt_val);
 	dialog_settings = NULL;
+	txt_val = NULL;
 	guigamma_check(ih);
 	if( !guimain_exit_normal() )
 		return IUP_CLOSE;

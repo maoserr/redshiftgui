@@ -52,3 +52,6 @@ unsigned char png_sunback[] = {
     205,2,98,110,243,200,7,53,135,96,168,229,160,39,90,0,0,0,0,73,69,78,68,
     174,66,96,130
 };
+
+unsigned int png_sunback_size = sizeof(png_sunback)/sizeof(png_sunback[0]);
+
