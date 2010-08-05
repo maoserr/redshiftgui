@@ -80,7 +80,7 @@ void opt_init(void){
 	opt_set_location(0,0);
 	opt_set_temperatures(DEFAULT_DAY_TEMP,DEFAULT_NIGHT_TEMP);
 	opt_set_gamma(DEFAULT_GAMMA,DEFAULT_GAMMA,DEFAULT_GAMMA);
-	opt_set_method(GAMMA_METHOD_NONE);
+	opt_set_method(GAMMA_METHOD_AUTO);
 	opt_set_screen(-1);
 	opt_set_crtc(-1);
 	opt_set_transpeed(1000);
