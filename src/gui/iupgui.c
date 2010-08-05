@@ -110,17 +110,20 @@ int gui_about(Ihandle *ih){
 				"This program uses IUP and libcURL\n"
 				"Licensed under the GPL license"),NULL);
 	btn_home = IupButton(_("Homepage"),NULL);
+	IupSetfAttribute(btn_home,"MINSIZE","%dx%d",60,24);
 	IupSetCallback(btn_home,"ACTION",(Icallback)_btn_home);
 
 	btn_bug = IupButton(_("Bug report"),NULL);
+	IupSetfAttribute(btn_bug,"MINSIZE","%dx%d",60,24);
 	IupSetCallback(btn_bug,"ACTION",(Icallback)_btn_bug);
 
 	btn_close = IupButton(_("Close"),NULL);
+	IupSetfAttribute(btn_close,"MINSIZE","%dx%d",60,24);
 	IupSetCallback(btn_close,"ACTION",(Icallback)_btn_close);
 
 	hbox_buttons = IupHbox(btn_home,btn_bug,IupFill(),btn_close,NULL);
 	vbox_top = IupSetAtt(NULL,IupVbox(hbox_title,txt_area,NULL),
-			"MARGIN","5x5");
+			"MARGIN","5x5",NULL);
 
 	vbox_all = IupVbox(
 			IupSetAtt(NULL,IupFrame(vbox_top),
@@ -131,6 +134,7 @@ int gui_about(Ihandle *ih){
 	dialog = IupDialog(vbox_all);
 	IupSetAttribute(dialog,"TITLE",_("About Dialog"));
 	IupSetAttribute(dialog,"SIZE","250x150");
+	IupSetAttributeHandle(dialog,"ICON",himg_redshift);
 	IupPopup(dialog,IUP_CENTER,IUP_CENTER);
 	IupDestroy(dialog);
 	return IUP_DEFAULT;

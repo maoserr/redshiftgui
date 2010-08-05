@@ -254,6 +254,7 @@ static Ihandle *_main_create_sun(void){
 	IupSetfAttribute(lbl_sun,"CY","%d",0);
 	// Preview
 	btn_preview = IupButton(_("Preview"),NULL);
+	IupSetfAttribute(btn_preview,"MINSIZE","%dx%d",60,24);
 	IupSetCallback(btn_preview,"ACTION",(Icallback)_main_preview);
 	vbox_sun = IupCbox(
 			lbl_backsun,

@@ -277,7 +277,7 @@ int opt_parse_map(char *map){
 	char *currsep,*currend;
 	int cnt=0;
 	int i;
-	int prevelev=SOLAR_MAX_ANGLE;
+	double prevelev=SOLAR_MAX_ANGLE;
 	pair *curr_map;
 	while( (currstr=strchr(currstr,',')) ){
 		if( (currstr=strchr(currstr,';')) )

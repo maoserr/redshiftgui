@@ -231,7 +231,7 @@ static Ihandle *_settings_create_elev(void){
 
 	// Assume a size of 20 char per line
 #define LINE_SIZE 20
-	txt_val = (char*)malloc(size*sizeof(char)*LINE_SIZE);
+	txt_val = (char*)malloc(size*sizeof(char)*LINE_SIZE+1);
 
 	for( i=0; i<size; ++i ){
 		// Use up LINE_SIZE of buffer, with NULL terminator being overwritten on
@@ -333,7 +333,8 @@ int guisettings_show(Ihandle *ih){
 		_settings_create();
 	IupPopup(dialog_settings,IUP_CENTER,IUP_CENTER);
 	IupDestroy(dialog_settings);
-	free(txt_val);
+	if( txt_val )
+		free(txt_val);
 	dialog_settings = NULL;
 	txt_val = NULL;
 	guigamma_check(ih);

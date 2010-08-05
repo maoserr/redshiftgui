@@ -116,8 +116,8 @@ int gamma_find_temp(float ratio){
 		curr_ratio = (float)blackbody_color[i*3]/(float)blackbody_color[i*3+2];
 		if( curr_ratio <= ratio ){
 			// Interpolate color based on ratio
-			int color = (ratio-curr_ratio)/(prev_ratio-curr_ratio)*100
-				+i*100+1000;
+			int color = (int)((ratio-curr_ratio)/(prev_ratio-curr_ratio)*100
+				+i*100+1000);
 			LOG(LOGVERBOSE,_("Current col:%d"),color);
 			return color;
 		}
@@ -225,9 +225,9 @@ int gamma_calc_temp(double elevation, int temp_day, int temp_night)
 	int i;
 	int size;
 	pair *map = opt_get_map(&size);
-	float prevelev=map[size-1].elev+360;
+	double prevelev=map[size-1].elev+360;
 	int prevtemp=map[size-1].temp;
-	float currelev;
+	double currelev;
 	int currtemp;
 	for( i = 0; i<size+1; ++i ){
 		if( i==size ){
@@ -239,8 +239,8 @@ int gamma_calc_temp(double elevation, int temp_day, int temp_night)
 		}
 		if( (elevation<=prevelev)
 				&& (elevation>=currelev) ){
-			float ratio;
-			float temp_perc;
+			double ratio;
+			double temp_perc;
 			/* Found target elevation */
 			LOG(LOGVERBOSE,_("Found target elevation "
 					"between %f and %f"),prevelev,currelev);
@@ -248,8 +248,8 @@ int gamma_calc_temp(double elevation, int temp_day, int temp_night)
 				/(prevelev-currelev);
 			temp_perc= ratio*(prevtemp-currtemp)
 				+currtemp;
-			temp = (0.01*temp_perc)*(temp_day-temp_night)
-				+temp_night;
+			temp = (int)((0.01*temp_perc)*(temp_day-temp_night)
+				+temp_night);
 			LOG(LOGVERBOSE,_("Target temp %d (ratio %f,%f)"),
 					temp,ratio,temp_perc);
 			return temp;
