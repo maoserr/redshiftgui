@@ -17,6 +17,7 @@ static Ihandle *chk_manual=NULL;
 static Ihandle *val_manual=NULL;
 static Ihandle *val_bright=NULL;
 static Ihandle *lbl_sun=NULL;
+static Ihandle *btn_preview=NULL;
 
 // exit status
 static int exit_stat=RET_FUN_SUCCESS;
@@ -30,6 +31,77 @@ int guimain_set_exit(int exit){
 // Gets exit status
 int guimain_exit_normal(void){
 	return exit_stat;
+}
+
+// Sets sun position
+static void _set_sun_pos(double elevation){
+	extern int dim_back_w, dim_back_h, dim_sun_w, dim_sun_h;
+	double sunx,suny,x,y;
+	char *phase;
+	/* Position of center of sun relative to (0,0) */
+	sunx = cos(RAD(elevation))*(double)(dim_back_w/2-dim_sun_w/2);
+	suny = -sin(RAD(elevation))*(double)(dim_back_h/2-dim_sun_h/2);
+	LOG(LOGVERBOSE,_("Backdrop dims: %dx%d, sun dims: %dx%d"),
+			dim_back_w,dim_back_h,dim_sun_w,dim_sun_h);
+	/* Offset sun image by center of background and dimension of image */
+	x = (dim_back_w/2)+sunx-dim_sun_w/2;
+	y = (dim_back_h/2)+suny-dim_sun_h/2;
+	LOG(LOGVERBOSE,_("Sun coords: %.2fx%.2f"),x,y);
+	IupSetfAttribute(lbl_sun,"CX","%d",(int)x);
+	IupSetfAttribute(lbl_sun,"CY","%d",(int)y);
+	IupSetAttribute(lbl_sun,"ZORDER","TOP");
+	if( elevation > 0 )
+		phase="Day";
+	else
+		phase="Night";
+	IupSetfAttribute(lbl_elevation,"TITLE",_("%s: %.1f°"),phase,elevation);
+	IupRefresh(lbl_sun);
+}
+
+// Timer function
+static double preview_start;
+static double currelev;
+static int preview_cnt;
+static int _preview_timer(Ihandle *ih){
+	const double step=1.0;
+	int currtemp;
+	currelev-=step;
+	++preview_cnt;
+	if(currelev<SOLAR_MIN_ANGLE)
+		currelev+=360;
+	currtemp = gamma_calc_temp(currelev,opt_get_temp_day(),opt_get_temp_night());
+	LOG(LOGINFO,_("Elevation: %f -> %d"),currelev,currtemp);
+	guigamma_set_temp(currtemp);
+	_set_sun_pos(currelev);
+	IupSetfAttribute(infovals[0],"TITLE",_("%d° K"),guigamma_get_temp());
+	if( preview_cnt >= 360/step ){
+		guigamma_check(ih);
+		IupSetAttribute(ih,"RUN","NO");
+		IupSetAttribute(btn_preview,"VISIBLE","YES");
+	}
+	return IUP_DEFAULT;
+}
+
+// Preview mode
+static int _main_preview(Ihandle *ih){
+	double now;
+	static Ihandle *timer_prev=NULL;
+	if( !timer_prev)
+		timer_prev = IupTimer();
+	LOG(LOGINFO,_("Previewing cycle"));
+	if ( !systemtime_get_time(&now) ){
+		LOG(LOGERR,_("Unable to read system time."));
+		return IUP_DEFAULT;
+	}
+	preview_start = solar_elevation(now,opt_get_lat(),
+			opt_get_lon());
+	currelev = preview_start;
+	preview_cnt=0;
+	IupSetAttribute(btn_preview,"VISIBLE","NO");
+	IupSetCallback(timer_prev,"ACTION_CB",(Icallback)_preview_timer);
+	IupSetAttribute(timer_prev,"TIME","20");
+	IupSetAttribute(timer_prev,"RUN","YES");
+	return IUP_DEFAULT;
 }
 
 // Show about dialog
@@ -154,11 +226,9 @@ static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
 // Updates info display
 void guimain_update_info(void){
 	double now;
-	extern int dim_back_w, dim_back_h, dim_sun_w, dim_sun_h;
 	if ( !systemtime_get_time(&now) ){
 		LOG(LOGERR,_("Unable to read system time."));
 	}else{
-		double sunx,suny,x,y;
 		float lat=opt_get_lat();
 		float lon=opt_get_lon();
 		double elevation;
@@ -166,20 +236,7 @@ void guimain_update_info(void){
 		elevation = solar_elevation(now,lat,lon);
 		LOG(LOGVERBOSE,_("Elevation - now: %f"),
 				elevation);
-		LOG(LOGVERBOSE,_("Backdrop dims: %dx%d, sun dims: %dx%d"),
-				dim_back_w,dim_back_h,dim_sun_w,dim_sun_h);
-		/* Position of center of sun relative to (0,0) */
-		sunx = cos(RAD(elevation))*(double)(dim_back_w/2-dim_sun_w/2);
-		suny = -sin(RAD(elevation))*(double)(dim_back_h/2-dim_sun_h/2);
-		/* Offset sun image by center of background and dimension of image */
-		x = (dim_back_w/2)+sunx-dim_sun_w/2;
-		y = (dim_back_h/2)+suny-dim_sun_h/2;
-		LOG(LOGVERBOSE,_("Sun coords: %.2fx%.2f"),x,y);
-		IupSetfAttribute(lbl_sun,"CX","%d",(int)x);
-		IupSetfAttribute(lbl_sun,"CY","%d",(int)y);
-		IupSetAttribute(lbl_sun,"ZORDER","TOP");
-		IupSetfAttribute(lbl_elevation,"TITLE",_("Elevation: %.1f°"),elevation);
-		IupRefresh(lbl_sun);
+		_set_sun_pos(elevation);
 	}
 
 	IupSetfAttribute(infovals[0],"TITLE",_("%d° K"),guigamma_get_temp());
@@ -194,51 +251,12 @@ void guimain_update_info(void){
 extern Ihandle *redshift_get_icon(void);
 extern Ihandle *redshift_get_idle_icon(void);
 
-// Main dialog
-void guimain_dialog_init( int min ){
-	Ihandle *hbox_butt,
-			*button_about,
-			*button_loc,
-			*button_setting,
-			*button_hide,
-			*lbl_backsun,
+// Create sun frame
+static Ihandle *_main_create_sun(void){
+	Ihandle *lbl_backsun,
 			*vbox_sun,
-			*framesun,
-			*fvboxtitle,
-			*fvboxinfo,
-			*frameinfo,
-			*vbox_manual,
-			*framemanual,
-			*framebright,
-			*dhbox,
-			*dvbox;
-	extern Ihandle *himg_redshift,*himg_sunback,*himg_sun;
-
-	// Buttons
-	// -About
-	button_about = IupButton(_("About"),NULL);
-	IupSetfAttribute(button_about,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_about,"ACTION",(Icallback)_show_about);
-	// -Location
-	button_loc = IupButton(_("Location"),NULL);
-	IupSetfAttribute(button_loc,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_loc,"ACTION",(Icallback)guilocation_show);
-	// -Settings
-	button_setting = IupButton(_("Settings"),NULL);
-	IupSetfAttribute(button_setting,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_setting,"ACTION",(Icallback)guisettings_show);
-	// -Hide to tray
-	button_hide = IupButton(_("Hide"),NULL);
-	IupSetfAttribute(button_hide,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_hide,"ACTION",(Icallback)_toggle_main_dialog);
-	hbox_butt = IupHbox(
-			button_about,
-			IupFill(),
-			button_loc,
-			button_setting,
-			button_hide,
-			NULL);
-
+			*framesun;
+	extern Ihandle *himg_sunback,*himg_sun;
 	// Create Sun control
 	lbl_backsun = IupLabel(NULL);
 	IupSetAttributeHandle(lbl_backsun,"IMAGE",himg_sunback);
@@ -248,15 +266,30 @@ void guimain_dialog_init( int min ){
 	IupSetAttributeHandle(lbl_sun,"IMAGE",himg_sun);
 	IupSetfAttribute(lbl_sun,"CX","%d",0);
 	IupSetfAttribute(lbl_sun,"CY","%d",0);
+	// Preview
+	btn_preview = IupButton(_("Preview"),NULL);
+	IupSetCallback(btn_preview,"ACTION",(Icallback)_main_preview);
 	vbox_sun = IupCbox(
 			lbl_backsun,
 			lbl_sun,
 			NULL);
-	lbl_elevation = IupLabel(_("Elevation: 0"));
+	lbl_elevation = IupLabel(_("N/A: 0"));
 	// Create frame containing the sun control
-	framesun = IupFrame(IupVbox(vbox_sun,IupFill(),lbl_elevation,NULL));
+	framesun = IupFrame(IupSetAttributes(
+			IupVbox(vbox_sun,
+				btn_preview,
+				IupFill(),
+				lbl_elevation,
+				NULL),"MARGIN=5"));
 	IupSetAttribute(framesun,"TITLE",_("Sun elevation"));
+	return framesun;
+}
 
+// Create info frame
+static Ihandle *_main_create_info(void){
+	Ihandle *frameinfo,
+			*fvboxtitle,
+			*fvboxinfo;
 	// Info display
 	infotitle[0]=IupLabel(_("Current:"));
 	infotitle[1]=IupLabel(_("Day:"));
@@ -290,7 +323,13 @@ void guimain_dialog_init( int min ){
 	frameinfo= IupFrame(
 			IupHbox(fvboxtitle,fvboxinfo,NULL));
 	IupSetAttribute(frameinfo,"TITLE",_("Status"));
+	return frameinfo;
+}
 
+// Create manual frame
+static Ihandle *_main_create_manual(void){
+	Ihandle *vbox_manual,
+			*framemanual;
 	// Manual override
 	chk_manual = IupSetAtt(NULL,IupToggle(_("Disable auto-adjust"),NULL)
 		,"EXPAND","YES",NULL);
@@ -301,13 +340,66 @@ void guimain_dialog_init( int min ){
 	vbox_manual = IupVbox(chk_manual,val_manual,NULL);
 	framemanual = IupFrame(vbox_manual);
 	IupSetAttribute(framemanual,"TITLE",_("Manual"));
+	return framemanual;
+}
 
+// Create brightness frame
+static Ihandle *_main_create_bright(void){
+	Ihandle *framebright;
 	// Brightness
 	val_bright = IupSetAtt(NULL,IupVal(NULL),"MIN","0.1","MAX","1",
 		"VISIABLE","YES","EXPAND","HORIZONTAL","VALUE","1",NULL);
 	IupSetCallback(val_bright,"VALUECHANGED_CB",(Icallback)_bright);
 	framebright = IupFrame(IupVbox(val_bright,NULL));
 	IupSetAttribute(framebright,"TITLE",_("Brightness"));
+	return framebright;
+}
+
+// Main dialog
+void guimain_dialog_init( int min ){
+	Ihandle *hbox_butt,
+			*button_about,
+			*button_loc,
+			*button_setting,
+			*button_hide,
+			*framesun,
+			*frameinfo,
+			*framemanual,
+			*framebright,
+			*dhbox,
+			*dvbox;
+	extern Ihandle *himg_redshift;
+
+	// Create frames
+	framesun = _main_create_sun();
+	frameinfo = _main_create_info();
+	framemanual = _main_create_manual();
+	framebright = _main_create_bright();
+
+	// Buttons
+	// -About
+	button_about = IupButton(_("About"),NULL);
+	IupSetfAttribute(button_about,"MINSIZE","%dx%d",60,24);
+	IupSetCallback(button_about,"ACTION",(Icallback)_show_about);
+	// -Location
+	button_loc = IupButton(_("Location"),NULL);
+	IupSetfAttribute(button_loc,"MINSIZE","%dx%d",60,24);
+	IupSetCallback(button_loc,"ACTION",(Icallback)guilocation_show);
+	// -Settings
+	button_setting = IupButton(_("Settings"),NULL);
+	IupSetfAttribute(button_setting,"MINSIZE","%dx%d",60,24);
+	IupSetCallback(button_setting,"ACTION",(Icallback)guisettings_show);
+	// -Hide to tray
+	button_hide = IupButton(_("Hide"),NULL);
+	IupSetfAttribute(button_hide,"MINSIZE","%dx%d",60,24);
+	IupSetCallback(button_hide,"ACTION",(Icallback)_toggle_main_dialog);
+	hbox_butt = IupHbox(
+			button_about,
+			IupFill(),
+			button_loc,
+			button_setting,
+			button_hide,
+			NULL);
 
 	// Layout box for sun and info
 	dhbox = IupHbox(framesun,IupFill(),

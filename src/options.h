@@ -135,11 +135,6 @@ int opt_set_min(int val);
 int opt_set_disabled(int val);
 #endif
 
-/**\brief Sets temperature map
- * \param map Array of pairs containing temperature map.
- */
-int opt_set_map(pair map[],int size);
-
 /**\brief Parses temperature map
  * \param map String containing new temperature map.
  */

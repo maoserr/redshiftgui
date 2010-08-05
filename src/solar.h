@@ -15,6 +15,11 @@
 
 #include "time.h"
 
+/**\brief Maximum solar angle */
+#define SOLAR_MAX_ANGLE		180.0f
+/**\brief Minimum solar angle */
+#define SOLAR_MIN_ANGLE		-180.0f
+
 /**\brief Model of atmospheric refraction near horizon (in degrees). */
 #define SOLAR_ATM_REFRAC  0.833
 

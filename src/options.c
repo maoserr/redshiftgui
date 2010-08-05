@@ -4,6 +4,7 @@
 
 #include "common.h"
 #include "gamma.h"
+#include "solar.h"
 #include "options.h"
 
 /**\brief Redshift options.*/
@@ -270,27 +271,13 @@ int opt_set_disabled(int val){
 }
 #endif//ENABLE_IUP
 
-// Set temperature map
-int opt_set_map(pair map[],int size){
-	int i=0;
-	if( Rs_opts.map )
-		free(Rs_opts.map);
-	Rs_opts.map = (pair*)malloc(sizeof(pair)*size);
-	if( !Rs_opts.map ){
-		LOG(LOGERR,_("Map allocation error"));
-		return RET_FUN_FAILED;
-	}
-	memcpy(Rs_opts.map,map,sizeof(pair)*size);
-	Rs_opts.map_size=size;
-	return RET_FUN_SUCCESS;
-}
-
 // Parse temperature map
 int opt_parse_map(char *map){
 	char *currstr=map; /* Pointer string */
 	char *currsep,*currend;
 	int cnt=0;
 	int i;
+	int prevelev=SOLAR_MAX_ANGLE;
 	pair *curr_map;
 	while( (currstr=strchr(currstr,',')) ){
 		if( (currstr=strchr(currstr,';')) )
@@ -313,6 +300,19 @@ int opt_parse_map(char *map){
 		currend=strchr(currstr,';');
 		curr_map[i].elev=atof(currstr);
 		curr_map[i].temp=atoi(++currsep);
+		if( curr_map[i].elev > prevelev ){
+			free(curr_map);
+			LOG(LOGERR,_("Invalid map line, elevation must be decreasing."));
+			return RET_FUN_FAILED;
+		}
+		prevelev = curr_map[i].elev;
+		if( (curr_map[i].temp>100)
+				|| (curr_map[i].temp<0) ){
+			free(curr_map);
+			LOG(LOGERR,_("Invalid map line, temperature must be between 0-100%."));
+			return RET_FUN_FAILED;
+		}
+		
 		LOG(LOGVERBOSE,_("Map line: %f,%d"),curr_map[i].elev,
 				curr_map[i].temp);
 		currstr=++currend;
@@ -396,6 +396,13 @@ void opt_write_config(void){
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
 	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());
 	fprintf(fid_config,"method=%s\n",gamma_get_method_name(opt_get_method()));
+	if( Rs_opts.map ){
+		int i;
+		fprintf(fid_config,"map=");
+		for( i=0; i<Rs_opts.map_size; ++i )
+			fprintf(fid_config,"%f,%d;",Rs_opts.map[i].elev,Rs_opts.map[i].temp);
+		fprintf(fid_config,"\n");
+	}
 	fclose(fid_config);
 }
 

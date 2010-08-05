@@ -222,18 +222,40 @@ int gamma_state_free(void)
 int gamma_calc_temp(double elevation, int temp_day, int temp_night)
 {
 	int temp = 0;
-	if (elevation < TRANSITION_LOW) {
-		temp = temp_night;
-		LOG(LOGINFO,_("Period: Night"));
-	} else if (elevation < TRANSITION_HIGH) {
-		/* Transition period: interpolate */
-		double a = (TRANSITION_LOW - elevation) /
-			(TRANSITION_LOW - TRANSITION_HIGH);
-		temp = (int)((1.0-a)*temp_night + a*temp_day);
-		LOG(LOGINFO,_("Period: Transition (%.2f%% day)"), a*100);
-	} else {
-		temp = temp_day;
-		LOG(LOGINFO,_("Period: Daytime"));
+	int i;
+	int size;
+	pair *map = opt_get_map(&size);
+	float prevelev=map[size-1].elev+360;
+	int prevtemp=map[size-1].temp;
+	float currelev;
+	int currtemp;
+	for( i = 0; i<size+1; ++i ){
+		if( i==size ){
+			currelev = map[0].elev-360.0;
+			currtemp = map[0].temp;
+		}else{
+			currelev = map[i].elev;
+			currtemp = map[i].temp;
+		}
+		if( (elevation<=prevelev)
+				&& (elevation>=currelev) ){
+			float ratio;
+			float temp_perc;
+			/* Found target elevation */
+			LOG(LOGVERBOSE,_("Found target elevation "
+					"between %f and %f"),prevelev,currelev);
+			ratio = (elevation-currelev)
+				/(prevelev-currelev);
+			temp_perc= ratio*(prevtemp-currtemp)
+				+currtemp;
+			temp = (0.01*temp_perc)*(temp_day-temp_night)
+				+temp_night;
+			LOG(LOGVERBOSE,_("Target temp %d (ratio %f,%f)"),
+					temp,ratio,temp_perc);
+			return temp;
+		}
+		prevelev = currelev;
+		prevtemp = currtemp;
 	}
 
 	return temp;
@@ -262,6 +284,10 @@ int gamma_calc_curr_target_temp(float lat, float lon,
 /* Set temperature with the appropriate adjustment method. */
 int gamma_state_set_temperature(int temp, gamma_s gamma)
 {
+	if( (temp<MIN_TEMP) || (temp>MAX_TEMP) ){
+		LOG(LOGERR,_("Invalid temperature specified"));
+		return RET_FUN_FAILED;
+	}
 	if( methods[active_method].func_set_temp )
 		return methods[active_method].func_set_temp(temp,gamma);
 	return RET_FUN_FAILED;
