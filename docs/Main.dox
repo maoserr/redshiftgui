@@ -1,6 +1,6 @@
 /**\mainpage
  * \author	Mao Yu
- * \date	Updated: Saturday, July 10, 2010
+ * \date	Updated: Thursday, August 05, 2010
  *	\section Introduction
  *	This program changes the monitor color temperature according to the time of
  *	the day and sun elevation, similar to <a href="http://jonls.dk/redshift/">redshift</a>

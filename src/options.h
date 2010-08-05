@@ -27,7 +27,9 @@
 
 /**\brief Pairs for elevation to temperature map */
 typedef struct{
+	/**\brief Elevation in degrees */
 	double elev;
+	/**\brief Temperature as percentage */
 	int temp;
 } pair;
 
