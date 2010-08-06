@@ -28,6 +28,9 @@ II. Todo list
 	-Win - http://msdn.microsoft.com/en-us/library/dd757692(v=VS.85).aspx
 2) Adjust gamma values
 3) Better google maps parsing
+4) Ability to adjust based on weather
+5) Custom event scripts
+6) Image analysis
 
 
 III. Changelog
