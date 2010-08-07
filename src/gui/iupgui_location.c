@@ -51,13 +51,19 @@ static int _address_lookup(Ihandle *ih){
 	char *result = IupGetAttribute(edt_address,"VALUE");
 	float lat,lon;
 	char city[100];
+	int rescode;
 
 	IupSetAttribute(list_method,"VISIBLE","YES");
 	IupSetAttribute(list_method,"VALUE","0");
 	IupSetAttribute(lbl_status,"VALUE","");
 	IupSetfAttribute(lbl_status,"APPEND",
 		_("Downloading info, this may be slow..."));
-	if(!location_address_lookup(result,&lat,&lon,city,100)){
+	rescode=location_address_lookup(result,&lat,&lon,city,100);
+	// Destroy address box
+	IupDestroy(hbox_address);
+	hbox_address = btn_address = edt_address = NULL;
+	IupRefresh(dialog_location);
+	if(!rescode){
 		IupSetAttribute(lbl_status,"APPEND",_("Unable to download data"));
 		return IUP_DEFAULT;
 	}
@@ -67,9 +73,6 @@ static int _address_lookup(Ihandle *ih){
 	IupSetfAttribute(edt_lat,"VALUE","%f",lat);
 	IupSetfAttribute(edt_lon,"VALUE","%f",lon);
 
-	IupDestroy(hbox_address);
-	hbox_address = btn_address = edt_address = NULL;
-	IupRefresh(dialog_location);
 	return IUP_DEFAULT;
 }
 

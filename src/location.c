@@ -39,6 +39,70 @@ static size_t WriteMemoryCallback(void *ptr, size_t size,
 	return realsize;
 }
 
+// Escape special character in URL
+static char *_escape_url(char url[]){
+	struct{char ch;char code[3];} specials[]={
+		{' ', "20"},
+		{'<', "3C"},
+		{'>', "3E"},
+		{'#', "23"},
+		{'%', "25"},
+		{'{', "7B"},
+		{'}', "7D"},
+		{'|', "7C"},
+		{'\\',"5C"},
+		{'^', "5E"},
+		{'~', "7E"},
+		{'[', "5B"},
+		{']', "5D"},
+		{'`', "60"},
+		{';', "3B"},
+		{'/', "2F"},
+		{'?', "3F"},
+		{':', "3A"},
+		{'@', "40"},
+		{'=', "3D"},
+		{'&', "26"},
+		{'$', "24"},
+	};
+	int i,j,k;
+	int size=strlen(url);
+	int newsize=size+1;
+	char *escaped_url=NULL;
+
+	for( i=0; i<size; ++i ){
+		for( j=0; j<SIZEOF(specials); ++j ){
+			if( url[i]==specials[j].ch ){
+				newsize+=2;
+				break;
+			}
+		}
+	}
+	escaped_url = malloc(sizeof(char)*newsize);
+	if( !escaped_url ){
+		LOG(LOGERR,_("Unable to allocate new url"));
+		return NULL;
+	}
+	i=0;
+	k=0;
+	while( i<newsize ){
+		escaped_url[i]=url[k];
+		for( j=0; j<SIZEOF(specials); ++j ){
+			if( url[k]==specials[j].ch ){
+				escaped_url[i]='%';
+				escaped_url[++i]=specials[j].code[0];
+				escaped_url[++i]=specials[j].code[1];
+				break;
+			}
+		}
+		++i;
+		++k;
+	}
+	LOG(LOGVERBOSE,_("Old URL is %s"),url);
+	LOG(LOGVERBOSE,_("Escaped URL is: %s"),escaped_url);
+	return escaped_url;
+}
+
 // Downloads url to buffer, need to free returned buffer after use
 // returns NULL on error
 static char *_download2buffer(char url[]){
@@ -84,6 +148,10 @@ int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 		char *end = strchr(begin,'\n');
 		if( end ){
 			int length = end-begin;
+			if( length >= bsize ){
+				LOG(LOGWARN,_("City buffer size too small"));
+				length = bsize-1;
+			}
 			strncpy(city,begin,length);
 			city[length]='\0';
 		}else{
@@ -112,12 +180,23 @@ int location_address_lookup(char *address,float *lat,float *lon,
 		char *city,int bsize){
 	char baseurl[]=
 		"http://maps.google.com/maps/api/geocode/xml?sensor=false&address=";
-	char *url = malloc((strlen(baseurl)+strlen(address)+1)*sizeof(char));
+	char *url;
+	char *escaped_url;
 	char *result;
 	char *searchind=NULL;
 
+	escaped_url=_escape_url(address);
+	if( !escaped_url )
+		return RET_FUN_FAILED;
+
+	url=malloc((strlen(baseurl)+strlen(escaped_url)+1)*sizeof(char));
+	if( !url ){
+		LOG(LOGERR,_("Allocation of URL failed"));
+		return RET_FUN_FAILED;
+	}
 	strcpy(url,baseurl);
-	strcpy(url+strlen(baseurl),address);
+	strcpy(url+strlen(baseurl),escaped_url);
+	free(escaped_url);
 	LOG(LOGVERBOSE,_("Created url: %s"),url);
 
 	*lat = 0.0f;
@@ -136,6 +215,10 @@ int location_address_lookup(char *address,float *lat,float *lon,
 		char *end = strchr(begin,'<');
 		if( end ){
 			int length = end-begin;
+			if( length >= bsize ){
+				LOG(LOGWARN,_("City buffer size too small"));
+				length = bsize-1;
+			}
 			strncpy(city,begin,length);
 			city[length]='\0';
 		}else{
