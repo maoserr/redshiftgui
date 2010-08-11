@@ -3,11 +3,12 @@
 #endif
 
 #include "common.h"
-#include "options.h"
 #include "gamma.h"
+#include "options.h"
 #include "solar.h"
 #include "location.h"
 #include "systemtime.h"
+#include "netutils.h"
 #include "thirdparty/argparser.h"
 
 #ifdef HAVE_SYS_SIGNAL_H
@@ -303,7 +304,7 @@ int main(int argc, char *argv[]){
 		goto end;
 
 	// Initialize location method
-	if( !location_init() ){
+	if( !net_init() ){
 		gamma_state_free();
 		goto end;
 	}
@@ -328,7 +329,7 @@ int main(int argc, char *argv[]){
 		ret = RET_FUN_FAILED;
 #endif
 	}
-	location_end();
+	net_end();
 	gamma_state_free();
 
 	end:

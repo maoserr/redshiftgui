@@ -68,6 +68,8 @@ set(RSGSRC
 	${RSG_SRC_DIR}/gamma.c
 	${RSG_SRC_DIR}/location.h
 	${RSG_SRC_DIR}/location.c
+	${RSG_SRC_DIR}/netutils.h
+	${RSG_SRC_DIR}/netutils.c
 	${RSG_SRC_DIR}/options.h
 	${RSG_SRC_DIR}/options.c
 	${RSG_SRC_DIR}/redshiftgui.c
