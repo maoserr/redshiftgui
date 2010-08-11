@@ -6,7 +6,6 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
 
-#include "common.h"
 #include "gamma.h"
 
 /**\brief Minimum latitude */

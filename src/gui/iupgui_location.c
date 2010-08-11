@@ -40,6 +40,27 @@ static int _run_geocode(Ihandle *ih){
 	return IUP_DEFAULT;
 }
 
+// Runs geocode with geobytes callback
+static int _run_geobytes(Ihandle *ih){
+	float lat,lon;
+	char city[100];
+	LOG(LOGVERBOSE,_("Running geobytes subfunction."));
+	IupSetAttribute(run_task,"RUN","NO");
+	IupSetAttribute(list_method,"VISIBLE","YES");
+	IupSetAttribute(list_method,"VALUE","0");
+	if(!location_geocode_geobytes(&lat,&lon,city,100)){
+		IupSetAttribute(lbl_status,"APPEND",_("Unable to download data"));
+		return IUP_DEFAULT;
+	}
+
+	IupSetfAttribute(lbl_status,"APPEND",_("city: %s"),city);
+	IupSetfAttribute(lbl_status,"APPEND",_("lat/lon: %.2f,%.2f"),lat,lon);
+	IupSetAttribute(lbl_status,"APPEND",_("Geobytes limits maximum of 20 lookups per hour"));
+	IupSetfAttribute(edt_lat,"VALUE","%f",lat);
+	IupSetfAttribute(edt_lon,"VALUE","%f",lon);
+	return IUP_DEFAULT;
+}
+
 // Clears address on focus
 static int _address_clear(Ihandle *ih){
 	IupSetAttribute(edt_address,"VALUE","");
@@ -93,7 +114,16 @@ static int _list_method_cb(Ihandle *ih,
 			IupSetAttribute(run_task,"RUN","YES");
 			IupSetAttribute(list_method,"VISIBLE","NO");
 		break;
-		case 2:{
+		case 2:
+			LOG(LOGVERBOSE,_("Running geocode with geobytes"));
+			IupSetAttribute(lbl_status,"VALUE","");
+			IupSetfAttribute(lbl_status,"APPEND",
+				_("Downloading info, this may be slow..."));
+			IupSetCallback(run_task,"ACTION_CB",(Icallback)_run_geobytes);
+			IupSetAttribute(run_task,"RUN","YES");
+			IupSetAttribute(list_method,"VISIBLE","NO");
+		break;
+		case 3:{
 			edt_address = IupSetAtt(NULL,IupText(NULL),
 					"VALUE","Enter Address...",
 					"EXPAND","HORIZONTAL",NULL);
@@ -142,7 +172,8 @@ static void _location_create(void){
 	// Drop down for method selection
 	list_method = IupSetAtt(NULL,IupList(NULL),"DROPDOWN","YES",
 		"1",_("Lookup by IP (hostip.info)"),
-		"2",_("Lookup by Address/Zip"),
+		"2",_("Lookup by IP (Geobytes)"),
+		"3",_("Lookup by Address/Zip"),
 		"EXPAND","HORIZONTAL",NULL);
 	IupSetCallback(list_method,"ACTION",(Icallback)_list_method_cb);
 	lbl_status = IupSetAtt(NULL,IupText(NULL),"EXPAND","YES",
