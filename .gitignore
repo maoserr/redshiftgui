@@ -1,6 +1,7 @@
 # Build directories
 *.swp
 build*
+Makefile
 src/tags
 src/Doxyfile
 src/win32/*.manifest
