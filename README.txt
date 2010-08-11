@@ -27,7 +27,6 @@ II. Todo list
 	-Linux - v4l2 - http://v4l2spec.bytesex.org/spec/capture-example.html
 	-Win - http://msdn.microsoft.com/en-us/library/dd757692(v=VS.85).aspx
 2) Adjust gamma values
-3) Better google maps parsing
 4) Ability to adjust based on weather
 5) Custom event scripts
 6) Image analysis
@@ -36,8 +35,14 @@ II. Todo list
 III. Changelog
 ==============
 
-Thursday, August 05, 2010 (Version 0.1.3)
----------------
+Upcoming (Version 0.3.0)
+------------------------
+ * Better google maps parsing (Address lookups)
+ * Added another geocode IP lookup service (Geobytes)
+ * Change download provider to sourceforge (Github is too awkward)
+
+Thursday, August 05, 2010 (Version 0.2.1)
+-----------------------------------------
  * Added auto method in options
  * Added temperature map for elevation->temperature adjustment
  * Made brightness control work
