@@ -404,7 +404,7 @@ void guimain_dialog_init( int min ){
 	// Create main dialog
 	dialog = IupDialog(dvbox);
 	IupSetAttribute(dialog,"TITLE",_("Redshift GUI"));
-	//IupSetAttribute(dialog,"RESIZE","NO");
+	IupSetAttribute(dialog,"RESIZE","NO");
 	IupSetAttribute(dialog,"MAXBOX","NO");
 	IupSetAttribute(dialog,"TRAY","YES");
 	IupSetAttribute(dialog,"TRAYTIP","Redshift GUI");
