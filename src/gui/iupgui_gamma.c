@@ -111,3 +111,12 @@ void guigamma_init_timers(void){
 	guigamma_check(timer_gamma_check);
 }
 
+// Destroys timers
+void guigamma_end_timers(void){
+	if( timer_gamma_check )
+		IupDestroy(timer_gamma_check);
+
+	if( timer_gamma_transition )
+		IupDestroy(timer_gamma_transition);
+
+}

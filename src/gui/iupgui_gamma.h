@@ -22,6 +22,9 @@ void guigamma_enable(void);
 /**\brief Initializes timers to change gamma */
 void guigamma_init_timers(void);
 
+/**\brief Destroys timers */
+void guigamma_end_timers(void);
+
 /**\brief Checks if temperatures need to be changed,
  * and starts transition timer if needed */
 int guigamma_check(Ihandle *ih);

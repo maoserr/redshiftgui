@@ -161,6 +161,7 @@ int iup_gui(int argc, char *argv[]){
 	if( opt_get_disabled() )
 		guigamma_disable();
 	IupMainLoop();
+	guigamma_end_timers();
 	_unload_icons();
 	IupClose();
 	if(!guimain_exit_normal()){
