@@ -7,6 +7,8 @@
 #include "solar.h"
 #include "options.h"
 
+#include "gamma_vals.h"
+
 /**\brief Redshift options.*/
 typedef struct{
 	/**\brief Brightness */
@@ -202,8 +204,6 @@ int opt_parse_method(char *val){
 		ret = RET_FUN_FAILED;
 #endif
 	} else {
-		/* TRANSLATORS: This refers to the method
-		   used to adjust colors e.g VidMode */
 		LOG(LOGERR,_("Unknown method `%s'.\n"),val);
 		ret = RET_FUN_FAILED;
 	}
@@ -379,6 +379,11 @@ pair *opt_get_map(int *size){
 		(*size)=Rs_opts.map_size;
 		return Rs_opts.map;
 	}
+}
+
+temp_gamma *opt_get_gammap(int *size){
+	(*size)=SIZEOF(blackbody_color);
+	return blackbody_color;
 }
 
 /* Writes the configuration file based on current state */

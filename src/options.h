@@ -24,14 +24,6 @@
 /**\brief Default transition speed */
 #define DEFAULT_TRANSPEED   1000
 
-/**\brief Pairs for elevation to temperature map */
-typedef struct{
-	/**\brief Elevation in degrees */
-	double elev;
-	/**\brief Temperature as percentage */
-	int temp;
-} pair;
-
 /**\brief Retrieves full path of the configuration file.
  * \param buffer buffer to store the configuration file.
  * \param bufsize size of the buffer.
@@ -190,6 +182,9 @@ int opt_get_disabled(void);
 
 /**\brief Retrieves current temperature map */
 pair *opt_get_map(int *size);
+
+/**\brief Retrieves current gamma map */
+temp_gamma *opt_get_gammap(int *size);
 
 /**\brief Writes the configuration file with current settings */
 void opt_write_config(void);
