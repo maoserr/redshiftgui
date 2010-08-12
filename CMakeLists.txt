@@ -109,14 +109,14 @@ elseif(WIN32)
 			${RSG_SRC_DIR}/backends/w32gdi.c
 			${RSG_SRC_DIR}/backends/w32gdi.h)
 	# Resource file
-	include(AddMingwRC)
-	ADD_RC_FILE(${RSG_SRC_DIR}/win32 app.rc RSGSRC)
 	configure_file(${RSG_SRC_DIR}/win32/app.rc.in
 		${RSG_SRC_DIR}/win32/app.rc)
 	configure_file(${RSG_SRC_DIR}/win32/app.manifest.in
 		${RSG_SRC_DIR}/win32/app.manifest)
 	configure_file(${RSG_SRC_DIR}/win32/app.64.manifest.in
 		${RSG_SRC_DIR}/win32/app.64.manifest)
+	include(AddMingwRC)
+	ADD_RC_FILE(${RSG_SRC_DIR}/win32 app RSGSRC)
 endif(UNIX AND NOT APPLE)
 
 # 3rd party packages
@@ -188,8 +188,8 @@ foreach(_lib ${RSG_LIBS})
 	message(STATUS "   Lib: ${_lib}")
 endforeach(_lib ${RSG_LIBS})
 
-# Default to debug build
-set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type")
+# Default to release build
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type")
 # Compiler flags
 if(UNIX)
 	set(CMAKE_C_FLAGS "-Wall" CACHE STRING "C flags" FORCE)
@@ -266,11 +266,14 @@ set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.txt")
 
 if(UNIX)
-	install(TARGETS RSGBIN DESTINATION bin)
+	install(TARGETS RSGBIN
+		DESTINATION bin
+		CONFIGURATIONS Release)
 	install(DIRECTORY 
 		${PROJECT_SOURCE_DIR}/data/applications
 		${PROJECT_SOURCE_DIR}/data/icons
-		DESTINATION share)
+		DESTINATION share
+		CONFIGURATIONS Release)
 	set(CPACK_GENERATOR TGZ)
 	if(PACKAGE_DEB)
 		set(CPACK_GENERATOR ${CPACK_GENERATOR} DEB)
@@ -292,7 +295,9 @@ if(UNIX)
 		PKGBUILD
 		)
 elseif(WIN32)
-	install(TARGETS RSGBIN DESTINATION .)
+	install(TARGETS RSGBIN
+		DESTINATION .
+		CONFIGURATIONS Release)
 	set(CPACK_GENERATOR NSIS ZIP)
 	set(CPACK_PACKAGE_EXECUTABLES "" "")
 	set(CPACK_NSIS_MENU_LINKS
