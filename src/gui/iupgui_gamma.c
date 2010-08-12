@@ -9,11 +9,11 @@ static Ihandle *timer_gamma_transition=NULL;
 
 static int curr_temp=1000;
 static int target_temp=1000;
-static int transpeed;
 static int timers_disabled = 0;
 
 // Changes temperature
 static int _gamma_transition(Ihandle *ih){
+	int transpeed = opt_get_trans_speed();
 	if( curr_temp > target_temp ){
 		curr_temp -= transpeed/10;
 		if( curr_temp < target_temp ){
@@ -92,8 +92,6 @@ void guigamma_enable(void){
 
 // Initialize timer to run gamma correction
 void guigamma_init_timers(void){
-	transpeed = opt_get_trans_speed();
-
 	// Re-check every 5 minute
 	timer_gamma_check = IupTimer();
 	IupSetfAttribute(timer_gamma_check,"TIME","%d",1000*60*5);
