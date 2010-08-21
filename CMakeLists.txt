@@ -249,6 +249,16 @@ if(DOXYGEN_FOUND)
 		WORKING_DIRECTORY ${RSG_SRC_DIR})
 endif(DOXYGEN_FOUND)
 
+# Splint target
+find_program(SPLINT_PATH splint)
+if(SPLINT_PATH)
+	foreach(RSG_DEFINITIONS)
+		set(SPLINT_PARAMS ${SPLINT_PARAMS}
+
+	add_custom_target(splint ${SPLINT_PATH}
+
+endif(SPLINT_PATH)
+
 # Installation rules
 set(CPACK_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
 set(CPACK_PACKAGE_NAME ${PRO_NAME})
