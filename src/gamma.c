@@ -27,7 +27,7 @@ static gamma_ramp_s ramp = {NULL,NULL,NULL,NULL,0};
 
 // Interpolates between two RGB colors
 static void gamma_interp_color(float a,
-		gamma_s c1, gamma_s c2, float *c)
+		gamma_s c1, gamma_s c2, /*@out@*/ float *c)
 {
 	c[0] = (1.0f-a)*c1.r + a*c2.r;
 	c[1] = (1.0f-a)*c1.g + a*c2.g;
@@ -35,26 +35,31 @@ static void gamma_interp_color(float a,
 }
 
 // Frees gamma ramps
-static int gamma_free_ramps(void){
-	if( ramp.all ){
+static int gamma_free_ramps(gamma_ramp_s *_ramp)
+	/*@ensures isnull _ramp->all@*/
+{
+	if( _ramp->all ){
 		LOG(LOGINFO,_("Freeing previous ramp"));
-		free(ramp.all);
-		ramp.all = NULL;
-		ramp.r = NULL;
-		ramp.g = NULL;
-		ramp.b = NULL;
-		ramp.size = 0;
+		free(_ramp->all);
 	}
+	_ramp->all = NULL;
+	_ramp->r = NULL;
+	_ramp->g = NULL;
+	_ramp->b = NULL;
+	_ramp->size = 0;
 	return RET_FUN_SUCCESS;
 }
 
 // Re-allocates ramps if needed
-gamma_ramp_s gamma_get_ramps(int size){
+gamma_ramp_s gamma_get_ramps(int size)
+	/*@globals ramp@*/
+{
 	if( ramp.size != size ){
 		LOG(LOGINFO,_("New ramp size requested, allocating new ramps"));
-		gamma_free_ramps();
+		if(gamma_free_ramps(&ramp)!=RET_FUN_SUCCESS)
+			return ramp;
 		ramp.all = (uint16_t*)malloc(sizeof(uint16_t)*3*size);
-		if( !ramp.all ){
+		if( ramp.all==NULL ){
 			LOG(LOGERR,_("Unable to allocate new gamma ramps."));
 			return ramp;
 		}
@@ -73,7 +78,7 @@ gamma_ramp_s gamma_ramp_fill(int size, int temp)
 	int gmap_size;
 	/* Calculate white point */
 	float white_point[3];
-	float alpha = (temp % 100) / 100.0f;
+	float alpha = (float)(temp % 100) / 100.0f;
 	int temp_index = ((temp - 1000) / 100);
 	float brightness = opt_get_brightness();
 	gamma_s tweak = opt_get_gamma();
@@ -84,23 +89,28 @@ gamma_ramp_s gamma_ramp_fill(int size, int temp)
 			  gam_map[temp_index+1].gamma, white_point);
 
 	LOG(LOGVERBOSE,_("Gamma brightness: %f"),brightness);
-	if(!curr_ramp.size)
+	if( (curr_ramp.size==0) ||
+			(curr_ramp.r==NULL) ||
+			(curr_ramp.g==NULL) ||
+			(curr_ramp.b==NULL) )
 		return curr_ramp;
 	for (i = 0; i < size; i++) {
 		curr_ramp.r[i] = (uint16_t)(brightness*
 				(pow((float)i/size,1.0f/tweak.r)*
-				 UINT16_MAX * white_point[0]));
+		/*@i@*/	 UINT16_MAX * white_point[0]));
 		curr_ramp.g[i] = (uint16_t)(brightness*
 				(pow((float)i/size,1.0f/tweak.g)*
-				 UINT16_MAX * white_point[1]));
+		/*@i@*/	 UINT16_MAX * white_point[1]));
 		curr_ramp.b[i] = (uint16_t)(brightness*
 				(pow((float)i/size,1.0f/tweak.b)*
-				 UINT16_MAX * white_point[2]));
+		/*@i@*/	 UINT16_MAX * white_point[2]));
 	}
 	return curr_ramp;
 }
 
-char *gamma_get_method_name(gamma_method_t method){
+char *gamma_get_method_name(gamma_method_t method)
+	/*@globals methods@*/
+{
 	if( methods[method].name )
 		return methods[method].name;
 	else
@@ -113,6 +123,7 @@ int gamma_find_temp(float ratio){
 	temp_gamma *gam_map=opt_get_gammap(&gam_val_size);
 	float prev_ratio,curr_ratio;
 	LOG(LOGVERBOSE,_("R/B Ratio: %f"),ratio);
+	prev_ratio = (float)gam_map[0].gamma.r/(float)gam_map[0].gamma.b;
 	for(i=0; i<gam_val_size; ++i){
 		curr_ratio = (float)gam_map[i].gamma.r/(float)gam_map[i].gamma.b;
 		if( curr_ratio <= ratio ){
@@ -132,7 +143,7 @@ int gamma_find_temp(float ratio){
 gamma_method_t gamma_lookup_method(char *name){
 	gamma_method_t i;
 	for( i=0; i<GAMMA_METHOD_MAX; ++i ){
-		if( (methods[i].name)
+		if( (methods[i].name != NULL)
 			&& (strcmp(name,methods[i].name)==0) )
 			return i;
 	}
@@ -151,13 +162,16 @@ int gamma_load_methods(void){
 	}
 	methods[GAMMA_METHOD_AUTO].name = "Auto";
 #ifdef ENABLE_RANDR
-	randr_load_funcs(&methods[GAMMA_METHOD_RANDR]);
+	if(randr_load_funcs(&methods[GAMMA_METHOD_RANDR])!=RET_FUN_SUCCESS)
+		return RET_FUN_FAILED;
 #endif
 #ifdef ENABLE_VIDMODE
-	vidmode_load_funcs(&methods[GAMMA_METHOD_VIDMODE]);
+	if(vidmode_load_funcs(&methods[GAMMA_METHOD_VIDMODE])!=RET_FUN_SUCCESS)
+		return RET_FUN_FAILED;
 #endif
 #ifdef ENABLE_WINGDI
-	w32gdi_load_funcs(&methods[GAMMA_METHOD_WINGDI]);
+	if(w32gdi_load_funcs(&methods[GAMMA_METHOD_WINGDI])!=RET_FUN_SUCCESS)
+		return RET_FUN_FAILED;
 #endif
 	return RET_FUN_SUCCESS;
 }
@@ -177,7 +191,7 @@ gamma_method_t gamma_init_method(int screen_num, int crtc_num,
 	do{
 		if(methods[curr].func_init){
 			LOG(LOGINFO,_("Trying %s method"),methods[curr].name);
-			if( methods[curr].func_init(screen_num,crtc_num) ){
+			if( methods[curr].func_init(screen_num,crtc_num) == RET_FUN_SUCCESS){
 				validmethod = curr;
 				active_method = validmethod;
 			}else
@@ -208,9 +222,10 @@ int gamma_state_restore(void)
 /* Free the state associated with the appropriate adjustment method. */
 int gamma_state_free(void)
 {
-	gamma_free_ramps();
-	if( methods[active_method].func_end ){
-		if( methods[active_method].func_end() ){
+	if(gamma_free_ramps(&ramp)!=RET_FUN_SUCCESS)
+		return RET_FUN_FAILED;
+	if( methods[active_method].func_end!=NULL ){
+		if( methods[active_method].func_end()==RET_FUN_SUCCESS ){
 			active_method = GAMMA_METHOD_NONE;
 			return RET_FUN_SUCCESS;
 		}
@@ -268,7 +283,7 @@ int gamma_calc_curr_target_temp(float lat, float lon,
 {
 	double now, elevation;
 	int temp;
-	if ( !systemtime_get_time(&now) ){
+	if ( systemtime_get_time(&now)==0 ){
 		LOG(LOGERR,_("Unable to read system time."));
 		return RET_FUN_FAILED;
 	}

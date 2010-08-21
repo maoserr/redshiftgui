@@ -26,7 +26,7 @@
 #include <time.h>
 #include "thirdparty/logger.h"
 #ifndef _WIN32
-#include <unistd.h>
+# include <unistd.h>
 #endif
 /*@end@*/
 

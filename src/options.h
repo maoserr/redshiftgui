@@ -181,10 +181,10 @@ int opt_get_disabled(void);
 #endif//ENABLE_IUP
 
 /**\brief Retrieves current temperature map */
-pair *opt_get_map(int *size);
+/*@dependent@*/ pair *opt_get_map(/*@out@*/ int *size);
 
 /**\brief Retrieves current gamma map */
-temp_gamma *opt_get_gammap(int *size);
+/*@dependent@*/ temp_gamma *opt_get_gammap(/*@out@*/ int *size);
 
 /**\brief Writes the configuration file with current settings */
 void opt_write_config(void);

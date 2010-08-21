@@ -8,6 +8,6 @@
 #define _REDSHIFT_SYSTEMTIME_H
 
 /**\brief Retrieves system time for solar elevation calculation */
-int systemtime_get_time(double *now);
+int systemtime_get_time(/*@out@*/ double *now);
 
 #endif /* ! _REDSHIFT_SYSTEMTIME_H */

@@ -52,15 +52,15 @@ typedef struct{
 } temp_gamma;
 
 /**\brief gamma ramp structure */
-typedef struct{
+typedef /*@partial@*/ struct{
 	/**\brief Pointer to all ramps */
-	uint16_t *all;
+	/*@null@*//*@owned@*//*@partial@*/ uint16_t *all;
 	/**\brief Pointer to red ramp */
-	uint16_t *r;
+	/*@null@*//*@dependent@*//*@partial@*/ uint16_t *r;
 	/**\brief Pointer to green ramp */
-	uint16_t *g;
+	/*@null@*//*@dependent@*//*@partial@*/ uint16_t *g;
 	/**\brief Pointer to blue ramp */
-	uint16_t *b;
+	/*@null@*//*@dependent@*//*@partial@*/ uint16_t *b;
 	/**\brief Size of the ramps */
 	int size;
 } gamma_ramp_s;
@@ -68,15 +68,15 @@ typedef struct{
 /**\brief Gamma method functions */
 typedef struct{
 	/**\brief Function to initialize method */
-	int (*func_init)(int screen_num,int crtc_num);
+	/*@null@*/ int (*func_init)(int screen_num,int crtc_num);
 	/**\brief Function to shutdown method */
-	int (*func_end)(void);
+	/*@null@*/ int (*func_end)(void);
 	/**\brief Function to set the temperature */
-	int (*func_set_temp)(int temp, gamma_s gamma);
+	/*@null@*/ int (*func_set_temp)(int temp, gamma_s gamma);
 	/**\brief Function to get the temperature */
-	int (*func_get_temp)(void);
+	/*@null@*/ int (*func_get_temp)(void);
 	/**\brief Method name. */
-	char *name;
+	/*@observer@*/ char *name;
 } gamma_method_s;
 
 /**\brief Enum of gamma adjustment methods */
@@ -90,13 +90,15 @@ typedef enum {
 } gamma_method_t;
 
 /**\brief Re-allocates ramps if size changed, otherwise return pointer to ramp */
-gamma_ramp_s gamma_get_ramps(int size);
+gamma_ramp_s gamma_get_ramps(int size)
+	/*@modifies internalState@*/;
 
 /**\brief Updates gamma ramp structure */
 gamma_ramp_s gamma_ramp_fill(int size,int temp);
 
 /**\brief Retrieves method name by id */
-char *gamma_get_method_name(gamma_method_t method);
+extern /*@observer@*/ char *gamma_get_method_name(gamma_method_t method)
+	/*@modifies internalState@*/;
 
 /**\brief Find the temperature based on red:blue ratio */
 int gamma_find_temp(float ratio);
