@@ -37,6 +37,22 @@ typedef struct{
 	float b;
 } gamma_s;
 
+/**\brief Pairs for elevation to temperature map */
+typedef struct{
+	/**\brief Elevation in degrees */
+	double elev;
+	/**\brief Temperature as percentage */
+	int temp;
+} pair;
+
+/**\brief Maps temperature to RGB */
+typedef struct{
+	/**\brief Temperature */
+	int temp;
+	/**\brief RGB value */
+	gamma_s gamma;
+} temp_gamma;
+
 /**\brief gamma ramp structure */
 typedef struct{
 	/**\brief Pointer to all ramps */

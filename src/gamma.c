@@ -13,8 +13,6 @@
 #include "backends/vidmode.h"
 #include "backends/w32gdi.h"
 
-#include "gamma_vals.h"
-
 /* Angular elevation of the sun at which the color temperature
    transition period starts and ends (in degress).
    Transition during twilight, and while the sun is lower than
@@ -29,11 +27,11 @@ static gamma_ramp_s ramp = {NULL,NULL,NULL,NULL,0};
 
 // Interpolates between two RGB colors
 static void gamma_interp_color(float a,
-		const float *c1, const float *c2, float *c)
+		gamma_s c1, gamma_s c2, float *c)
 {
-	c[0] = (1.0f-a)*c1[0] + a*c2[0];
-	c[1] = (1.0f-a)*c1[1] + a*c2[1];
-	c[2] = (1.0f-a)*c1[2] + a*c2[2];
+	c[0] = (1.0f-a)*c1.r + a*c2.r;
+	c[1] = (1.0f-a)*c1.g + a*c2.g;
+	c[2] = (1.0f-a)*c1.b + a*c2.b;
 }
 
 // Frees gamma ramps
@@ -72,16 +70,18 @@ gamma_ramp_s gamma_get_ramps(int size){
 gamma_ramp_s gamma_ramp_fill(int size, int temp)
 {
 	int i;
+	int gmap_size;
 	/* Calculate white point */
 	float white_point[3];
 	float alpha = (temp % 100) / 100.0f;
-	int temp_index = ((temp - 1000) / 100)*3;
+	int temp_index = ((temp - 1000) / 100);
 	float brightness = opt_get_brightness();
 	gamma_s tweak = opt_get_gamma();
 	gamma_ramp_s curr_ramp = gamma_get_ramps(size);
+	temp_gamma *gam_map = opt_get_gammap(&gmap_size);
 
-	gamma_interp_color(alpha, &blackbody_color[temp_index],
-			  &blackbody_color[temp_index+3], white_point);
+	gamma_interp_color(alpha, gam_map[temp_index].gamma,
+			  gam_map[temp_index+1].gamma, white_point);
 
 	LOG(LOGVERBOSE,_("Gamma brightness: %f"),brightness);
 	if(!curr_ramp.size)
@@ -109,11 +109,12 @@ char *gamma_get_method_name(gamma_method_t method){
 
 int gamma_find_temp(float ratio){
 	int i;
-	int gam_val_size=SIZEOF(blackbody_color);
+	int gam_val_size;
+	temp_gamma *gam_map=opt_get_gammap(&gam_val_size);
 	float prev_ratio,curr_ratio;
 	LOG(LOGVERBOSE,_("R/B Ratio: %f"),ratio);
 	for(i=0; i<gam_val_size; ++i){
-		curr_ratio = (float)blackbody_color[i*3]/(float)blackbody_color[i*3+2];
+		curr_ratio = (float)gam_map[i].gamma.r/(float)gam_map[i].gamma.b;
 		if( curr_ratio <= ratio ){
 			// Interpolate color based on ratio
 			int color = (int)((ratio-curr_ratio)/(prev_ratio-curr_ratio)*100

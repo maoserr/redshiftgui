@@ -1,9 +1,20 @@
 #!/bin/sh
 
-fullname=`readlink -f $0`
-basedir=`dirname "$fullname"`
+# Exit if just looking for help
+if [ "$1" = "--help" -o "$1" = "-h" ]; then
+	echo 'Supported Generators: (Use -G <generator>)
+	Unix Makefiles'
+	echo 'Options: (Use -D[option]=<value>
+	ENABLE_RANDR=[yes]|no
+	ENABLE_VIDMODE=[yes]|no
+	ENABLE_IUP=[yes]|no
+	CMAKE_BUILD_TYPE=Debug|[Release]'
+	exit 1
+fi
+
+basedir=.
 suffix=`uname``uname -m`
-cmake -H"$basedir" -B"$basedir/build$suffix"
+cmake -H"$basedir" -B"$basedir/build$suffix" $@
 
 cat > Makefile << EOF
 all:
