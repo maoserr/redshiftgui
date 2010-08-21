@@ -7,8 +7,6 @@
 #ifndef __GAMMA_H__
 #define __GAMMA_H__
 
-#include <stdint.h>
-
 /**\brief Minimum gamma value */
 #define MIN_GAMMA	0.1
 /**\brief Maximum gamma value */

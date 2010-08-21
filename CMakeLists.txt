@@ -55,14 +55,16 @@ elseif( ENABLE_GTK )
 	message(FATAL_ERROR "GTK GUI is not implemented")
 endif( ENABLE_GTK AND ENABLE_IUP )
 
-# Source files
-set(RSGSRC
+# Nonproject Source files
+set(RSGNSRC
 	${RSG_SRC_DIR}/thirdparty/argparser.h
 	${RSG_SRC_DIR}/thirdparty/argparser.c
 	${RSG_SRC_DIR}/thirdparty/logger.h
 	${RSG_SRC_DIR}/thirdparty/logger.c
 	${RSG_SRC_DIR}/thirdparty/stb_image.h
-	${RSG_SRC_DIR}/thirdparty/stb_image.c
+	${RSG_SRC_DIR}/thirdparty/stb_image.c)
+# Project Source files
+set(RSGSRC
 	${RSG_SRC_DIR}/common.h
 	${RSG_SRC_DIR}/gamma.h
 	${RSG_SRC_DIR}/gamma.c
@@ -207,24 +209,27 @@ endif(UNIX)
 # Preprocessor definitions
 unset(RSG_DEFINITIONS CACHE)
 set(RSG_DEFS ${RSG_DEFS}
-	-DPACKAGE="${APP_NAME}"
-	-DPACKAGE_HOME="${RSG_HOMEPAGE}"
-	-DPACKAGE_BUGREPORT="${RSG_BUGREPORT}"
-	-DPACKAGE_VER="${RSG_VERSION}"
+	PACKAGE="${APP_NAME}"
+	PACKAGE_HOME="${RSG_HOMEPAGE}"
+	PACKAGE_BUGREPORT="${RSG_BUGREPORT}"
+	PACKAGE_VER="${RSG_VERSION}"
 	)
 CHECK_INCLUDE_FILE(libintl.h ENABLE_NLS)
 CHECK_INCLUDE_FILE(sys/signal.h HAVE_SYS_SIGNAL_H)
-APPEND_IF_VAR(RSG_DEFS ENABLE_NLS -DENABLE_NLS)
-APPEND_IF_VAR(RSG_DEFS HAVE_SYS_SIGNAL_H -DHAVE_SYS_SIGNAL_H)
-APPEND_IF_VAR(RSG_DEFS ENABLE_GTK -DENABLE_GTK)
-APPEND_IF_VAR(RSG_DEFS ENABLE_IUP -DENABLE_IUP)
+APPEND_IF_VAR(RSG_DEFS ENABLE_NLS ENABLE_NLS)
+APPEND_IF_VAR(RSG_DEFS HAVE_SYS_SIGNAL_H HAVE_SYS_SIGNAL_H)
+APPEND_IF_VAR(RSG_DEFS ENABLE_GTK ENABLE_GTK)
+APPEND_IF_VAR(RSG_DEFS ENABLE_IUP ENABLE_IUP)
 if(UNIX)
-	APPEND_IF_VAR(RSG_DEFS ENABLE_RANDR -DENABLE_RANDR)
-	APPEND_IF_VAR(RSG_DEFS ENABLE_VIDMODE -DENABLE_VIDMODE)
+	APPEND_IF_VAR(RSG_DEFS ENABLE_RANDR ENABLE_RANDR)
+	APPEND_IF_VAR(RSG_DEFS ENABLE_VIDMODE ENABLE_VIDMODE)
 else(WIN32)
-	APPEND_IF_VAR(RSG_DEFS ENABLE_WINGDI -DENABLE_WINGDI)
+	APPEND_IF_VAR(RSG_DEFS ENABLE_WINGDI ENABLE_WINGDI)
 endif(UNIX)
-set(RSG_DEFINITIONS ${RSG_DEFS} CACHE STRING "Redshift GUI defines")
+foreach(_def ${RSG_DEFS})
+	set(RSG_DEFINITIONS ${RSG_DEFINITIONS} -D${_def})
+endforeach(_def ${RSG_DEFS})
+set(RSG_DEFINITIONS ${RSG_DEFINITIONS} CACHE STRING "Redshift GUI defines")
 add_definitions(${RSG_DEFINITIONS})
 foreach(_def ${RSG_DEFS})
 	message(STATUS "   Definition: ${_def}")
@@ -233,7 +238,7 @@ endforeach(_def ${RSG_DEFS})
 # Includes and libraries
 include_directories(${RSG_INCLUDE_DIRS})
 include_directories(${RSG_SRC_DIR})
-add_executable(RSGBIN WIN32 ${RSGSRC})
+add_executable(RSGBIN WIN32 ${RSGSRC} ${RSGNSRC})
 target_link_libraries(RSGBIN ${RSG_LIBRARIES})
 set_target_properties(RSGBIN PROPERTIES
 	OUTPUT_NAME					${APP_NAME}
@@ -252,11 +257,17 @@ endif(DOXYGEN_FOUND)
 # Splint target
 find_program(SPLINT_PATH splint)
 if(SPLINT_PATH)
-	foreach(RSG_DEFINITIONS)
-		set(SPLINT_PARAMS ${SPLINT_PARAMS}
-
-	add_custom_target(splint ${SPLINT_PATH}
-
+	foreach(loop_var ${RSG_INCLUDES})
+		set(SPLINT_PARAMS ${SPLINT_PARAMS} -I${loop_var})
+	endforeach(loop_var ${RSG_INCLUDES})
+	foreach(loop_var ${RSG_DEFS})
+		set(SPLINT_PARAMS ${SPLINT_PARAMS} -D${loop_var})
+	endforeach(loop_var ${RSG_DEFS})
+	set(SPLINT_PARAMS ${SPLINT_PARAMS} 
+		-I${RSG_SRC_DIR} -warnposix)
+	set(SPLINT_PARAMS ${SPLINT_PARAMS} ${RSGSRC})
+	add_custom_target(splint ${SPLINT_PATH} ${SPLINT_PARAMS}
+		VERBATIM)
 endif(SPLINT_PATH)
 
 # Installation rules

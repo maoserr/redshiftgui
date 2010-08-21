@@ -7,10 +7,6 @@
 #ifndef _REDSHIFT_SYSTEMTIME_H
 #define _REDSHIFT_SYSTEMTIME_H
 
-#ifndef _WIN32
-# include <time.h>
-#endif
-
 /**\brief Retrieves system time for solar elevation calculation */
 int systemtime_get_time(double *now);
 

@@ -1,9 +1,10 @@
 #include "common.h"
+/*@ignore@*/
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
-
-#include "randr.h"
+/*@end@*/
 #include "gamma.h"
+#include "randr.h"
 
 /**\brief randr storage of crtc state info */
 typedef struct {
@@ -37,21 +38,34 @@ static randr_state_t state={NULL,NULL,0,0,NULL};
 int randr_init(int screen_num, int crtc_num)
 {
 	xcb_generic_error_t *error;
-
+	xcb_randr_query_version_cookie_t ver_cookie;
+	xcb_randr_query_version_reply_t *ver_reply;
+	const xcb_setup_t *setup;
+	int i;
+	xcb_screen_iterator_t iter;
+	xcb_randr_get_screen_resources_current_cookie_t res_cookie;
+	xcb_randr_get_screen_resources_current_reply_t *res_reply;
+	xcb_randr_crtc_t *crtcs;
+	unsigned int ramp_size;
+	xcb_randr_get_crtc_gamma_cookie_t gamma_get_cookie;
+	xcb_randr_get_crtc_gamma_reply_t *gamma_get_reply;
+	uint16_t *gamma_r;
+	uint16_t *gamma_g;
+	uint16_t *gamma_b;
+	
 	/* Open X server connection */
 	int preferred_screen;
 	LOG(LOGINFO,_("Initializing RANDR backend"));
 
 	state.conn = xcb_connect(NULL, &preferred_screen);
 
-	if (screen_num < 0) screen_num = preferred_screen;
+	if (screen_num < 0)
+		screen_num = preferred_screen;
 
 	/* Query RandR version */
-	xcb_randr_query_version_cookie_t ver_cookie =
-		xcb_randr_query_version(state.conn, RANDR_VERSION_MAJOR,
-					RANDR_VERSION_MINOR);
-	xcb_randr_query_version_reply_t *ver_reply =
-		xcb_randr_query_version_reply(state.conn, ver_cookie, &error);
+	ver_cookie=xcb_randr_query_version(state.conn,
+			RANDR_VERSION_MAJOR,RANDR_VERSION_MINOR);
+	ver_reply = xcb_randr_query_version_reply(state.conn, ver_cookie, &error);
 
 	if (error) {
 		LOG(LOGERR, _("`%s' returned error %d\n"),
@@ -72,9 +86,8 @@ int randr_init(int screen_num, int crtc_num)
 	free(ver_reply);
 
 	/* Get screen */
-	const xcb_setup_t *setup = xcb_get_setup(state.conn);
-	int i;
-	xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
+	setup = xcb_get_setup(state.conn);
+	iter = xcb_setup_roots_iterator(setup);
 	state.screen = NULL;
 
 	for (i = 0; iter.rem > 0; i++) {
@@ -93,13 +106,11 @@ int randr_init(int screen_num, int crtc_num)
 	}
 
 	/* Get list of CRTCs for the screen */
-	xcb_randr_get_screen_resources_current_cookie_t res_cookie =
-		xcb_randr_get_screen_resources_current(state.conn,
-						       state.screen->root);
-	xcb_randr_get_screen_resources_current_reply_t *res_reply =
-		xcb_randr_get_screen_resources_current_reply(state.conn,
-							     res_cookie,
-							     &error);
+	res_cookie = xcb_randr_get_screen_resources_current(state.conn,
+					state.screen->root);
+	res_reply = xcb_randr_get_screen_resources_current_reply(state.conn,
+					res_cookie,
+					&error);
 
 	if (error) {
 		LOG(LOGERR, _("`%s' returned error %d\n"),
@@ -118,8 +129,7 @@ int randr_init(int screen_num, int crtc_num)
 		return RET_FUN_FAILED;
 	}
 
-	xcb_randr_crtc_t *crtcs =
-		xcb_randr_get_screen_resources_current_crtcs(res_reply);
+	crtcs = xcb_randr_get_screen_resources_current_crtcs(res_reply);
 
 	/* Save CRTC identifier in state */
 	for (i = 0; i < state.crtc_count; i++) {
@@ -150,7 +160,7 @@ int randr_init(int screen_num, int crtc_num)
 			return RET_FUN_FAILED;
 		}
 
-		unsigned int ramp_size = gamma_size_reply->size;
+		ramp_size = gamma_size_reply->size;
 		state.crtcs[i].ramp_size = ramp_size;
 
 		free(gamma_size_reply);
@@ -163,10 +173,8 @@ int randr_init(int screen_num, int crtc_num)
 		}
 
 		/* Request current gamma ramps */
-		xcb_randr_get_crtc_gamma_cookie_t gamma_get_cookie =
-			xcb_randr_get_crtc_gamma(state.conn, crtc);
-		xcb_randr_get_crtc_gamma_reply_t *gamma_get_reply =
-			xcb_randr_get_crtc_gamma_reply(state.conn,
+		gamma_get_cookie = xcb_randr_get_crtc_gamma(state.conn, crtc);
+		gamma_get_reply = xcb_randr_get_crtc_gamma_reply(state.conn,
 						       gamma_get_cookie,
 						       &error);
 
@@ -177,12 +185,9 @@ int randr_init(int screen_num, int crtc_num)
 			return RET_FUN_FAILED;
 		}
 
-		uint16_t *gamma_r =
-			xcb_randr_get_crtc_gamma_red(gamma_get_reply);
-		uint16_t *gamma_g =
-			xcb_randr_get_crtc_gamma_green(gamma_get_reply);
-		uint16_t *gamma_b =
-			xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
+		gamma_r = xcb_randr_get_crtc_gamma_red(gamma_get_reply);
+		gamma_g = xcb_randr_get_crtc_gamma_green(gamma_get_reply);
+		gamma_b = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
 
 		/* Allocate space for saved gamma ramps */
 		state.crtcs[i].saved_ramps =
@@ -255,6 +260,8 @@ static int randr_set_temperature_for_crtc(int crtc_num, int temp,
 	xcb_generic_error_t *error;
 	gamma_ramp_s ramp;
 	unsigned int ramp_size;
+	xcb_randr_crtc_t crtc;
+	xcb_void_cookie_t gamma_set_cookie;
 
 	if (crtc_num >= state.crtc_count || crtc_num < 0) {
 		LOG(LOGERR, _("CRTC %d does not exist. "),
@@ -269,7 +276,7 @@ static int randr_set_temperature_for_crtc(int crtc_num, int temp,
 		return RET_FUN_FAILED;
 	}
 
-	xcb_randr_crtc_t crtc = state.crtcs[crtc_num].crtc;
+	crtc = state.crtcs[crtc_num].crtc;
 	ramp_size = state.crtcs[crtc_num].ramp_size;
 
 	ramp = gamma_ramp_fill(ramp_size,temp);
@@ -277,8 +284,7 @@ static int randr_set_temperature_for_crtc(int crtc_num, int temp,
 		return RET_FUN_FAILED;
 
 	/* Set new gamma ramps */
-	xcb_void_cookie_t gamma_set_cookie =
-		xcb_randr_set_crtc_gamma_checked(state.conn, crtc,
+	gamma_set_cookie = xcb_randr_set_crtc_gamma_checked(state.conn, crtc,
 						 ramp_size, ramp.r,
 						 ramp.g, ramp.b);
 	error = xcb_request_check(state.conn, gamma_set_cookie);

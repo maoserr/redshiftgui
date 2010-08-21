@@ -11,11 +11,13 @@
 //#define ARGS_DEBUG
 #define _(X) X
 
+/*@ignore@*/
 #ifdef ARGS_DEBUG
 # define DEBUG(...) printf(__VA_ARGS__)
 #else
 # define DEBUG(...)
 #endif
+/*@end@*/
 
 #ifdef WIN32
 #define _CRT_SECURE_NO_WARNINGS

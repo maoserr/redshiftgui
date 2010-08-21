@@ -6,8 +6,8 @@
 #include "gamma.h"
 #include "solar.h"
 #include "options.h"
-
 #include "gamma_vals.h"
+#define SIZEOF(X) (sizeof(X)/sizeof(X[0]))
 
 /**\brief Redshift options.*/
 typedef struct{

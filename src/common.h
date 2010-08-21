@@ -6,6 +6,7 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+/*@ignore@*/
 #ifdef _WIN32
 # define WINVER  0x0500
 # define WIN32_LEAN_AND_MEAN
@@ -22,11 +23,12 @@
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
+#include <time.h>
 #include "thirdparty/logger.h"
-
 #ifndef _WIN32
 #include <unistd.h>
 #endif
+/*@end@*/
 
 #ifdef ENABLE_NLS
 # include <libintl.h>
@@ -36,6 +38,7 @@
 # define _(s) s
 #endif
 
+/*@ignore@*/
 // Logging macros
 #if 0
 #define LOG(LVL,...) log_log(LVL,__FILE__,__FUNCTION__ ,__LINE__,__VA_ARGS__)
@@ -43,6 +46,7 @@
 /**\brief Logging macro, outputs function name */
 #define LOG(LVL,...) log_log(LVL,NULL,__FUNCTION__,0,__VA_ARGS__)
 #endif
+/*@end@*/
 /**\brief Log level error */
 #define LOGERR		1
 /**\brief Log level warning */
@@ -84,9 +88,6 @@
 #ifdef _MSC_VER
 #define round(X) floor(X + 0.5)
 #endif
-
-/**\brief Size of statically allocated arrays */
-#define SIZEOF(X) (sizeof(X)/sizeof(X[0]))
 
 #ifndef _WIN32
 /**\brief Platform dependent sleep wrapper */

@@ -13,8 +13,6 @@
 #ifndef _SOLAR_H
 #define _SOLAR_H
 
-#include "time.h"
-
 /**\brief Maximum solar angle */
 #define SOLAR_MAX_ANGLE		180.0f
 /**\brief Minimum solar angle */

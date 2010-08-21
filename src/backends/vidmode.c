@@ -1,8 +1,10 @@
 #include "common.h"
+/*@ignore@*/
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86vmode.h>
-#include "vidmode.h"
+/*@end@*/
 #include "gamma.h"
+#include "vidmode.h"
 
 /**\brief VidMode state storage */
 typedef struct {
@@ -20,6 +22,11 @@ static vidmode_state_t state={NULL,0,0,NULL};
 
 int vidmode_init(int screen_num,int crtc_num)
 {
+	int major, minor;
+	uint16_t *gamma_r;
+	uint16_t *gamma_g;
+	uint16_t *gamma_b;
+
 	/* Open display */
 	state.display = XOpenDisplay(NULL);
 	if (state.display == NULL) {
@@ -32,7 +39,6 @@ int vidmode_init(int screen_num,int crtc_num)
 	state.screen_num = screen_num;
 
 	/* Query extension version */
-	int major, minor;
 	if( !XF86VidModeQueryVersion(state.display, &major, &minor) ){
 		LOG(LOGERR, _("X request failed: %s\n"),
 			"XF86VidModeQueryVersion");
@@ -64,9 +70,9 @@ int vidmode_init(int screen_num,int crtc_num)
 		return RET_FUN_FAILED;
 	}
 
-	uint16_t *gamma_r = &state.saved_ramps[0*state.ramp_size];
-	uint16_t *gamma_g = &state.saved_ramps[1*state.ramp_size];
-	uint16_t *gamma_b = &state.saved_ramps[2*state.ramp_size];
+	gamma_r = &state.saved_ramps[0*state.ramp_size];
+	gamma_g = &state.saved_ramps[1*state.ramp_size];
+	gamma_b = &state.saved_ramps[2*state.ramp_size];
 
 	/* Save current gamma ramps so we can restore them at program exit. */
 	if( !XF86VidModeGetGammaRamp(state.display, state.screen_num,

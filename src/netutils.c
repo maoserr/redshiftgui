@@ -1,10 +1,13 @@
 #include "common.h"
+/*@ignore@*/
 #ifdef _WIN32
 #define CURL_STATICLIB
 #endif
 #include <curl/curl.h>
 #include <curl/types.h>
 #include <curl/easy.h>
+/*@end@*/
+#define SIZEOF(X) (sizeof(X)/sizeof(X[0]))
 
 /**\brief cURL structure to store downloaded data */
 struct MemoryStruct {

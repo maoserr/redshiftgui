@@ -11,11 +11,13 @@
 //#define LOG_DEBUG
 #define _(X) X
 
+/*@ignore@*/
 #ifdef LOG_DEBUG
 # define DEBUG(...) printf(__VA_ARGS__)
 #else
 # define DEBUG(...)
 #endif
+/*@end@*/
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS

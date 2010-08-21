@@ -8,10 +8,6 @@
 #define _REDSHIFT_VIDMODE_H
 #ifdef ENABLE_VIDMODE
 
-#include <stdint.h>
-#include "gamma.h"
-#include <X11/Xlib.h>
-
 /**\brief Initialize VidMode */
 int vidmode_init(int screen_num,int crtc_num);
 

@@ -8,12 +8,6 @@
 #define _REDSHIFT_RANDR_H
 #ifdef ENABLE_RANDR
 
-#include "gamma.h"
-#include <stdint.h>
-
-#include <xcb/xcb.h>
-#include <xcb/randr.h>
-
 /**\brief Initialize Randr */
 int randr_init(int screen_num, int crtc_num);
 
