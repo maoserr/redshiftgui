@@ -16,7 +16,6 @@
 #endif
 
 #if defined(ENABLE_IUP)
-# include <iup.h>
 # include "gui/iupgui.h"
 #elif defined(ENABLE_GTK)
 # include "gui/gtkgui.h"

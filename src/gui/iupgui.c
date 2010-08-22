@@ -1,7 +1,7 @@
 #include "common.h"
-#include <iup.h>
 #include "options.h"
 #include "gamma.h"
+#include "iupgui.h"
 #include "iupgui_main.h"
 #include "iupgui_settings.h"
 #include "iupgui_gamma.h"
@@ -25,33 +25,35 @@ Ihandle *himg_redshift,*himg_redshift_idle,
 int dim_back_w, dim_back_h, dim_sun_w, dim_sun_h;
 
 // Load images
-static void _load_icons(char *active,char *idle){
-	int w,h,n;
+static void _load_icons(/*@unused@*/ char *active,/*@unused@*/ char *idle){
+	int w=0;
+	int h=0;
+	int n=0;
 	unsigned char *img;
 
 	img = stbi_load_from_memory(
-			png_redshift,png_redshift_size,
+			png_redshift,(int)png_redshift_size,
 			&w,&h,&n,0);
 	LOG(LOGVERBOSE,_("Main icon size: %dx%dx%d"),w,h,n);
 	himg_redshift = IupImageRGBA(w,h,img);
-	IupSetHandle("MAIN_ICON",himg_redshift);
+	(void)IupSetHandle("MAIN_ICON",himg_redshift);
 	IupSetAttribute(NULL,"ICON","MAIN_ICON");
 	stbi_image_free(img);
 
 	img = stbi_load_from_memory(
-			png_redshift_idle,png_redshift_idle_size,
+			png_redshift_idle,(int)png_redshift_idle_size,
 			&w,&h,&n,0);
 	himg_redshift_idle = IupImageRGBA(w,h,img);
 	stbi_image_free(img);
 
 	img = stbi_load_from_memory(
-			png_sunback,png_sunback_size,
+			png_sunback,(int)png_sunback_size,
 			&dim_back_w,&dim_back_h,&n,0);
 	himg_sunback = IupImageRGBA(dim_back_w,dim_back_h,img);
 	stbi_image_free(img);
 
 	img = stbi_load_from_memory(
-			png_sun,png_sun_size,&dim_sun_w,&dim_sun_h,&n,0);
+			png_sun,(int)png_sun_size,&dim_sun_w,&dim_sun_h,&n,0);
 	himg_sun = IupImageRGBA(dim_sun_w,dim_sun_h,img);
 	stbi_image_free(img);
 }
@@ -65,24 +67,24 @@ static void _unload_icons(void){
 }
 
 // Home page callback
-static int _btn_home(Ihandle *ih){
-	IupHelp(PACKAGE_HOME);
+static int _btn_home(/*@unused@*/ Ihandle *ih){
+	(void)IupHelp(PACKAGE_HOME);
 	return IUP_DEFAULT;
 }
 
 // Bug report callback
-static int _btn_bug(Ihandle *ih){
-	IupHelp(PACKAGE_BUGREPORT);
+static int _btn_bug(/*@unused@*/ Ihandle *ih){
+	(void)IupHelp(PACKAGE_BUGREPORT);
 	return IUP_DEFAULT;
 }
 
 // Close callback
-static int _btn_close(Ihandle *ih){
+static int _btn_close(/*@unused@*/ Ihandle *ih){
 	return IUP_CLOSE;
 }
 
 // About dialog
-int gui_about(Ihandle *ih){
+int gui_about(/*@unused@*/ Ihandle *ih){
 	Ihandle *dialog;
 	Ihandle *lbl_icon;
 	Ihandle *hbox_title;
@@ -91,7 +93,6 @@ int gui_about(Ihandle *ih){
 	Ihandle *btn_home,*btn_bug,*btn_close;
 	Ihandle *hbox_buttons;
 	Ihandle *vbox_all;
-	extern Ihandle *himg_redshift;
 
 	lbl_icon = IupLabel(NULL);
 	IupSetAttributeHandle(lbl_icon,"IMAGE",himg_redshift);
@@ -111,15 +112,15 @@ int gui_about(Ihandle *ih){
 				"Licensed under the GPL license"),NULL);
 	btn_home = IupButton(_("Homepage"),NULL);
 	IupSetfAttribute(btn_home,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(btn_home,"ACTION",(Icallback)_btn_home);
+	(void)IupSetCallback(btn_home,"ACTION",(Icallback)_btn_home);
 
 	btn_bug = IupButton(_("Bug report"),NULL);
 	IupSetfAttribute(btn_bug,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(btn_bug,"ACTION",(Icallback)_btn_bug);
+	(void)IupSetCallback(btn_bug,"ACTION",(Icallback)_btn_bug);
 
 	btn_close = IupButton(_("Close"),NULL);
 	IupSetfAttribute(btn_close,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(btn_close,"ACTION",(Icallback)_btn_close);
+	(void)IupSetCallback(btn_close,"ACTION",(Icallback)_btn_close);
 
 	hbox_buttons = IupHbox(btn_home,btn_bug,IupFill(),btn_close,NULL);
 	vbox_top = IupSetAtt(NULL,IupVbox(hbox_title,txt_area,NULL),
@@ -135,7 +136,7 @@ int gui_about(Ihandle *ih){
 	IupSetAttribute(dialog,"TITLE",_("About Dialog"));
 	IupSetAttribute(dialog,"SIZE","250x150");
 	IupSetAttributeHandle(dialog,"ICON",himg_redshift);
-	IupPopup(dialog,IUP_CENTER,IUP_CENTER);
+	(void)IupPopup(dialog,IUP_CENTER,IUP_CENTER);
 	IupDestroy(dialog);
 	return IUP_DEFAULT;
 }
@@ -147,20 +148,20 @@ int gui_popup(char *title,char *msg,char *type){
 			"VALUE",msg,
 			"DIALOGTYPE",type,
 			NULL);
-	IupPopup(popup,IUP_CENTER,IUP_CENTER);
+	(void)IupPopup(popup,IUP_CENTER,IUP_CENTER);
 	IupDestroy(popup);
 	return RET_FUN_SUCCESS;
 }
 
 // Main GUI code
 int iup_gui(int argc, char *argv[]){
-	IupOpen( &argc,&argv );
+	(void)IupOpen( &argc,&argv );
 	_load_icons(opt_get_active_icon(),opt_get_idle_icon());
 	guimain_dialog_init(opt_get_min());
 	guigamma_init_timers();
 	if( opt_get_disabled() )
 		guigamma_disable();
-	IupMainLoop();
+	(void)IupMainLoop();
 	guigamma_end_timers();
 	_unload_icons();
 	IupClose();

@@ -220,7 +220,8 @@ extern void   stbi_ldr_to_hdr_scale(float scale);
 extern char    *stbi_failure_reason  (void); 
 
 // free the loaded image -- this is just free()
-extern void     stbi_image_free      (void *retval_from_stbi_load);
+extern void     stbi_image_free      (/*@only@*/ /*@out@*/ /*@null@*/
+		void *retval_from_stbi_load);
 
 // get image dimensions & components without fully decoding
 extern int      stbi_info_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp);

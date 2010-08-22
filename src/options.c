@@ -43,9 +43,9 @@ typedef struct{
 	/**\brief Start GUI disabled */
 	int startdisabled;
 	/**\brief Active icon */
-	char active_icon[LONGEST_PATH];
+	/*@unique@*/ char active_icon[LONGEST_PATH];
 	/**\brief Idle icon */
-	char idle_icon[LONGEST_PATH];
+	/*@unique@*/ char idle_icon[LONGEST_PATH];
 #endif//ENABLE_IUP
 	/**\brief Temperature map (Advanced) */
 	/*@null@*//*@partial@*//*@owned@*/ pair *map;

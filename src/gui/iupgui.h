@@ -7,6 +7,8 @@
 #ifndef __IUPGUI_H__
 #define __IUPGUI_H__
 
+#include <iup.h>
+
 /**\brief About dialog */
 int gui_about(Ihandle *ih);
 

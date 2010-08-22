@@ -191,10 +191,10 @@ int opt_get_min(void);
 int opt_get_disabled(void);
 
 /**\brief Retrieves active icon */
-char *opt_get_active_icon(void);
+/*@dependent@*/ char *opt_get_active_icon(void);
 
 /**\brief Retrieves idle icon */
-char *opt_get_idle_icon(void);
+/*@dependent@*/ char *opt_get_idle_icon(void);
 #endif//ENABLE_IUP
 
 /**\brief Retrieves current temperature map */

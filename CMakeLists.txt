@@ -266,7 +266,10 @@ if(SPLINT_PATH)
 		set(SPLINT_PARAMS ${SPLINT_PARAMS} -D${loop_var})
 	endforeach(loop_var ${RSG_DEFS})
 	set(SPLINT_PARAMS ${SPLINT_PARAMS} 
-		-I${RSG_SRC_DIR} +posixlib +boolint)
+		-I${RSG_SRC_DIR}
+		+posixlib
+		+boolint
+		-mts ${PROJECT_SOURCE_DIR}/splint)
 	set(SPLINT_PARAMS ${SPLINT_PARAMS} ${RSGSRC})
 	add_custom_target(splint ${SPLINT_PATH} ${SPLINT_PARAMS}
 		VERBATIM)

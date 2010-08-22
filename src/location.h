@@ -15,14 +15,22 @@ typedef enum{
 } loc_method_t;
 
 /**\brief Geocode from www.hostip.info*/
-int location_geocode_hostip(float *lat,float *lon,char *city,int bsize);
+int location_geocode_hostip(
+		/*@out@*/ float *lat,
+		/*@out@*/ float *lon,
+		/*@out@*/ char *city,int bsize);
 
 /**\brief Geocode from geobytes*/
-int location_geocode_geobytes(float *lat,float *lon,char *city,int bsize);
+int location_geocode_geobytes(
+		/*@out@*/ float *lat,
+		/*@out@*/ float *lon,
+		/*@out@*/ char *city,int bsize);
 
 /**\brief Look up location from address (from Google maps api)*/
-int location_address_lookup(char *address,float *lat,float *lon,
-		char *city,int bsize);
+int location_address_lookup(const char *address,
+		/*@out@*/ float *lat,
+		/*@out@*/ float *lon,
+		/*@out@*/ char *city,int bsize);
 
 /**\brief Initialize location lookup*/
 int location_init(void);

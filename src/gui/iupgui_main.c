@@ -1,5 +1,4 @@
 #include "common.h"
-#include <iup.h>
 #include "systemtime.h"
 #include "solar.h"
 #include "options.h"

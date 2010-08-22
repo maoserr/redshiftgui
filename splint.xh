@@ -1,0 +1,24 @@
+void IupSetAttribute(/*@null@*/ void *ih,
+		const char *name, const char *value);
+
+/*@dependent@*/ void *IupSetAtt(/*@null@*/ const char *handle_name,
+		void *ih, const char *name, ...);
+
+/*@dependent@*/ void *IupText(/*@null@*/ const char *action);
+
+/*@dependent@*/ void *IupLabel(/*@null@*/ const char *title);
+
+/*@dependent@*/ void *IupButton(/*@null@*/ const char *title,
+		/*@null@*/ const char *action);
+
+/*@dependent@*/ void *IupFrame(void *child);
+
+/*@dependent@*/ void *IupVbox(void *child,...);
+
+/*@dependent@*/ void *IupHbox(void *child,...);
+
+/*@dependent@*/ void *IupDialog(void *child);
+
+/*@dependent@*/ void *IupMessageDlg(void);
+
+/*@dependent@*/ void *IupTimer(void);

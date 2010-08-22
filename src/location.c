@@ -6,6 +6,8 @@ int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 	char url[]="http://api.hostip.info/get_html.php?position=true";
 	char *result;
 
+	(*lat)=0.0;
+	(*lon)=0.0;
 	strcpy(city,"(Error)");
 
 	result = download2buffer(url);
@@ -34,6 +36,8 @@ int location_geocode_geobytes(float *lat,float *lon,char *city,int bsize){
 	int size_copied=0;
 	int size_used=0;
 
+	(*lat)=0.0;
+	(*lon)=0.0;
 	strcpy(city,"(Error)");
 
 	result = download2buffer(url);
@@ -81,13 +85,17 @@ int location_geocode_geobytes(float *lat,float *lon,char *city,int bsize){
 
 // Use address input to look up lat/lon (probably could use an XML parser
 //		if this gets any more complicated)
-int location_address_lookup(char *address,float *lat,float *lon,
+int location_address_lookup(const char *address,float *lat,float *lon,
 		char *city,int bsize){
 	char baseurl[]=
 		"http://maps.google.com/maps/api/geocode/xml?sensor=false&address=";
 	char *url;
 	char *escaped_url;
 	char *result;
+
+	(*lat)=0.0;
+	(*lon)=0.0;
+	strcpy(city,"(Error)");
 
 	escaped_url=escape_url(address);
 	if( !escaped_url )

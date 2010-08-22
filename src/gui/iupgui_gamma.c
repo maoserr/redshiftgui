@@ -1,23 +1,23 @@
 #include "common.h"
-#include "iup.h"
 #include "options.h"
 #include "gamma.h"
+#include "iupgui.h"
 #include "iupgui_main.h"
 
-static Ihandle *timer_gamma_check=NULL;
-static Ihandle *timer_gamma_transition=NULL;
+/*@null@*/ static Ihandle *timer_gamma_check=NULL;
+/*@null@*/ static Ihandle *timer_gamma_transition=NULL;
 
 static int curr_temp=1000;
 static int target_temp=1000;
 static int timers_disabled = 0;
 
 // Changes temperature
-static int _gamma_transition(Ihandle *ih){
+static int _gamma_transition(/*@unused@*/ Ihandle *ih){
 	int transpeed = opt_get_trans_speed();
 	if( curr_temp > target_temp ){
 		curr_temp -= transpeed/10;
 		if( curr_temp < target_temp ){
-			curr_temp += transpeed/10;
+			(void)guigamma_set_temp(target_temp);
 			IupSetAttribute(timer_gamma_transition,"RUN","NO");
 			IupSetAttribute(timer_gamma_check,"RUN","YES");
 			return IUP_DEFAULT;
@@ -25,7 +25,7 @@ static int _gamma_transition(Ihandle *ih){
 	}else{
 		curr_temp += transpeed/10;
 		if( curr_temp > target_temp ){
-			curr_temp -= transpeed/10;
+			(void)guigamma_set_temp(target_temp);
 			IupSetAttribute(timer_gamma_transition,"RUN","NO");
 			IupSetAttribute(timer_gamma_check,"RUN","YES");
 			return IUP_DEFAULT;
@@ -50,13 +50,13 @@ int guigamma_get_temp(void){
 
 // Sets the current temperature in GUI
 int guigamma_set_temp(int temp){
-	gamma_state_set_temperature(temp,opt_get_gamma());
+	(void)gamma_state_set_temperature(temp,opt_get_gamma());
 	curr_temp = temp;
 	return RET_FUN_SUCCESS;
 }
 
 // Check if temperature needs to be corrected
-int guigamma_check(Ihandle *ih){
+int guigamma_check(/*@unused@*/ Ihandle *ih){
 
 	if( timers_disabled )
 		return IUP_DEFAULT;
@@ -66,7 +66,7 @@ int guigamma_check(Ihandle *ih){
 			opt_get_temp_day(),opt_get_temp_night());
 	LOG(LOGINFO,_("Gamma check, current: %d, target: %d"),
 			curr_temp,target_temp);
-	if( fabs(curr_temp - target_temp) >= 100 ){
+	if( fabs((double)(curr_temp - target_temp)) >= 1.0 ){
 		// Disable current timer
 		IupSetAttribute(timer_gamma_check,"RUN","NO");
 		IupSetAttribute(timer_gamma_transition,"RUN","YES");
@@ -77,7 +77,7 @@ int guigamma_check(Ihandle *ih){
 
 // Disables gamma timers and checking
 void guigamma_disable(void){
-	guigamma_set_temp(DEFAULT_DAY_TEMP);
+	(void)guigamma_set_temp(DEFAULT_DAY_TEMP);
 	guimain_update_info();
 	IupSetAttribute(timer_gamma_check,"RUN","NO");
 	IupSetAttribute(timer_gamma_transition,"RUN","NO");
@@ -95,18 +95,18 @@ void guigamma_init_timers(void){
 	// Re-check every 5 minute
 	timer_gamma_check = IupTimer();
 	IupSetfAttribute(timer_gamma_check,"TIME","%d",1000*60*5);
-	IupSetCallback(timer_gamma_check,"ACTION_CB",(Icallback)guigamma_check);
+	(void)IupSetCallback(timer_gamma_check,"ACTION_CB",(Icallback)guigamma_check);
 	IupSetAttribute(timer_gamma_check,"RUN","YES");
 
 	// Transition step size is 100 ms
 	timer_gamma_transition = IupTimer();
 	IupSetfAttribute(timer_gamma_transition,"TIME","%d",100);
-	IupSetCallback(timer_gamma_transition,"ACTION_CB",(Icallback)_gamma_transition);
+	(void)IupSetCallback(timer_gamma_transition,"ACTION_CB",(Icallback)_gamma_transition);
 
 	// Make sure gamma is synced up
 	curr_temp = gamma_state_get_temperature();
-	gamma_state_set_temperature(curr_temp,opt_get_gamma());
-	guigamma_check(timer_gamma_check);
+	(void)gamma_state_set_temperature(curr_temp,opt_get_gamma());
+	(void)guigamma_check(timer_gamma_check);
 }
 
 // Destroys timers

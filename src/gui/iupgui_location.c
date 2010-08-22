@@ -1,23 +1,23 @@
 #include "common.h"
-#include <iup.h>
 #include "options.h"
 #include "location.h"
+#include "iupgui.h"
 #include "iupgui_main.h"
 #include "iupgui_gamma.h"
 #include "iupgui_location.h"
 
-static Ihandle *dialog_location=NULL;
-static Ihandle *list_method=NULL;
-static Ihandle *lbl_status=NULL;
-static Ihandle *vbox_method=NULL;
-static Ihandle *edt_lat=NULL;
-static Ihandle *edt_lon=NULL;
-static Ihandle *run_task=NULL;
+/*@null@*/ static Ihandle *dialog_location=NULL;
+/*@null@*/ static Ihandle *list_method=NULL;
+/*@null@*/ static Ihandle *lbl_status=NULL;
+/*@null@*/ static Ihandle *vbox_method=NULL;
+/*@null@*/ static Ihandle *edt_lat=NULL;
+/*@null@*/ static Ihandle *edt_lon=NULL;
+/*@null@*/ static Ihandle *run_task=NULL;
 
 // Extra controls not always visible
-static Ihandle *edt_address=NULL;
-static Ihandle *btn_address=NULL;
-static Ihandle *hbox_address=NULL;
+/*@null@*/ static Ihandle *edt_address=NULL;
+/*@null@*/ static Ihandle *btn_address=NULL;
+/*@null@*/ static Ihandle *hbox_address=NULL;
 
 // Runs geocode hostip callback
 static int _run_geocode(Ihandle *ih){

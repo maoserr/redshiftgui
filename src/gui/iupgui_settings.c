@@ -1,5 +1,4 @@
 #include "common.h"
-#include "iup.h"
 #include "options.h"
 #include "iupgui.h"
 #include "iupgui_main.h"
