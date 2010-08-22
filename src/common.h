@@ -31,6 +31,9 @@
 # endif
 #endif
 /*@end@*/
+#ifndef M_PI
+# define M_PI 3.14159
+#endif
 
 #ifdef ENABLE_NLS
 # include <libintl.h>

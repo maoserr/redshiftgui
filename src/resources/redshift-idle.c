@@ -1,4 +1,5 @@
 // 32x32x4 PNG
+/*@+charint@*/
 unsigned char png_redshift_idle[] = {
     137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,32,0,0,0,32,8,6,0,
     0,0,115,122,122,244,0,0,0,4,115,66,73,84,8,8,8,8,124,8,100,136,0,0,0,
@@ -102,5 +103,6 @@ unsigned char png_redshift_idle[] = {
     68,174,66,96,130
 };
 
-unsigned int png_redshift_idle_size = sizeof(png_redshift_idle)/sizeof(png_redshift_idle[0]);
+unsigned int png_redshift_idle_size = (unsigned int)
+	(sizeof(png_redshift_idle)/sizeof(png_redshift_idle[0]));
 

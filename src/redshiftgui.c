@@ -44,37 +44,37 @@
 
 // Internal function to parse arguments
 static int _parse_options(int argc, char *argv[]){
-	args_addarg("b","bright",
+	(void)args_addarg("b","bright",
 		_("<BRIGHTNESS> Brightness (0.1 - 1)"),ARGVAL_STRING);
-	args_addarg("c","crt",
+	(void)args_addarg("c","crt",
 		_("<CRTC> CRTC to apply adjustment to (RANDR only)"),ARGVAL_STRING);
-	args_addarg("g","gamma",
+	(void)args_addarg("g","gamma",
 		_("<R:G:B> Additional gamma correction to apply"),ARGVAL_STRING);
-	args_addarg("l","latlon",
+	(void)args_addarg("l","latlon",
 		_("<LAT:LON> Latitude and longitude"),ARGVAL_STRING);
-	args_addarg("m","method",
+	(void)args_addarg("m","method",
 		_("<METHOD> Method to use (Auto" RANDR_TXT VIDMODE_TXT WINGDI_TXT ")"),ARGVAL_STRING);
-	args_addarg("n","no-gui",
+	(void)args_addarg("n","no-gui",
 		_("Run in console mode (no GUI)."),ARGVAL_NONE);
-	args_addarg("o","oneshot",
+	(void)args_addarg("o","oneshot",
 		_("Adjust color and then exit (no GUI)"),ARGVAL_NONE);
-	args_addarg("r","speed",
+	(void)args_addarg("r","speed",
 		_("<SPEED> Transition speed (default 1000 K/s)"),ARGVAL_STRING);
-	args_addarg("s","screen",
+	(void)args_addarg("s","screen",
 		_("<SCREEN> Screen to apply to"),ARGVAL_STRING);
-	args_addarg("t","temps",
+	(void)args_addarg("t","temps",
 		_("<DAY:NIGHT> Color temperature to set at daytime/night"),ARGVAL_STRING);
-	args_addarg("v","verbose",
+	(void)args_addarg("v","verbose",
 		_("<LEVEL> Verbosity of output (0 = err/warn, 1 = info, 2 = verbose)"),ARGVAL_STRING);
-	args_addarg(NULL,"map",
+	(void)args_addarg(NULL,"map",
 		_("(Advanced) Temperature map"),ARGVAL_STRING);
 #ifdef ENABLE_IUP
-	args_addarg(NULL,"min",
+	(void)args_addarg(NULL,"min",
 		_("Start GUI minimized"),ARGVAL_NONE);
-	args_addarg("d","disable",
+	(void)args_addarg("d","disable",
 		_("Start GUI disabled"),ARGVAL_NONE);
 #endif//ENABLE_IUP
-	args_addarg("h","help",
+	(void)args_addarg("h","help",
 		_("Display this help message"),ARGVAL_NONE);
 	if( (args_parse(argc,argv) != ARGRET_OK) ){
 		LOG(LOGERR,_("Error occurred parsing options,"
@@ -86,12 +86,13 @@ static int _parse_options(int argc, char *argv[]){
 		int err=0;
 		char Config_file[LONGEST_PATH];
 		
-		if( opt_get_config_file(Config_file,LONGEST_PATH)
+		if( (opt_get_config_file(Config_file,LONGEST_PATH)
+					==RET_FUN_SUCCESS)
 				&& ((args_parsefile(Config_file)) != ARGRET_OK) )
 			LOG(LOGWARN,_("Invalid/empty config: %s"),Config_file);
 
 		opt_init();
-		if( args_check("h") ){
+		if( args_check("h")==ARGBOOL_TRUE ){
 			printf(_("RedshiftGUI (%s) help:\n"),PACKAGE_VER);
 			args_print();
 			printf(_("\nReport bugs to %s\n"),PACKAGE_BUGREPORT);
@@ -99,7 +100,8 @@ static int _parse_options(int argc, char *argv[]){
 		}
 
 		if( (val=args_getnamed("v")) )
-			err = (!opt_set_verbose(atoi(val))) || err;
+			err = (opt_set_verbose(atoi(val))==RET_FUN_FAILED) 
+				|| err;
 		if( (val=args_getnamed("b")) )
 			err = (!opt_set_brightness(atof(val))) || err;
 		if( (val=args_getnamed("c")) )
@@ -194,17 +196,17 @@ static int _do_oneshot(void){
 	/* Signal handler for exit signals */
 	static void
 	sigexit(int signo)
-	{	LOG(LOGINFO,_("Detected exit signal"));
+	{	LOG(LOGINFO,_("Detected exit signal: %d"),signo);
 		exiting = 1;}
 	/* Register signal handler */
 	static void sig_register(void){
 		struct sigaction sigact;
 		sigact.sa_handler = sigexit;
-		sigemptyset(&sigact.sa_mask);
+		(void)sigemptyset(&sigact.sa_mask);
 		sigact.sa_flags = 0;
-		sigaction(SIGINT, &sigact, NULL);
-		sigaction(SIGTERM, &sigact, NULL);
-	}
+		/*@i@*/(void)sigaction(SIGINT, &sigact, NULL);
+		/*@i@*/(void)sigaction(SIGTERM, &sigact, NULL);
+	/*@i@*/}
 #else /* ! HAVE_SYS_SIGNAL_H */
 	static int exiting = 0;
 #	define sig_register()
@@ -230,7 +232,7 @@ static void transition_to_temp(int curr, int target, int speed){
 			exiting = 1;
 			break;
 		}
-		SLEEP(100);
+		/*@i@*/SLEEP(100);
 	}while(!exiting);
 
 	LOG(LOGVERBOSE,_("Target color reached: %uK"),target);
@@ -305,7 +307,7 @@ int main(int argc, char *argv[]){
 
 	// Initialize location method
 	if( !net_init() ){
-		gamma_state_free();
+		(void)gamma_state_free();
 		goto end;
 	}
 	
@@ -329,8 +331,8 @@ int main(int argc, char *argv[]){
 		ret = RET_FUN_FAILED;
 #endif
 	}
-	net_end();
-	gamma_state_free();
+	(void)net_end();
+	(void)gamma_state_free();
 
 	end:
 	opt_free();

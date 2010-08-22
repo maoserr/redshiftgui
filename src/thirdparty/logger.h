@@ -99,7 +99,8 @@ typedef enum{
  * \param[in] append set to LOGBOOL_TRUE to append to file rather to write new one
  * \param[in] cb sets custom callback for logging strings
  */
-LogReturn log_init(LogStr filename,LogBool append,log_callback cb);
+LogReturn log_init(/*@null@*/ LogStr filename,LogBool append,
+		/*@null@*/ log_callback cb);
 
 /**\brief Sets global logging level
  * \param[in] level an integer value. Values lower than this will be pass to

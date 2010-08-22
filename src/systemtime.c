@@ -23,13 +23,14 @@
 int systemtime_get_time(double *t){
 #ifndef _WIN32
 	struct timespec now;
-	int r = clock_gettime(CLOCK_REALTIME, &now);
+	/*@i@*/int r = clock_gettime(CLOCK_REALTIME, &now);
 	if (r < 0) {
+		*t=0.0;
 		perror("clock_gettime");
 		return RET_FUN_FAILED;
 	}
 
-	*t = now.tv_sec + (now.tv_nsec / 1000000000.0);
+	/*@i@*/*t = now.tv_sec + (now.tv_nsec / 1000000000.0);
 #else /* _WIN32 */
 	FILETIME now;
 	ULARGE_INTEGER i;

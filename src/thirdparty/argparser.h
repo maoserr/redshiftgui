@@ -132,8 +132,8 @@ typedef enum {
  * \param[in] valtype Type of value this argument accepts.
  * \return ArgReturn error code.*/
 ArgReturn args_addarg(
-		const ArgStr shortname,
-		const ArgStr longname,
+		/*@null@*/ const ArgStr shortname,
+		/*@null@*/ const ArgStr longname,
 		const ArgStr helpstring,
 		const ArgValType valtype);
 
@@ -160,12 +160,12 @@ ArgBool args_check(const ArgStr name);
  * by "-" or "--"
  * \param[in] index 1 is the first option, 2 is the second.
  * \return String containing the option.*/
-ArgStr args_getunnamed(const int index);
+/*@dependent@*/ ArgStr args_getunnamed(const int index);
 
 /**\brief Retrieves named option based on short or long name.
  * \param[in] name Short or long name.
  * \return String containing the option.*/
-ArgStr args_getnamed(const ArgStr name);
+/*@dependent@*/ ArgStr args_getnamed(const ArgStr name);
 
 /**\brief Prints a list of options and help string.*/
 void args_print(void);
