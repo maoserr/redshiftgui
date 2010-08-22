@@ -70,7 +70,7 @@ char *download2buffer(char url[]){
 }
 
 // Escape special character in URL
-char *escape_url(char url[])
+char *escape_url(const char url[])
 {
 	struct{char ch;char code[3];} specials[]={
 		{' ', "20"},

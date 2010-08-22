@@ -11,7 +11,7 @@
 /*@null@*/ char *download2buffer(char url[]);
 
 /**\brief Escapes special characters in URL (makes a new buffer you must free) */
-/*@null@*/ char *escape_url(char url[]);
+/*@null@*/ char *escape_url(const char url[]);
 
 /**\brief Parses a string given starting and ending tags, you must supply buffer
  * \return strlen of copied string (maybe truncated if buffer too small).

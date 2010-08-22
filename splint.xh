@@ -1,6 +1,15 @@
 void IupSetAttribute(/*@null@*/ void *ih,
 		const char *name, const char *value);
 
+void IupSetfAttribute(/*@null@*/ void *ih, const char *name,
+		const char *format,...);
+
+/*@dependent@*/ void *IupSetAtt(/*@null@*/ const char *handle_name,
+		void *ih, /*@null@*/ const char *name,...);
+
+/*@null@*//*@dependent@*/ char *IupGetAttribute(/*@null@*/ void *ih,
+		const char *name);
+
 /*@dependent@*/ void *IupSetAtt(/*@null@*/ const char *handle_name,
 		void *ih, const char *name, ...);
 
@@ -10,6 +19,8 @@ void IupSetAttribute(/*@null@*/ void *ih,
 
 /*@dependent@*/ void *IupButton(/*@null@*/ const char *title,
 		/*@null@*/ const char *action);
+
+/*@dependent@*/ void *IupList(/*@null@*/ const char *action);
 
 /*@dependent@*/ void *IupFrame(void *child);
 
