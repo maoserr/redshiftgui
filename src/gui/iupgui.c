@@ -25,7 +25,7 @@ Ihandle *himg_redshift,*himg_redshift_idle,
 int dim_back_w, dim_back_h, dim_sun_w, dim_sun_h;
 
 // Load images
-static void _load_icons(void){
+static void _load_icons(char *active,char *idle){
 	int w,h,n;
 	unsigned char *img;
 
@@ -155,7 +155,7 @@ int gui_popup(char *title,char *msg,char *type){
 // Main GUI code
 int iup_gui(int argc, char *argv[]){
 	IupOpen( &argc,&argv );
-	_load_icons();
+	_load_icons(opt_get_active_icon(),opt_get_idle_icon());
 	guimain_dialog_init(opt_get_min());
 	guigamma_init_timers();
 	if( opt_get_disabled() )

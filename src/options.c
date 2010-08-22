@@ -42,6 +42,10 @@ typedef struct{
 	int startmin;
 	/**\brief Start GUI disabled */
 	int startdisabled;
+	/**\brief Active icon */
+	char active_icon[LONGEST_PATH];
+	/**\brief Idle icon */
+	char idle_icon[LONGEST_PATH];
 #endif//ENABLE_IUP
 	/**\brief Temperature map (Advanced) */
 	/*@null@*//*@partial@*//*@owned@*/ pair *map;
@@ -99,6 +103,8 @@ void opt_init(void){
 #ifdef ENABLE_IUP
 	(void)opt_set_min(0);
 	(void)opt_set_disabled(0);
+	(void)opt_set_active_icon("");
+	(void)opt_set_idle_icon("");
 #endif//ENABLE_IUP
 }
 
@@ -277,6 +283,29 @@ int opt_set_disabled(int val){
 	Rs_opts.startdisabled = val;
 	return RET_FUN_SUCCESS;
 }
+
+// Sets active icon
+int opt_set_active_icon(const char *icon){
+	if(icon==NULL){
+		strncpy(Rs_opts.active_icon,_(""),LONGEST_PATH-1);
+		return RET_FUN_SUCCESS;
+	}
+	strncpy(Rs_opts.active_icon,icon,LONGEST_PATH-1);
+	Rs_opts.active_icon[LONGEST_PATH-1]='\0';
+	return RET_FUN_SUCCESS;
+}
+
+// Sets idle icon
+int opt_set_idle_icon(const char *icon){
+	if(icon==NULL){
+		strncpy(Rs_opts.active_icon,_(""),LONGEST_PATH-1);
+		return RET_FUN_SUCCESS;
+	}
+	strncpy(Rs_opts.active_icon,icon,LONGEST_PATH-1);
+	Rs_opts.active_icon[LONGEST_PATH-1]='\0';
+	return RET_FUN_SUCCESS;
+}
+
 #endif//ENABLE_IUP
 
 // Parse temperature map
@@ -377,6 +406,12 @@ int opt_get_min(void)
 
 int opt_get_disabled(void)
 {return Rs_opts.startdisabled;}
+
+char *opt_get_active_icon(void)
+{return Rs_opts.active_icon;}
+
+char *opt_get_idle_icon(void)
+{return Rs_opts.idle_icon;}
 #endif//ENABLE_IUP
 
 pair *opt_get_map(int *size){

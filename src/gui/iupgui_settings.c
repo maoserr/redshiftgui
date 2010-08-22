@@ -22,6 +22,24 @@ static Ihandle *edt_elev=NULL;
 // Buffer to hold elevation map value
 static char *txt_val=NULL;
 
+// Retrieves an image file
+static char *_get_image_file(char *initial_file){
+	char *file;
+	char *val;
+	Ihandle *filedlg = IupFileDlg();
+	IupSetAttribute(filedlg,"FILE",initial_file);
+	IupSetAttribute(filedlg,"FILTER","*.png");
+	IupSetAttribute(filedlg,"TITLE",_("Select image"));
+	IupPopup(filedlg,IUP_CENTER,IUP_CENTER);
+	if( IupGetInt(filedlg, "STATUS")==0 ){
+		val=IupGetAttribute(filedlg,"VALUE");
+		file = malloc((strlen(val)+1)*sizeof(char));
+		strcpy(file,val);
+		return file;
+	}else
+		return NULL;
+}
+
 // Settings - temp day changed
 static int _val_day_changed(Ihandle *ih){
 	int val = IupGetInt(ih,"VALUE");
@@ -37,6 +55,25 @@ static int _val_night_changed(Ihandle *ih){
 	int rounded = 100*((int)(val/100.0f));
 	IupSetfAttribute(label_night,"TITLE","%d° K",rounded);
 	guigamma_set_temp(rounded);
+	return IUP_DEFAULT;
+}
+
+// Settings - active icon changed
+static int _set_active(Ihandle *ih){
+	char *file=_get_image_file(_(""));
+	LOG(LOGVERBOSE,_("New active image: %s"),file);
+	if( file != NULL )
+		IupSetAttribute(ih,"IMAGE",file);
+	return IUP_DEFAULT;
+}
+
+// Settings - idle icon changed
+static int _set_idle(Ihandle *ih){
+	char *file=_get_image_file(_(""));
+	LOG(LOGVERBOSE,_("New idle image: %s"),file);
+	if( file != NULL )
+		IupSetAttribute(ih,"IMAGE",file);
+
 	return IUP_DEFAULT;
 }
 
@@ -180,6 +217,49 @@ static Ihandle *_settings_create_night_temp(void){
 	return frame_night;
 }
 
+// Create startup frame
+static Ihandle *_settings_create_startup(void){
+	Ihandle *frame_startup;
+	// Start minimized and/or disabled
+	chk_min = IupToggle(_("Start minimized"),NULL);
+	IupSetAttribute(chk_min,"EXPAND","HORIZONTAL");
+	chk_disable = IupToggle(_("Start disabled"),NULL);
+	IupSetAttribute(chk_disable,"EXPAND","HORIZONTAL");
+	if(opt_get_min())
+		IupSetAttribute(chk_min,"VALUE","ON");
+	if(opt_get_disabled())
+		IupSetAttribute(chk_disable,"VALUE","ON");
+	frame_startup = IupFrame(IupSetAtt(NULL,
+					IupVbox(chk_min,chk_disable,NULL),
+					"MARGIN","5",NULL)
+				);
+	IupSetAttribute(frame_startup,"TITLE",_("Startup"));
+	return frame_startup;
+}
+
+// Create icons frame
+static Ihandle *_settings_create_icons(void){
+	Ihandle *frame_icons;
+	Ihandle *button_active;
+	Ihandle *button_idle;
+	Ihandle *label_txt=IupLabel(_("Please use\n32x32 png"));
+	extern Ihandle *himg_redshift,*himg_redshift_idle;
+	
+	button_active = IupButton(NULL,NULL);
+	IupSetAttributeHandle(button_active,"IMAGE",himg_redshift);
+	IupSetCallback(button_active,"ACTION",(Icallback)_set_active);
+	button_idle = IupButton(NULL,NULL);
+	IupSetAttributeHandle(button_idle,"IMAGE",himg_redshift_idle);
+	IupSetCallback(button_idle,"ACTION",(Icallback)_set_idle);
+	frame_icons = IupFrame(
+			IupSetAttributes(
+				IupHbox(button_active,button_idle,label_txt,IupFill(),NULL),
+				"MARGIN=5")
+		);
+	IupSetAttribute(frame_icons,"TITLE",_("Icons"));
+	return frame_icons;
+}
+
 // Create transition speed slider frame
 static Ihandle *_settings_create_tran(void){
 	Ihandle *vbox_transpeed, *frame_speed;
@@ -202,26 +282,6 @@ static Ihandle *_settings_create_tran(void){
 	return frame_speed;
 }
 
-// Create startup frame
-static Ihandle *_settings_create_startup(void){
-	Ihandle *frame_startup;
-	// Start minimized and/or disabled
-	chk_min = IupToggle(_("Start minimized"),NULL);
-	IupSetAttribute(chk_min,"EXPAND","HORIZONTAL");
-	chk_disable = IupToggle(_("Start disabled"),NULL);
-	IupSetAttribute(chk_disable,"EXPAND","HORIZONTAL");
-	if(opt_get_min())
-		IupSetAttribute(chk_min,"VALUE","ON");
-	if(opt_get_disabled())
-		IupSetAttribute(chk_disable,"VALUE","ON");
-	frame_startup = IupFrame(IupSetAtt(NULL,
-					IupVbox(chk_min,chk_disable,NULL),
-					"MARGIN","5",NULL)
-				);
-	IupSetAttribute(frame_startup,"TITLE",_("Startup"));
-	return frame_startup;
-}
-
 // Create solar elevations frame
 static Ihandle *_settings_create_elev(void){
 	Ihandle *lbl_elev,*frame_elev;
@@ -236,7 +296,7 @@ static Ihandle *_settings_create_elev(void){
 	for( i=0; i<size; ++i ){
 		// Use up LINE_SIZE of buffer, with NULL terminator being overwritten on
 		// next loop
-		snprintf(txt_val+LINE_SIZE*i,LINE_SIZE+1,"%9.2f,%7f%%;\n",
+		snprintf(txt_val+LINE_SIZE*i,LINE_SIZE+1,"%9.2f,%7.2f%%;\n",
 				map[i].elev,map[i].temp);
 	}
 	edt_elev = IupSetAtt(NULL,IupText(NULL),
@@ -265,8 +325,9 @@ static void _settings_create(void){
 	Ihandle *frame_method,
 			*frame_day,
 			*frame_night,
-			*frame_speed,
 			*frame_startup,
+			*frame_icons,
+			*frame_speed,
 			*frame_elev,
 
 			*tabs_all,
@@ -280,8 +341,9 @@ static void _settings_create(void){
 	frame_method = _settings_create_methods();
 	frame_day = _settings_create_day_temp();
 	frame_night = _settings_create_night_temp();
-	frame_speed = _settings_create_tran();
 	frame_startup = _settings_create_startup();
+	frame_icons = _settings_create_icons();
+	frame_speed = _settings_create_tran();
 	frame_elev = _settings_create_elev();
 
 	// Tabs containing settings
@@ -291,6 +353,7 @@ static void _settings_create(void){
 				frame_day,
 				frame_night,
 				frame_startup,
+				frame_icons,
 				NULL),
 			IupVbox(
 				frame_speed,

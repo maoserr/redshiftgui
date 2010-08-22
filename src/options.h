@@ -126,6 +126,17 @@ int opt_set_min(int val);
  * \param val Set to 1 to start disabled
  */
 int opt_set_disabled(int val);
+
+/**\brief Sets the current active icon
+ * \param icon String containing filename of new icon, use NULL to set default
+ */
+int opt_set_active_icon(const char *icon);
+
+/**\brief Sets the current idle icon
+ * \param icon String containing filename of new icon, use NULL to set default
+ */
+int opt_set_idle_icon(const char *icon);
+
 #endif
 
 /**\brief Parses temperature map
@@ -178,6 +189,12 @@ int opt_get_min(void);
 
 /**\brief Retrieves start disabled status */
 int opt_get_disabled(void);
+
+/**\brief Retrieves active icon */
+char *opt_get_active_icon(void);
+
+/**\brief Retrieves idle icon */
+char *opt_get_idle_icon(void);
 #endif//ENABLE_IUP
 
 /**\brief Retrieves current temperature map */
