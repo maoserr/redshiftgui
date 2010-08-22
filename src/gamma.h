@@ -40,7 +40,7 @@ typedef struct{
 	/**\brief Elevation in degrees */
 	double elev;
 	/**\brief Temperature as percentage */
-	int temp;
+	double temp;
 } pair;
 
 /**\brief Maps temperature to RGB */

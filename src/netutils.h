@@ -8,15 +8,16 @@
 #define __NETUTILS_H__
 
 /**\brief Downloads url content to a new buffer, you must free buffer */
-char *download2buffer(char url[]);
+/*@null@*/ char *download2buffer(char url[]);
 
 /**\brief Escapes special characters in URL (makes a new buffer you must free) */
-char *escape_url(char url[]);
+/*@null@*/ char *escape_url(char url[]);
 
 /**\brief Parses a string given starting and ending tags, you must supply buffer
  * \return strlen of copied string (maybe truncated if buffer too small).
  */
-int parse_tag_str(char content[],char start_tag[],char end_tag[],char *buffer,int bsize);
+int parse_tag_str(char content[],char start_tag[],char end_tag[],
+		/*@unique@*/ char *buffer,int bsize);
 
 /**\brief Parses a float given starting tag */
 float parse_tag_float(char content[],char start[]);

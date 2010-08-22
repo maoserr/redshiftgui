@@ -44,7 +44,7 @@ typedef struct{
 	int startdisabled;
 #endif//ENABLE_IUP
 	/**\brief Temperature map (Advanced) */
-	pair *map;
+	/*@null@*//*@partial@*//*@owned@*/ pair *map;
 	/**\brief Temperature map size (Advanced) */
 	int map_size;
 } rs_opts;
@@ -64,33 +64,41 @@ int opt_get_config_file(char buffer[],size_t bufsize){
 #else
 		char *home = getenv("APPDATA");
 #endif
-		size_t s_home = strlen(home);
+		size_t s_home;
+		if( home==NULL ){
+			strcpy(buffer,"None");
+			return RET_FUN_FAILED;
+		}
+		s_home = strlen(home);
 		if( s_home < (bufsize+strlen(RSG_RCFILE)-5) ){
 			strcpy(buffer,home);
 			buffer[s_home++]=PATH_SEP;
 			strcpy(buffer+s_home,RSG_RCFILE);
-			return 1;
+			return RET_FUN_SUCCESS;
 		}
-		return 0;
+		strcpy(buffer,"TooLong");
+		return RET_FUN_FAILED;
 }
 
 // Load defaults
 void opt_init(void){
+	if( Rs_opts.map!=NULL )
+		free(Rs_opts.map);
 	Rs_opts.map=NULL;
-	opt_set_verbose(0);
-	opt_set_brightness(1.0);
-	opt_set_location(0,0);
-	opt_set_temperatures(DEFAULT_DAY_TEMP,DEFAULT_NIGHT_TEMP);
-	opt_set_gamma(DEFAULT_GAMMA,DEFAULT_GAMMA,DEFAULT_GAMMA);
-	opt_set_method(GAMMA_METHOD_AUTO);
-	opt_set_screen(-1);
-	opt_set_crtc(-1);
-	opt_set_transpeed(1000);
-	opt_set_oneshot(0);
-	opt_set_nogui(0);
+	(void)opt_set_verbose(0);
+	(void)opt_set_brightness(1.0);
+	(void)opt_set_location(0,0);
+	(void)opt_set_temperatures(DEFAULT_DAY_TEMP,DEFAULT_NIGHT_TEMP);
+	(void)opt_set_gamma(DEFAULT_GAMMA,DEFAULT_GAMMA,DEFAULT_GAMMA);
+	(void)opt_set_method(GAMMA_METHOD_AUTO);
+	(void)opt_set_screen(-1);
+	(void)opt_set_crtc(-1);
+	(void)opt_set_transpeed(1000);
+	(void)opt_set_oneshot(0);
+	(void)opt_set_nogui(0);
 #ifdef ENABLE_IUP
-	opt_set_min(0);
-	opt_set_disabled(0);
+	(void)opt_set_min(0);
+	(void)opt_set_disabled(0);
 #endif//ENABLE_IUP
 }
 
@@ -253,7 +261,7 @@ int opt_parse_temperatures(char *val){
 // Sets the verbosity of logging
 int opt_set_verbose(int level){
 	Rs_opts.verbose = level;
-	log_setlevel(level+2);
+	(void)log_setlevel(level+2);
 	return RET_FUN_SUCCESS;
 }
 
@@ -299,21 +307,21 @@ int opt_parse_map(char *map){
 		currsep=strchr(currstr,',');
 		currend=strchr(currstr,';');
 		curr_map[i].elev=atof(currstr);
-		curr_map[i].temp=atoi(++currsep);
+		curr_map[i].temp=atof(++currsep);
 		if( curr_map[i].elev > prevelev ){
 			free(curr_map);
 			LOG(LOGERR,_("Invalid map line, elevation must be decreasing."));
 			return RET_FUN_FAILED;
 		}
 		prevelev = curr_map[i].elev;
-		if( (curr_map[i].temp>100)
-				|| (curr_map[i].temp<0) ){
+		if( (curr_map[i].temp>100.0)
+				/*@i@*/|| (curr_map[i].temp<0.0) ){
 			free(curr_map);
 			LOG(LOGERR,_("Invalid map line, temperature must be between 0-100%."));
 			return RET_FUN_FAILED;
 		}
 		
-		LOG(LOGVERBOSE,_("Map line: %f,%d"),curr_map[i].elev,
+		/*@i@*/LOG(LOGVERBOSE,_("Map line: %f,%d"),curr_map[i].elev,
 				curr_map[i].temp);
 		currstr=++currend;
 	}
@@ -373,16 +381,16 @@ int opt_get_disabled(void)
 
 pair *opt_get_map(int *size){
 	if( !Rs_opts.map ){
-		(*size)=SIZEOF(default_map);
+		(*size)=(int)SIZEOF(default_map);
 		return default_map;
 	}else{
-		(*size)=Rs_opts.map_size;
+		(*size)=(int)Rs_opts.map_size;
 		return Rs_opts.map;
 	}
 }
 
 temp_gamma *opt_get_gammap(int *size){
-	(*size)=SIZEOF(blackbody_color);
+	(*size)=(int)SIZEOF(blackbody_color);
 	return blackbody_color;
 }
 
@@ -391,11 +399,15 @@ void opt_write_config(void){
 	char Config_file[LONGEST_PATH];
 	FILE *fid_config;
 
-	opt_get_config_file(Config_file,LONGEST_PATH);
+	if(opt_get_config_file(Config_file,LONGEST_PATH)
+			!=RET_FUN_SUCCESS)
+		return;
 	fid_config = fopen(Config_file,"w");
-	if(opt_get_min())
+	if( fid_config==NULL )
+		return;
+	if( opt_get_min()!=0 )
 		fprintf(fid_config,"min\n");
-	if(opt_get_disabled())
+	if( opt_get_disabled()!=0 )
 		fprintf(fid_config,"disable\n");
 	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
@@ -405,10 +417,10 @@ void opt_write_config(void){
 		int i;
 		fprintf(fid_config,"map=");
 		for( i=0; i<Rs_opts.map_size; ++i )
-			fprintf(fid_config,"%.2f,%d;",Rs_opts.map[i].elev,Rs_opts.map[i].temp);
+			fprintf(fid_config,"%.2f,%.2f;",Rs_opts.map[i].elev,Rs_opts.map[i].temp);
 		fprintf(fid_config,"\n");
 	}
-	fclose(fid_config);
+	(void)fclose(fid_config);
 }
 
 /* Frees resources used by options */

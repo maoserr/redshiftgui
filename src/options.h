@@ -28,7 +28,7 @@
  * \param buffer buffer to store the configuration file.
  * \param bufsize size of the buffer.
  */
-int opt_get_config_file(char buffer[],size_t bufsize);
+int opt_get_config_file(/*@out@*/ char buffer[],size_t bufsize);
 
 /**\brief Load default values for all fields.
  */

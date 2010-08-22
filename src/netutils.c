@@ -16,10 +16,12 @@ struct MemoryStruct {
 	/**\brief Size of buffer */
 	size_t size;
 };
-static CURL *curl;
+/*@keep@*/ static CURL *curl;
 
 // Allocate or re-size buffer
-static void *_myrealloc(void *ptr, size_t size){
+static /*@null@*//*@partial@*/ void *_myrealloc(
+		/*@only@*/ void *ptr, size_t size)
+{
 	if(ptr)
 		return realloc(ptr, size);
 	else
@@ -36,7 +38,7 @@ static size_t _writememcb(void *ptr, size_t size,
 	if( mem->memory ){
 		memcpy(&(mem->memory[mem->size]),ptr,realsize);
 		mem->size += realsize;
-		mem->memory[mem->size] = 0;
+		mem->memory[mem->size] = '\0';
 	}
 	LOG(LOGINFO,_("Downloading data..."));
 	return realsize;
@@ -51,9 +53,9 @@ char *download2buffer(char url[]){
 	chunk.memory = NULL;
 	chunk.size = 0;
 	LOG(LOGINFO,_("Downloading URL: %s"),url);
-	curl_easy_setopt(curl,CURLOPT_URL,url);
-	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,_writememcb);
-	curl_easy_setopt(curl,CURLOPT_WRITEDATA,(void*)&chunk);
+	(void)curl_easy_setopt(curl,CURLOPT_URL,url);
+	(void)curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,_writememcb);
+	(void)curl_easy_setopt(curl,CURLOPT_WRITEDATA,(void*)&chunk);
 	res = curl_easy_perform(curl);
 	if( res != 0  ){
 		// Error occurred
@@ -68,7 +70,8 @@ char *download2buffer(char url[]){
 }
 
 // Escape special character in URL
-char *escape_url(char url[]){
+char *escape_url(char url[])
+{
 	struct{char ch;char code[3];} specials[]={
 		{' ', "20"},
 		{'<', "3C"},
@@ -93,13 +96,13 @@ char *escape_url(char url[]){
 		{'&', "26"},
 		{'$', "24"},
 	};
-	int i,j,k;
-	int size=strlen(url);
-	int newsize=size+1;
+	unsigned int i,j,k;
+	unsigned int size=(unsigned int)strlen(url);
+	unsigned int newsize=size+1;
 	char *escaped_url=NULL;
 
 	for( i=0; i<size; ++i ){
-		for( j=0; j<SIZEOF(specials); ++j ){
+		for( j=0; j<((unsigned int)SIZEOF(specials));++j ){
 			if( url[i]==specials[j].ch ){
 				newsize+=2;
 				break;
@@ -115,7 +118,7 @@ char *escape_url(char url[]){
 	k=0;
 	while( i<newsize ){
 		escaped_url[i]=url[k];
-		for( j=0; j<SIZEOF(specials); ++j ){
+		for( j=0; j<((unsigned int)SIZEOF(specials)); ++j ){
 			if( url[k]==specials[j].ch ){
 				escaped_url[i]='%';
 				escaped_url[++i]=specials[j].code[0];
@@ -128,7 +131,7 @@ char *escape_url(char url[]){
 	}
 	LOG(LOGVERBOSE,_("Old URL is %s"),url);
 	LOG(LOGVERBOSE,_("Escaped URL is: %s"),escaped_url);
-	return escaped_url;
+	return /*@i1@*/ escaped_url;
 }
 
 /* Copies content of tag to buffer
@@ -146,7 +149,7 @@ int parse_tag_str(char content[],char start_tag[],char end_tag[],
 				LOG(LOGWARN,_("Buffer to small for [%s]-[%s]"),start_tag,end_tag);
 				length = bsize-1;
 			}
-			strncpy(buffer,begin,length);
+			strncpy(buffer,begin,(size_t)length);
 			buffer[length]='\0';
 			return length;
 		}else{
@@ -163,7 +166,7 @@ int parse_tag_str(char content[],char start_tag[],char end_tag[],
  */
 float parse_tag_float(char content[],char start[]){
 	char *searchind;
-	int size=strlen(start);
+	int size=(int)strlen(start);
 
 	searchind=strstr(content,start);
 	if( searchind )
@@ -173,7 +176,7 @@ float parse_tag_float(char content[],char start[]){
 }
 
 int net_init(void){
-	curl_global_init(CURL_GLOBAL_ALL);
+	(void)curl_global_init(CURL_GLOBAL_ALL);
 	curl = curl_easy_init();
 	if( curl )
 		return RET_FUN_SUCCESS;

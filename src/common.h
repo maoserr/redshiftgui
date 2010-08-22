@@ -26,7 +26,9 @@
 #include <time.h>
 #include "thirdparty/logger.h"
 #ifndef _WIN32
-# include <unistd.h>
+# ifndef S_SPLINT_S
+#  include <unistd.h>
+# endif
 #endif
 /*@end@*/
 

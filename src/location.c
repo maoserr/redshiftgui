@@ -18,7 +18,8 @@ int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 	(*lat)=parse_tag_float(result,"Latitude: ");
 	(*lon)=parse_tag_float(result,"Longitude: ");
 
-	if( !parse_tag_str(result,"City: ","\n",city,bsize) ){
+	if( parse_tag_str(result,"City: ","\n",city,bsize)
+			!= RET_FUN_SUCCESS ){
 		free(result);
 		return RET_FUN_FAILED;
 	}
@@ -46,7 +47,7 @@ int location_geocode_geobytes(float *lat,float *lon,char *city,int bsize){
 	(*lon)=parse_tag_float(result,"\"longitude\":");
 
 	size_copied=parse_tag_str(result,"\"city\":\"","\",",city,bsize);
-	if( !size_copied ){
+	if( size_copied==0 ){
 		free(result);
 		return RET_FUN_FAILED;
 	}
@@ -58,7 +59,7 @@ int location_geocode_geobytes(float *lat,float *lon,char *city,int bsize){
 	city[size_used++]=',';
 	size_copied=parse_tag_str(result,"\"region\":\"","\",",city+size_used,
 			bsize-size_used);
-	if( !size_used ){
+	if( size_copied==0 ){
 		free(result);
 		return RET_FUN_FAILED;
 	}
@@ -70,7 +71,7 @@ int location_geocode_geobytes(float *lat,float *lon,char *city,int bsize){
 	city[size_used++]=',';
 	size_copied=parse_tag_str(result,"\"country\":\"","\",",city+size_used,
 			bsize-size_used);
-	if( !size_used ){
+	if( size_copied==0 ){
 		free(result);
 		return RET_FUN_FAILED;
 	}
@@ -92,9 +93,11 @@ int location_address_lookup(char *address,float *lat,float *lon,
 	if( !escaped_url )
 		return RET_FUN_FAILED;
 
-	url=malloc((strlen(baseurl)+strlen(escaped_url)+1)*sizeof(char));
+	url=malloc((strlen(baseurl)
+		+strlen(escaped_url)+1)*sizeof(char));
 	if( !url ){
 		LOG(LOGERR,_("Allocation of URL failed"));
+		free(escaped_url);
 		return RET_FUN_FAILED;
 	}
 	strcpy(url,baseurl);
@@ -115,8 +118,9 @@ int location_address_lookup(char *address,float *lat,float *lon,
 	(*lat)=parse_tag_float(result,"<lat>");
 	(*lon)=parse_tag_float(result,"<lng>");
 
-	if( !parse_tag_str(result,"<formatted_address>","</formatted_address>",
-				city,bsize) ){
+	if( parse_tag_str(result,"<formatted_address>",
+				"</formatted_address>",city,bsize)
+			!= RET_FUN_SUCCESS ){
 		free(result);
 		return RET_FUN_FAILED;
 	}

@@ -236,7 +236,7 @@ static Ihandle *_settings_create_elev(void){
 	for( i=0; i<size; ++i ){
 		// Use up LINE_SIZE of buffer, with NULL terminator being overwritten on
 		// next loop
-		snprintf(txt_val+LINE_SIZE*i,LINE_SIZE+1,"%9.2f,%7d%%;\n",
+		snprintf(txt_val+LINE_SIZE*i,LINE_SIZE+1,"%9.2f,%7f%%;\n",
 				map[i].elev,map[i].temp);
 	}
 	edt_elev = IupSetAtt(NULL,IupText(NULL),

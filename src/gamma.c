@@ -242,9 +242,9 @@ int gamma_calc_temp(double elevation, int temp_day, int temp_night)
 	int size;
 	pair *map = opt_get_map(&size);
 	double prevelev=map[size-1].elev+360;
-	int prevtemp=map[size-1].temp;
+	double prevtemp=map[size-1].temp;
 	double currelev;
-	int currtemp;
+	double currtemp;
 	for( i = 0; i<size+1; ++i ){
 		if( i==size ){
 			currelev = map[0].elev-360.0;

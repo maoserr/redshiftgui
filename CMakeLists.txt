@@ -260,11 +260,13 @@ if(SPLINT_PATH)
 	foreach(loop_var ${RSG_INCLUDES})
 		set(SPLINT_PARAMS ${SPLINT_PARAMS} -I${loop_var})
 	endforeach(loop_var ${RSG_INCLUDES})
+	set(SPLINT_PARAMS ${SPLINT_PARAMS}
+		-systemdirs "/usr/include:/usr/include/sys")
 	foreach(loop_var ${RSG_DEFS})
 		set(SPLINT_PARAMS ${SPLINT_PARAMS} -D${loop_var})
 	endforeach(loop_var ${RSG_DEFS})
 	set(SPLINT_PARAMS ${SPLINT_PARAMS} 
-		-I${RSG_SRC_DIR} -warnposix)
+		-I${RSG_SRC_DIR} +posixlib)
 	set(SPLINT_PARAMS ${SPLINT_PARAMS} ${RSGSRC})
 	add_custom_target(splint ${SPLINT_PATH} ${SPLINT_PARAMS}
 		VERBATIM)
