@@ -8,6 +8,6 @@
 #define __IUPGUI_SETTINGS_H__
 
 /**\brief Creates or shows the settings dialog, can be called multiple times */
-int guisettings_show(Ihandle *ih);
+int guisettings_show(Hcntrl ih);
 
 #endif//__IUPGUI_SETTINGS_H__

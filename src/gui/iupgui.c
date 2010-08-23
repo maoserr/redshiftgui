@@ -157,7 +157,7 @@ int gui_popup(char *title,char *msg,char *type){
 int iup_gui(int argc, char *argv[]){
 	(void)IupOpen( &argc,&argv );
 	_load_icons(opt_get_active_icon(),opt_get_idle_icon());
-	guimain_dialog_init(opt_get_min());
+	guimain_dialog_init();
 	guigamma_init_timers();
 	if( opt_get_disabled() )
 		guigamma_disable();

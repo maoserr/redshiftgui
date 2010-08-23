@@ -5,34 +5,41 @@
 #include "iupgui_gamma.h"
 #include "iupgui_settings.h"
 
+extern Hcntrl himg_redshift,himg_redshift_idle;
+
 // Settings dialog handles
-static Ihandle *dialog_settings=NULL;
-static Ihandle *listmethod=NULL;
-static Ihandle *label_day=NULL;
-static Ihandle *label_night=NULL;
-static Ihandle *label_transpeed=NULL;
-static Ihandle *val_night=NULL;
-static Ihandle *val_day=NULL;
-static Ihandle *val_transpeed=NULL;
-static Ihandle *chk_min=NULL;
-static Ihandle *chk_disable=NULL;
-static Ihandle *edt_elev=NULL;
+static Hnullc dialog_settings=NULL;
+static Hnullc listmethod=NULL;
+static Hnullc label_day=NULL;
+static Hnullc label_night=NULL;
+static Hnullc label_transpeed=NULL;
+static Hnullc val_night=NULL;
+static Hnullc val_day=NULL;
+static Hnullc val_transpeed=NULL;
+static Hnullc chk_min=NULL;
+static Hnullc chk_disable=NULL;
+static Hnullc edt_elev=NULL;
 
 // Buffer to hold elevation map value
-static char *txt_val=NULL;
+/*@owned@*//*@null@*/ static char *txt_val=NULL;
 
-// Retrieves an image file
-static char *_get_image_file(char *initial_file){
+// Retrieves an image file, this function allocates memory.
+// Caller must free() returned string.
+static /*@null@*/ char *_get_image_file(char *initial_file){
 	char *file;
 	char *val;
-	Ihandle *filedlg = IupFileDlg();
+	Hcntrl filedlg = IupFileDlg();
 	IupSetAttribute(filedlg,"FILE",initial_file);
 	IupSetAttribute(filedlg,"FILTER","*.png");
 	IupSetAttribute(filedlg,"TITLE",_("Select image"));
-	IupPopup(filedlg,IUP_CENTER,IUP_CENTER);
+	(void)IupPopup(filedlg,IUP_CENTER,IUP_CENTER);
 	if( IupGetInt(filedlg, "STATUS")==0 ){
 		val=IupGetAttribute(filedlg,"VALUE");
+		if( val==NULL )
+			return NULL;
 		file = malloc((strlen(val)+1)*sizeof(char));
+		if( file==NULL )
+			return NULL;
 		strcpy(file,val);
 		return file;
 	}else
@@ -40,116 +47,148 @@ static char *_get_image_file(char *initial_file){
 }
 
 // Settings - temp day changed
-static int _val_day_changed(Ihandle *ih){
+static int _val_day_changed(Hcntrl ih){
 	int val = IupGetInt(ih,"VALUE");
 	int rounded = 100*((int)(val/100.0f));
 	IupSetfAttribute(label_day,"TITLE","%d° K",rounded);
-	guigamma_set_temp(rounded);
+	(void)guigamma_set_temp(rounded);
 	return IUP_DEFAULT;
 }
 
 // Settings - temp night changed
-static int _val_night_changed(Ihandle *ih){
+static int _val_night_changed(Hcntrl ih){
 	int val = IupGetInt(ih,"VALUE");
 	int rounded = 100*((int)(val/100.0f));
 	IupSetfAttribute(label_night,"TITLE","%d° K",rounded);
-	guigamma_set_temp(rounded);
+	(void)guigamma_set_temp(rounded);
 	return IUP_DEFAULT;
 }
 
 // Settings - active icon changed
-static int _set_active(Ihandle *ih){
+static int _set_active(Hcntrl ih){
 	char *file=_get_image_file(_(""));
 	LOG(LOGVERBOSE,_("New active image: %s"),file);
-	if( file != NULL )
+	if( file != NULL ){
 		IupSetAttribute(ih,"IMAGE",file);
+		free(file);
+	}
 	return IUP_DEFAULT;
 }
 
 // Settings - idle icon changed
-static int _set_idle(Ihandle *ih){
+static int _set_idle(Hcntrl ih){
 	char *file=_get_image_file(_(""));
 	LOG(LOGVERBOSE,_("New idle image: %s"),file);
-	if( file != NULL )
+	if( file != NULL ){
 		IupSetAttribute(ih,"IMAGE",file);
-
+		free(file);
+	}
 	return IUP_DEFAULT;
 }
 
 // Settings - transition speed changed
-static int _val_speed_changed(Ihandle *ih){
+static int _val_speed_changed(Hcntrl ih){
 	int val = IupGetInt(ih,"VALUE");
 	IupSetfAttribute(label_transpeed,"TITLE","%d° K/s",val);
 	return IUP_DEFAULT;
 }
 
 // Setting - cancel
-static int _setting_cancel(Ihandle *ih){
+static int _setting_cancel(/*@unused@*/ Hcntrl ih){
 	return IUP_CLOSE;
 }
 
 // Setting - save
-static int _setting_save(Ihandle *ih){
-	int vday = 100*((int)(IupGetInt(val_day,"VALUE")/100.0f));
-	int vnight = 100*((int)(IupGetInt(val_night,"VALUE")/100.0f));
-	char *method = IupGetAttribute(
-			listmethod,IupGetAttribute(listmethod,"VALUE"));
+static int _setting_save(/*@unused@*/ Hcntrl ih){
+	int vday,vnight;
+	char *method;
 	gamma_method_t oldmethod = opt_get_method();
 	gamma_method_t newmethod;
-	int min = !strcmp(IupGetAttribute(chk_min,"VALUE"),"ON");
-	int disable = !strcmp(IupGetAttribute(chk_disable,"VALUE"),"ON");
-	char *elev_map = IupGetAttribute(edt_elev,"VALUE");
+	int min=0;
+	int disable=0;
+	char *min_str,*dis_str,*elev_map,*method_cnt;
 	int methodsuccess=0;
 
+	if( (val_day==NULL)
+			||(val_night==NULL)
+			||(listmethod==NULL)
+			||(chk_min==NULL)
+			||(chk_disable==NULL)
+			||(edt_elev==NULL)
+			||(val_transpeed==NULL) )
+	{
+		LOG(LOGERR,_("Fatal error: handles not created."));
+		return IUP_DEFAULT;
+	}
+	dis_str = IupGetAttribute(chk_disable,"VALUE");
+	method_cnt = IupGetAttribute(listmethod,"VALUE");
+	min_str = IupGetAttribute(chk_min,"VALUE");
+	vday = 100*((int)(IupGetInt(val_day,"VALUE")/100.0f));
+	vnight = 100*((int)(IupGetInt(val_night,"VALUE")/100.0f));
+	elev_map = IupGetAttribute(edt_elev,"VALUE");
+
+	if( method_cnt!=NULL )
+		method = IupGetAttribute(listmethod,method_cnt);
+	else
+		method=NULL;
+	if( min_str!=NULL )
+		min = (strcmp(min_str,"ON")==0);
+	if( dis_str!=NULL )
+		disable = (strcmp(dis_str,"ON")==0);
 
 	LOG(LOGVERBOSE,_("New day temp: %d, new night temp: %d"),vday,vnight);
-	if( !(newmethod=gamma_lookup_method(method)) ){
-		LOG(LOGERR,_("Invalid method selected"));
-	}else{
-		if( newmethod != oldmethod ){
-			LOG(LOGINFO,_("Gamma method changed to %s"),method);
-			gamma_state_free();
-			if( !gamma_init_method(opt_get_screen(),opt_get_crtc(),
-					newmethod)){
-				LOG(LOGERR,_("Unable to set new gamma method, reverting..."));
-				if(!gamma_init_method(opt_get_screen(),opt_get_crtc(),
-						oldmethod)){
-					LOG(LOGERR,_("Unable to revert to old method."));
-				}
+	if( method!=NULL ){
+		if( !(newmethod=gamma_lookup_method(method)) ){
+			LOG(LOGERR,_("Invalid method selected"));
+		}else{
+			if( newmethod != oldmethod ){
+				LOG(LOGINFO,_("Gamma method changed to %s"),method);
+				(void)gamma_state_free();
+				if( !gamma_init_method(opt_get_screen(),opt_get_crtc(),
+						newmethod)){
+					LOG(LOGERR,_("Unable to set new gamma method, reverting..."));
+					if(!gamma_init_method(opt_get_screen(),opt_get_crtc(),
+							oldmethod)){
+						LOG(LOGERR,_("Unable to revert to old method."));
+					}
+				}else
+					methodsuccess=1;
 			}else
 				methodsuccess=1;
-		}else
-			methodsuccess=1;
+		}
+		if( !methodsuccess ){
+			(void)gui_popup(_("Error"),
+					_("There was an error setting the new method.\nSettings NOT saved."),
+					"ERROR");
+			return IUP_CLOSE;
+		}
+		(void)opt_set_method(newmethod);
+	}else{
+		LOG(LOGERR,_("Method selections invalid."));
 	}
-	if( !methodsuccess ){
-		gui_popup(_("Error"),
-				_("There was an error setting the new method.\nSettings NOT saved."),
-				"ERROR");
-		return IUP_CLOSE;
-	}
-	opt_set_method(newmethod);
-	if( !opt_parse_map(elev_map) ){
-		gui_popup(_("Error"),
+
+	if( (elev_map!=NULL)&&(!opt_parse_map(elev_map)) ){
+		(void)gui_popup(_("Error"),
 				_("Unable to parse new temperature map,\nPlease try again."),
 				"ERROR");
 		return IUP_DEFAULT;
 	}
-	opt_set_min(min);
-	opt_set_disabled(disable);
-	opt_set_temperatures(vday,vnight);
-	opt_set_transpeed(IupGetInt(val_transpeed,"VALUE"));
+	(void)opt_set_min(min);
+	(void)opt_set_disabled(disable);
+	(void)opt_set_temperatures(vday,vnight);
+	(void)opt_set_transpeed(IupGetInt(val_transpeed,"VALUE"));
 	opt_write_config();
 	return IUP_CLOSE;
 }
 
 // Create methods selection frame
-static Ihandle *_settings_create_methods(void){
+static Hcntrl _settings_create_methods(void){
 	// Number of methods available
 	int avail_methods=0;
 	char list_count[3];
 	gamma_method_t method;
 	char *method_name;
-	Ihandle *vbox_method,*frame_method;
+	Hcntrl vbox_method,frame_method;
 
 	// Method selection
 	listmethod = IupList(NULL);
@@ -158,7 +197,7 @@ static Ihandle *_settings_create_methods(void){
 	for( method=GAMMA_METHOD_AUTO; method<GAMMA_METHOD_MAX; ++method){
 		method_name = gamma_get_method_name(method);
 		if( (strcmp(method_name,"None")!=0) ){
-			snprintf(list_count,3,"%d",++avail_methods);
+			(void)snprintf(list_count,3,"%d",++avail_methods);
 			IupSetAttribute(listmethod,list_count,method_name);
 			if( opt_get_method() == method )
 				IupSetfAttribute(listmethod,"VALUE","%d",avail_methods);
@@ -173,8 +212,8 @@ static Ihandle *_settings_create_methods(void){
 }
 
 // Create day temp slider frame
-static Ihandle *_settings_create_day_temp(void){
-	Ihandle *vbox_day, *frame_day;
+static Hcntrl _settings_create_day_temp(void){
+	Hcntrl vbox_day,frame_day;
 	// Day temperature
 	label_day = IupLabel(NULL);
 	IupSetfAttribute(label_day,"TITLE",_("%d° K"),opt_get_temp_day());
@@ -183,7 +222,7 @@ static Ihandle *_settings_create_day_temp(void){
 	IupSetfAttribute(val_day,"MIN","%d",MIN_TEMP);
 	IupSetfAttribute(val_day,"MAX","%d",MAX_TEMP);
 	IupSetfAttribute(val_day,"VALUE","%d",opt_get_temp_day());
-	IupSetCallback(val_day,"VALUECHANGED_CB",(Icallback)_val_day_changed);
+	(void)IupSetCallback(val_day,"VALUECHANGED_CB",(Icallback)_val_day_changed);
 	vbox_day = IupVbox(
 			label_day,
 			val_day,
@@ -195,8 +234,8 @@ static Ihandle *_settings_create_day_temp(void){
 }
 
 // Create night temp slider frame
-static Ihandle *_settings_create_night_temp(void){
-	Ihandle *vbox_night,*frame_night;
+static Hcntrl _settings_create_night_temp(void){
+	Hcntrl vbox_night,frame_night;
 	// Night temperature
 	label_night = IupLabel(NULL);
 	IupSetfAttribute(label_night,"TITLE",_("%d° K"),opt_get_temp_night());
@@ -205,7 +244,7 @@ static Ihandle *_settings_create_night_temp(void){
 	IupSetfAttribute(val_night,"MIN","%d",MIN_TEMP);
 	IupSetfAttribute(val_night,"MAX","%d",MAX_TEMP);
 	IupSetfAttribute(val_night,"VALUE","%d",opt_get_temp_night());
-	IupSetCallback(val_night,"VALUECHANGED_CB",(Icallback)_val_night_changed);
+	(void)IupSetCallback(val_night,"VALUECHANGED_CB",(Icallback)_val_night_changed);
 	vbox_night = IupVbox(
 			label_night,
 			val_night,
@@ -217,8 +256,8 @@ static Ihandle *_settings_create_night_temp(void){
 }
 
 // Create startup frame
-static Ihandle *_settings_create_startup(void){
-	Ihandle *frame_startup;
+static Hcntrl _settings_create_startup(void){
+	Hcntrl frame_startup;
 	// Start minimized and/or disabled
 	chk_min = IupToggle(_("Start minimized"),NULL);
 	IupSetAttribute(chk_min,"EXPAND","HORIZONTAL");
@@ -237,19 +276,18 @@ static Ihandle *_settings_create_startup(void){
 }
 
 // Create icons frame
-static Ihandle *_settings_create_icons(void){
-	Ihandle *frame_icons;
-	Ihandle *button_active;
-	Ihandle *button_idle;
-	Ihandle *label_txt=IupLabel(_("Please use\n32x32 png"));
-	extern Ihandle *himg_redshift,*himg_redshift_idle;
+static Hcntrl _settings_create_icons(void){
+	Hcntrl frame_icons;
+	Hcntrl button_active;
+	Hcntrl button_idle;
+	Hcntrl label_txt=IupLabel(_("Please use\n32x32 png"));
 	
 	button_active = IupButton(NULL,NULL);
 	IupSetAttributeHandle(button_active,"IMAGE",himg_redshift);
-	IupSetCallback(button_active,"ACTION",(Icallback)_set_active);
+	(void)IupSetCallback(button_active,"ACTION",(Icallback)_set_active);
 	button_idle = IupButton(NULL,NULL);
 	IupSetAttributeHandle(button_idle,"IMAGE",himg_redshift_idle);
-	IupSetCallback(button_idle,"ACTION",(Icallback)_set_idle);
+	(void)IupSetCallback(button_idle,"ACTION",(Icallback)_set_idle);
 	frame_icons = IupFrame(
 			IupSetAttributes(
 				IupHbox(button_active,button_idle,label_txt,IupFill(),NULL),
@@ -260,8 +298,8 @@ static Ihandle *_settings_create_icons(void){
 }
 
 // Create transition speed slider frame
-static Ihandle *_settings_create_tran(void){
-	Ihandle *vbox_transpeed, *frame_speed;
+static Hcntrl _settings_create_tran(void){
+	Hcntrl vbox_transpeed, frame_speed;
 	// Transition speed
 	label_transpeed = IupLabel(NULL);
 	IupSetfAttribute(label_transpeed,"TITLE",_("%d° K/s"),opt_get_trans_speed());
@@ -270,7 +308,7 @@ static Ihandle *_settings_create_tran(void){
 	IupSetfAttribute(val_transpeed,"MIN","%d",MIN_SPEED);
 	IupSetfAttribute(val_transpeed,"MAX","%d",MAX_SPEED);
 	IupSetfAttribute(val_transpeed,"VALUE","%d",opt_get_trans_speed());
-	IupSetCallback(val_transpeed,"VALUECHANGED_CB",(Icallback)_val_speed_changed);
+	(void)IupSetCallback(val_transpeed,"VALUECHANGED_CB",(Icallback)_val_speed_changed);
 	vbox_transpeed = IupVbox(
 			label_transpeed,
 			val_transpeed,
@@ -282,27 +320,32 @@ static Ihandle *_settings_create_tran(void){
 }
 
 // Create solar elevations frame
-static Ihandle *_settings_create_elev(void){
-	Ihandle *lbl_elev,*frame_elev;
+static Hcntrl _settings_create_elev(void){
+	Hcntrl lbl_elev,frame_elev;
 	int size;
 	pair *map = opt_get_map(&size);
 	int i;
 
 	// Assume a size of 20 char per line
 #define LINE_SIZE 20
+	if( txt_val!=NULL )
+		free(txt_val);
 	txt_val = (char*)malloc(size*sizeof(char)*LINE_SIZE+1);
+	if( txt_val==NULL )
+		LOG(LOGERR,_("Unable to allocate edit memory"));
 
 	for( i=0; i<size; ++i ){
 		// Use up LINE_SIZE of buffer, with NULL terminator being overwritten on
 		// next loop
-		snprintf(txt_val+LINE_SIZE*i,LINE_SIZE+1,"%9.2f,%7.2f%%;\n",
+		(void)snprintf(txt_val+LINE_SIZE*i,LINE_SIZE+1,"%9.2f,%7.2f%%;\n",
 				map[i].elev,map[i].temp);
 	}
 	edt_elev = IupSetAtt(NULL,IupText(NULL),
 			"EXPAND","YES","MULTILINE","YES",
 			"VISIBLELINES","4",
 			"SCROLLBAR","VERTICAL",NULL);
-	IupSetAttribute(edt_elev,"VALUE",txt_val);
+	if( txt_val!=NULL )
+		/*@i@*/IupSetAttribute(edt_elev,"VALUE",txt_val);
 
 	lbl_elev = IupSetAtt(NULL,
 			IupLabel(_("Enter comma separated list of\n"
@@ -316,26 +359,25 @@ static Ihandle *_settings_create_elev(void){
 				);
 
 	IupSetAttribute(frame_elev,"TITLE",_("Temperature map"));
-	return frame_elev;
+	/*@i@*/return frame_elev;
 }
 
 // Creates settings dialog
 static void _settings_create(void){
-	Ihandle *frame_method,
-			*frame_day,
-			*frame_night,
-			*frame_startup,
-			*frame_icons,
-			*frame_speed,
-			*frame_elev,
+	Hcntrl frame_method,
+			frame_day,
+			frame_night,
+			frame_startup,
+			frame_icons,
+			frame_speed,
+			frame_elev,
 
-			*tabs_all,
+			tabs_all,
 
-			*button_cancel,
-			*button_save,
-			*hbox_buttons,
-			*vbox_all;
-	extern Ihandle *himg_redshift;
+			button_cancel,
+			button_save,
+			hbox_buttons,
+			vbox_all;
 
 	frame_method = _settings_create_methods();
 	frame_day = _settings_create_day_temp();
@@ -359,15 +401,15 @@ static void _settings_create(void){
 				frame_elev,
 				NULL),
 			NULL);
-	IupSetAttributes(tabs_all,"TABTITLE0=Basic,"
+	(void)IupSetAttributes(tabs_all,"TABTITLE0=Basic,"
 			"TABTITLE1=Transition");
 
 	// Buttons
 	button_cancel = IupButton(_("Cancel"),NULL);
-	IupSetCallback(button_cancel,"ACTION",(Icallback)_setting_cancel);
+	(void)IupSetCallback(button_cancel,"ACTION",(Icallback)_setting_cancel);
 	IupSetfAttribute(button_cancel,"MINSIZE","%dx%d",60,24);
 	button_save = IupButton(_("Save"),NULL);
-	IupSetCallback(button_save,"ACTION",(Icallback)_setting_save);
+	(void)IupSetCallback(button_save,"ACTION",(Icallback)_setting_save);
 	IupSetfAttribute(button_save,"MINSIZE","%dx%d",60,24);
 	hbox_buttons = IupHbox(
 			button_cancel,
@@ -390,16 +432,18 @@ static void _settings_create(void){
 }
 
 // Shows the settings dialog
-int guisettings_show(Ihandle *ih){
+int guisettings_show(Hcntrl ih){
 	if( !dialog_settings )
 		_settings_create();
-	IupPopup(dialog_settings,IUP_CENTER,IUP_CENTER);
-	IupDestroy(dialog_settings);
+	if( dialog_settings!=NULL ){
+		(void)IupPopup(dialog_settings,IUP_CENTER,IUP_CENTER);
+		IupDestroy(dialog_settings);
+	}
 	if( txt_val )
 		free(txt_val);
 	dialog_settings = NULL;
 	txt_val = NULL;
-	guigamma_check(ih);
+	(void)guigamma_check(ih);
 	if( !guimain_exit_normal() )
 		return IUP_CLOSE;
 	return IUP_DEFAULT;

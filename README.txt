@@ -30,6 +30,9 @@ II. Todo list
 4) Ability to adjust based on weather
 5) Custom event scripts
 6) Image analysis
+7) Check for updates
+8) Add log file option
+9) (Windows only) Allocate console if logging.
 
 
 III. Changelog

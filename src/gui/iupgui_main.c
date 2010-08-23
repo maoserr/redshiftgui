@@ -8,16 +8,21 @@
 #include "iupgui_location.h"
 #include "iupgui_gamma.h"
 
+extern int dim_back_w, dim_back_h, dim_sun_w, dim_sun_h;
+extern Hcntrl himg_redshift_idle;
+extern Hcntrl himg_redshift;
+extern Hcntrl himg_sunback,himg_sun;
+
 // Main dialog handles
-static Ihandle *dialog=NULL;
-static Ihandle *infotitle[4]={NULL,NULL,NULL,NULL};
-static Ihandle *infovals[4]={NULL,NULL,NULL,NULL};
-static Ihandle *lbl_elevation=NULL;
-static Ihandle *chk_manual=NULL;
-static Ihandle *val_manual=NULL;
-static Ihandle *val_bright=NULL;
-static Ihandle *lbl_sun=NULL;
-static Ihandle *btn_preview=NULL;
+static Hnullc dialog=NULL;
+static Hnullc infotitle[4]={NULL,NULL,NULL,NULL};
+static Hnullc infovals[4]={NULL,NULL,NULL,NULL};
+static Hnullc lbl_elevation=NULL;
+static Hnullc chk_manual=NULL;
+static Hnullc val_manual=NULL;
+static Hnullc val_bright=NULL;
+static Hnullc lbl_sun=NULL;
+static Hnullc btn_preview=NULL;
 
 // exit status
 static int exit_stat=RET_FUN_SUCCESS;
@@ -35,7 +40,6 @@ int guimain_exit_normal(void){
 
 // Sets sun position
 static void _set_sun_pos(double elevation){
-	extern int dim_back_w, dim_back_h, dim_sun_w, dim_sun_h;
 	double sunx,suny,x,y;
 	char *phase;
 	/* Position of center of sun relative to (0,0) */
@@ -55,14 +59,15 @@ static void _set_sun_pos(double elevation){
 	else
 		phase="Night";
 	IupSetfAttribute(lbl_elevation,"TITLE",_("%s: %.1f°"),phase,elevation);
-	IupRefresh(lbl_sun);
+	if( lbl_sun!=NULL )
+		IupRefresh(lbl_sun);
 }
 
 // Timer function
 static double preview_start;
 static double currelev;
 static int preview_cnt;
-static int _preview_timer(Ihandle *ih){
+static int _preview_timer(Hcntrl ih){
 	const double step=1.0;
 	int currtemp;
 	currelev-=step;
@@ -71,11 +76,11 @@ static int _preview_timer(Ihandle *ih){
 		currelev+=360;
 	currtemp = gamma_calc_temp(currelev,opt_get_temp_day(),opt_get_temp_night());
 	LOG(LOGINFO,_("Elevation: %f -> %d"),currelev,currtemp);
-	guigamma_set_temp(currtemp);
+	(void)guigamma_set_temp(currtemp);
 	_set_sun_pos(currelev);
 	IupSetfAttribute(infovals[0],"TITLE",_("%d° K"),guigamma_get_temp());
-	if( preview_cnt >= 360/step ){
-		guigamma_check(ih);
+	if( (double)preview_cnt >= 360/step ){
+		(void)guigamma_check(ih);
 		IupSetAttribute(ih,"RUN","NO");
 		IupSetAttribute(btn_preview,"VISIBLE","YES");
 	}
@@ -83,9 +88,9 @@ static int _preview_timer(Ihandle *ih){
 }
 
 // Preview mode
-static int _main_preview(Ihandle *ih){
+static int _main_preview(/*@unused@*/ Hcntrl ih){
 	double now;
-	static Ihandle *timer_prev=NULL;
+	static Hcntrl timer_prev=NULL;
 	if( !timer_prev)
 		timer_prev = IupTimer();
 	LOG(LOGINFO,_("Previewing cycle"));
@@ -98,24 +103,26 @@ static int _main_preview(Ihandle *ih){
 	currelev = preview_start;
 	preview_cnt=0;
 	IupSetAttribute(btn_preview,"VISIBLE","NO");
-	IupSetCallback(timer_prev,"ACTION_CB",(Icallback)_preview_timer);
+	(void)IupSetCallback(timer_prev,"ACTION_CB",(Icallback)_preview_timer);
 	IupSetAttribute(timer_prev,"TIME","20");
 	IupSetAttribute(timer_prev,"RUN","YES");
 	return IUP_DEFAULT;
 }
 
 // Toggles manual override
-static int _toggle_manual(Ihandle *ih, int state){
+static int _toggle_manual(Hcntrl ih, int state){
+	if( dialog==NULL ){
+		LOG(LOGERR,_("Fatal error, dialog does not exist!"));
+		return IUP_DEFAULT;
+	}
 	if( state ){
-		extern Ihandle *himg_redshift_idle;
 		guigamma_disable();
 		IupSetAttribute(val_manual,"VISIBLE","YES");
 		IupSetfAttribute(val_manual,"VALUE","%d",guigamma_get_temp());
 		IupSetAttributeHandle(dialog,"TRAYIMAGE",himg_redshift_idle);
 	}else{
-		extern Ihandle *himg_redshift;
 		guigamma_enable();
-		guigamma_check(ih);
+		(void)guigamma_check(ih);
 		IupSetAttribute(val_manual,"VISIBLE","OFF");
 		IupSetAttributeHandle(dialog,"TRAYIMAGE",himg_redshift);
 	}
@@ -123,38 +130,45 @@ static int _toggle_manual(Ihandle *ih, int state){
 }
 
 // Change temperature manually
-static int _manual_temp(Ihandle *ih){
+static int _manual_temp(Hcntrl ih){
 	int val = IupGetInt(ih,"VALUE");
 	int rounded = 100*((int)(val/100.0f));
 	LOG(LOGVERBOSE,_("Setting manual temperature: %d"),rounded);
-	guigamma_set_temp(rounded);
+	(void)guigamma_set_temp(rounded);
 	guimain_update_info();
 	return IUP_DEFAULT;
 }
 
 // Change brightness
-static int _bright(Ihandle *ih){
+static int _bright(Hcntrl ih){
 	float val = IupGetFloat(ih,"VALUE");
 	LOG(LOGVERBOSE,_("Setting brightness: %f"),val);
-	opt_set_brightness(val);
-	guigamma_set_temp(guigamma_get_temp());
+	(void)opt_set_brightness(val);
+	(void)guigamma_set_temp(guigamma_get_temp());
 	return IUP_DEFAULT;
 }
 
 // Toggles main dialog (and also "Hide" button callback)
-static int _toggle_main_dialog(Ihandle *ih){
+static int _toggle_main_dialog(/*@unused@*/ Hcntrl ih){
 	// If dialog needs to be positioned
 	static int positioned=0;
 	// Single down click
-	char *visible=IupGetAttribute(dialog,"VISIBLE");
-	if( visible && strcmp(visible,"YES")==0 )
+	char *visible;
+	if( dialog==NULL ){
+		LOG(LOGERR,_("Fatal error, dialog handle not defined."));
+		return IUP_DEFAULT;
+	}
+
+	visible=IupGetAttribute(dialog,"VISIBLE");
+	if( (visible!=NULL) && strcmp(visible,"YES")==0 )
 		IupSetAttribute(dialog,"HIDETASKBAR","YES");
 	else{
 		if(!positioned){
+			char *currsize=IupGetAttribute(dialog,"RASTERSIZE");
 			positioned=1;
-			IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
-			IupSetAttribute(dialog,"MINSIZE",
-				IupGetAttribute(dialog,"RASTERSIZE"));
+			(void)IupShowXY(dialog,IUP_RIGHT,IUP_BOTTOM);
+			if( currsize!=NULL )
+				IupSetAttribute(dialog,"MINSIZE",currsize);
 			IupRefresh(dialog);
 		}else
 			IupSetAttribute(dialog,"HIDETASKBAR","NO");
@@ -164,24 +178,33 @@ static int _toggle_main_dialog(Ihandle *ih){
 }
 
 // Tray click callback
-static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
-	// static Ihandle *menu_tray=NULL;
+static int _tray_click(Hcntrl ih, int but, int pressed,
+		/*@unused@*/ int dclick)
+{
+	// static Hcntrl menu_tray=NULL;
 	switch (but){
 		case 1:
 			if( pressed )
-				_toggle_main_dialog(ih);
+				(void)_toggle_main_dialog(ih);
 			break;
 		default:
 			if( pressed ){
-				int state = strcmp(IupGetAttribute(chk_manual,"VALUE"),"ON");
+				int state;
+				char *val=IupGetAttribute(chk_manual,"VALUE");
+				if( (chk_manual==NULL)||(val==NULL) ){
+					LOG(LOGERR,_("Checkbox undefined handle."));
+					return IUP_DEFAULT;
+				}
+				
+				state = strcmp(val,"ON");
 				if( state )
 					IupSetAttribute(chk_manual,"VALUE","ON");
 				else
 					IupSetAttribute(chk_manual,"VALUE","OFF");
-				_toggle_manual(ih,state);
+				(void)_toggle_manual(ih,state);
 				//// Bring up menu
 				//if( !menu_tray ){
-				//	Ihandle *mitem_toggle,
+				//	Hcntrl mitem_toggle,
 				//			*mitem_settings,
 				//			*mitem_about;
 				//	mitem_toggle = IupItem(_("Hide/Show"),NULL);
@@ -199,7 +222,8 @@ static int _tray_click(Ihandle *ih, int but, int pressed, int dclick){
 				//	IupMap(menu_tray);
 				//}
 				//IupPopup(menu_tray,IUP_MOUSEPOS,IUP_MOUSEPOS);
-				//// Need a workaround on GTK2 because MOUSEPOS doesn't seem to work on lower bar
+				//// Need a workaround on GTK2 because MOUSEPOS doesn't
+				//// seem to work on lower bar
 				//IupDestroy(menu_tray);
 				//menu_tray = NULL;
 			}
@@ -233,15 +257,12 @@ void guimain_update_info(void){
 
 
 // Icon loading function
-extern Ihandle *redshift_get_icon(void);
-extern Ihandle *redshift_get_idle_icon(void);
+extern Hcntrl redshift_get_icon(void);
+extern Hcntrl redshift_get_idle_icon(void);
 
 // Create sun frame
-static Ihandle *_main_create_sun(void){
-	Ihandle *lbl_backsun,
-			*vbox_sun,
-			*framesun;
-	extern Ihandle *himg_sunback,*himg_sun;
+static Hcntrl _main_create_sun(void){
+	Hcntrl lbl_backsun,cbox_sun,framesun;
 	// Create Sun control
 	lbl_backsun = IupLabel(NULL);
 	IupSetAttributeHandle(lbl_backsun,"IMAGE",himg_sunback);
@@ -254,15 +275,15 @@ static Ihandle *_main_create_sun(void){
 	// Preview
 	btn_preview = IupButton(_("Preview"),NULL);
 	IupSetfAttribute(btn_preview,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(btn_preview,"ACTION",(Icallback)_main_preview);
-	vbox_sun = IupCbox(
+	(void)IupSetCallback(btn_preview,"ACTION",(Icallback)_main_preview);
+	cbox_sun = IupCbox(
 			lbl_backsun,
 			lbl_sun,
 			NULL);
 	lbl_elevation = IupLabel(_("N/A: 0"));
 	// Create frame containing the sun control
 	framesun = IupFrame(IupSetAttributes(
-			IupVbox(vbox_sun,
+			IupVbox(cbox_sun,
 				IupFill(),
 				lbl_elevation,
 				btn_preview,
@@ -272,10 +293,10 @@ static Ihandle *_main_create_sun(void){
 }
 
 // Create info frame
-static Ihandle *_main_create_info(void){
-	Ihandle *frameinfo,
-			*fvboxtitle,
-			*fvboxinfo;
+static Hcntrl _main_create_info(void){
+	Hcntrl  frameinfo,
+			fvboxtitle,
+			fvboxinfo;
 	// Info display
 	infotitle[0]=IupLabel(_("Current:"));
 	infotitle[1]=IupLabel(_("Day:"));
@@ -313,16 +334,16 @@ static Ihandle *_main_create_info(void){
 }
 
 // Create manual frame
-static Ihandle *_main_create_manual(void){
-	Ihandle *vbox_manual,
-			*framemanual;
+static Hcntrl _main_create_manual(void){
+	Hcntrl  vbox_manual,
+			framemanual;
 	// Manual override
 	chk_manual = IupSetAtt(NULL,IupToggle(_("Disable auto-adjust"),NULL)
 		,"EXPAND","YES",NULL);
-	IupSetCallback(chk_manual,"ACTION",(Icallback)_toggle_manual);
+	(void)IupSetCallback(chk_manual,"ACTION",(Icallback)_toggle_manual);
 	val_manual = IupSetAtt(NULL,IupVal(NULL),"MIN","3400","MAX","7000",
 		"VISIBLE","NO","EXPAND","HORIZONTAL",NULL);
-	IupSetCallback(val_manual,"VALUECHANGED_CB",(Icallback)_manual_temp);
+	(void)IupSetCallback(val_manual,"VALUECHANGED_CB",(Icallback)_manual_temp);
 	vbox_manual = IupVbox(chk_manual,val_manual,NULL);
 	framemanual = IupFrame(vbox_manual);
 	IupSetAttribute(framemanual,"TITLE",_("Manual"));
@@ -330,31 +351,30 @@ static Ihandle *_main_create_manual(void){
 }
 
 // Create brightness frame
-static Ihandle *_main_create_bright(void){
-	Ihandle *framebright;
+static Hcntrl _main_create_bright(void){
+	Hcntrl framebright;
 	// Brightness
 	val_bright = IupSetAtt(NULL,IupVal(NULL),"MIN","0.1","MAX","1",
 		"VISIABLE","YES","EXPAND","HORIZONTAL","VALUE","1",NULL);
-	IupSetCallback(val_bright,"VALUECHANGED_CB",(Icallback)_bright);
+	(void)IupSetCallback(val_bright,"VALUECHANGED_CB",(Icallback)_bright);
 	framebright = IupFrame(IupVbox(val_bright,NULL));
 	IupSetAttribute(framebright,"TITLE",_("Brightness"));
 	return framebright;
 }
 
 // Main dialog
-void guimain_dialog_init( int min ){
-	Ihandle *hbox_butt,
-			*button_about,
-			*button_loc,
-			*button_setting,
-			*button_hide,
-			*framesun,
-			*frameinfo,
-			*framemanual,
-			*framebright,
-			*dhbox,
-			*dvbox;
-	extern Ihandle *himg_redshift;
+void guimain_dialog_init(void){
+	Hcntrl  hbox_butt,
+			button_about,
+			button_loc,
+			button_setting,
+			button_hide,
+			framesun,
+			frameinfo,
+			framemanual,
+			framebright,
+			dhbox,
+			dvbox;
 
 	// Create frames
 	framesun = _main_create_sun();
@@ -366,19 +386,19 @@ void guimain_dialog_init( int min ){
 	// -About
 	button_about = IupButton(_("About"),NULL);
 	IupSetfAttribute(button_about,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_about,"ACTION",(Icallback)gui_about);
+	(void)IupSetCallback(button_about,"ACTION",(Icallback)gui_about);
 	// -Location
 	button_loc = IupButton(_("Location"),NULL);
 	IupSetfAttribute(button_loc,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_loc,"ACTION",(Icallback)guilocation_show);
+	(void)IupSetCallback(button_loc,"ACTION",(Icallback)guilocation_show);
 	// -Settings
 	button_setting = IupButton(_("Settings"),NULL);
 	IupSetfAttribute(button_setting,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_setting,"ACTION",(Icallback)guisettings_show);
+	(void)IupSetCallback(button_setting,"ACTION",(Icallback)guisettings_show);
 	// -Hide to tray
 	button_hide = IupButton(_("Hide"),NULL);
 	IupSetfAttribute(button_hide,"MINSIZE","%dx%d",60,24);
-	IupSetCallback(button_hide,"ACTION",(Icallback)_toggle_main_dialog);
+	(void)IupSetCallback(button_hide,"ACTION",(Icallback)_toggle_main_dialog);
 	hbox_butt = IupHbox(
 			button_about,
 			IupFill(),
@@ -410,17 +430,19 @@ void guimain_dialog_init( int min ){
 
 	IupSetAttributeHandle(dialog,"ICON",himg_redshift);
 	IupSetAttributeHandle(dialog,"TRAYIMAGE",himg_redshift);
-	IupSetCallback(dialog,"TRAYCLICK_CB",(Icallback)_tray_click);
+	(void)IupSetCallback(dialog,"TRAYCLICK_CB",(Icallback)_tray_click);
 
-	IupMap(dialog);
+	(void)IupMap(dialog);
 	if( opt_get_min() )
 		IupSetAttribute(dialog,"HIDETASKBAR","YES");
 	else
-		_toggle_main_dialog(dialog);
+		(void)_toggle_main_dialog(dialog);
 
 	if( opt_get_disabled() ){
-		IupSetAttribute(chk_manual,"VALUE","ON");
-		_toggle_manual(chk_manual,1);
+		if( chk_manual!=NULL){
+			IupSetAttribute(chk_manual,"VALUE","ON");
+			(void)_toggle_manual(chk_manual,1);
+		}
 	}
 }
 

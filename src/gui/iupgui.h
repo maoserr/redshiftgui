@@ -9,6 +9,11 @@
 
 #include <iup.h>
 
+/**\brief All IUP objects are stored by IUP internally */
+typedef /*@dependent@*/ Ihandle *Hcntrl;
+/**\brief Handles which can be NULL */
+typedef /*@null@*/ Hcntrl Hnullc;
+
 /**\brief About dialog */
 int gui_about(Ihandle *ih);
 

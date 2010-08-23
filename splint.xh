@@ -1,11 +1,13 @@
 void IupSetAttribute(/*@null@*/ void *ih,
 		const char *name, const char *value);
 
-void IupSetfAttribute(/*@null@*/ void *ih, const char *name,
+/*@printflike@*/ void IupSetfAttribute(/*@null@*/ void *ih, const char *name,
 		const char *format,...);
 
 /*@dependent@*/ void *IupSetAtt(/*@null@*/ const char *handle_name,
 		void *ih, /*@null@*/ const char *name,...);
+
+/*@dependent@*/ void *IupSetAttributes(/*@null@*/ void *ih,const char *str);
 
 /*@null@*//*@dependent@*/ char *IupGetAttribute(/*@null@*/ void *ih,
 		const char *name);
@@ -22,13 +24,26 @@ void IupSetfAttribute(/*@null@*/ void *ih, const char *name,
 
 /*@dependent@*/ void *IupList(/*@null@*/ const char *action);
 
+/*@dependent@*/ void *IupToggle(/*@null@*/ const char *title,
+		/*@null@*/ const char *action);
+
+/*@dependent@*/ void *IupVal(/*@null@*/ const char *type);
+
 /*@dependent@*/ void *IupFrame(void *child);
+
+/*@dependent@*/ void *IupTabs(void *child,...);
+
+/*@dependent@*/ void *IupFill(void);
 
 /*@dependent@*/ void *IupVbox(void *child,...);
 
 /*@dependent@*/ void *IupHbox(void *child,...);
 
+/*@dependent@*/ void *IupCbox(void *child,...);
+
 /*@dependent@*/ void *IupDialog(void *child);
+
+/*@dependent@*/ void *IupFileDlg(void);
 
 /*@dependent@*/ void *IupMessageDlg(void);
 

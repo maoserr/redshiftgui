@@ -13,7 +13,7 @@ void guimain_update_info(void);
 /**\brief Initializes main dialog
  * \param min Start minimized
  */
-void guimain_dialog_init( int min );
+void guimain_dialog_init(void);
 
 /**\brief Sets main application exit status */
 int guimain_set_exit(int exit);
