@@ -1,3 +1,4 @@
+// Iup additional annotations
 void IupSetAttribute(/*@null@*/ void *ih,
 		const char *name, const char *value);
 
@@ -48,3 +49,29 @@ void IupSetAttribute(/*@null@*/ void *ih,
 /*@dependent@*/ void *IupMessageDlg(void);
 
 /*@dependent@*/ void *IupTimer(void);
+
+// Randr additional annotations
+void *xcb_connect (/*@null@*/ const char *display,
+		/*@out@*/ int *screen );
+
+void *xcb_randr_query_version_reply (void *c,
+	void cookie,/*@out@*/ void **e);
+
+/*@dependent@*/ const void *xcb_get_setup(void *c);
+
+/*@dependent@*/ void *xcb_randr_get_screen_resources_current_crtcs(const void *R);
+
+/*@dependent@*/ void *xcb_randr_get_crtc_gamma_red (const void *R);
+
+/*@dependent@*/ void *xcb_randr_get_crtc_gamma_green (const void *R);
+
+/*@dependent@*/ void *xcb_randr_get_crtc_gamma_blue (const void *R);
+
+/*@dependent@*/ void *xcb_request_check(void* c,void cookie);
+
+void *xcb_randr_get_crtc_gamma_reply(
+		void *conn,void cookie,
+		/*@out@*/ void *error);
+
+
+// vim:ft=c
