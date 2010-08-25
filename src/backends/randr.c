@@ -266,13 +266,19 @@ void randr_restore(void){
 }
 
 int randr_free(void){
+	int i;
+
+	LOG(LOGVERBOSE,_("Freeing Randr specific memory"));
 	if( state.crtcs==NULL )
 		return RET_FUN_FAILED;
 
 	/* Free CRTC state */
-	if( state.crtcs->saved_ramps!=NULL ){
-		free(state.crtcs->saved_ramps);
-		state.crtcs->saved_ramps=NULL;
+	for( i=0; i<state.crtc_count; ++i ){
+		if( state.crtcs[i].saved_ramps!=NULL ){
+			LOG(LOGVERBOSE,_("Freeing Randr CRTC %d"),i);
+			free(state.crtcs[i].saved_ramps);
+			state.crtcs[i].saved_ramps=NULL;
+		}
 	}
 	free(state.crtcs);
 	state.crtcs=NULL;
@@ -280,6 +286,8 @@ int randr_free(void){
 	/* Close connection */
 	if( state.conn!=NULL )
 		xcb_disconnect(state.conn);
+
+	LOG(LOGVERBOSE,_("Randr memory freed successfully."));
 	return RET_FUN_SUCCESS;
 }
 

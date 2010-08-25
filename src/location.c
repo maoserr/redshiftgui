@@ -20,12 +20,13 @@ int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 	(*lat)=parse_tag_float(result,"Latitude: ");
 	(*lon)=parse_tag_float(result,"Longitude: ");
 
-	if( parse_tag_str(result,"City: ","\n",city,bsize)
-			!= RET_FUN_SUCCESS ){
+	if( parse_tag_str(result,"City: ","\n",city,bsize)==0 ){
+		LOG(LOGERR,_("Error parsing city."));
 		free(result);
 		return RET_FUN_FAILED;
 	}
 	free(result);
+	LOG(LOGINFO,_("You location: (%f,%f) %s"),*lat,*lon,city);
 	return RET_FUN_SUCCESS;
 }
 

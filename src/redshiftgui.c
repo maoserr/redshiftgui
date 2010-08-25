@@ -262,8 +262,9 @@ static int _do_console(void)
 			transition_to_temp(curr_temp,target_temp,transpeed);
 			sec_countdown = 60*20;
 		}else{
-			sec_countdown -= 1000;
+			--sec_countdown;
 		}
+		LOG(LOGVERBOSE,_("Countdown: %d"),sec_countdown);
 		SLEEP(1000);
 	}while(!exiting);
 	exiting=0;
