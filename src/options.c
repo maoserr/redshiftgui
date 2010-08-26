@@ -4,8 +4,8 @@
 
 #include "common.h"
 #include "gamma.h"
-#include "solar.h"
 #include "options.h"
+#include "solar.h"
 #include "gamma_vals.h"
 #define SIZEOF(X) (sizeof(X)/sizeof(X[0]))
 

@@ -6,8 +6,6 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
 
-#include "gamma.h"
-
 /**\brief Minimum latitude */
 #define MIN_LAT   -90.0
 /**\brief Maximum latitude */

@@ -1,12 +1,13 @@
 #include "common.h"
 #include "systemtime.h"
 #include "solar.h"
+#include "gamma.h"
 #include "options.h"
-#include "iupgui.h"
-#include "iupgui_main.h"
-#include "iupgui_settings.h"
-#include "iupgui_location.h"
-#include "iupgui_gamma.h"
+#include "gui/iupgui.h"
+#include "gui/iupgui_main.h"
+#include "gui/iupgui_settings.h"
+#include "gui/iupgui_location.h"
+#include "gui/iupgui_gamma.h"
 
 extern int dim_back_w, dim_back_h, dim_sun_w, dim_sun_h;
 extern Hcntrl himg_redshift_idle;

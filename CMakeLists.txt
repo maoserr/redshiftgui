@@ -261,13 +261,46 @@ if(SPLINT_PATH)
 		set(SPLINT_PARAMS ${SPLINT_PARAMS} -I${loop_var})
 	endforeach(loop_var ${RSG_INCLUDES})
 	set(SPLINT_PARAMS ${SPLINT_PARAMS}
-		-systemdirs "/usr/include:/usr/include/sys")
+		-I${RSG_SRC_DIR}
+		)
+	if(UNIX)
+		set(SPLINT_PARAMS ${SPLINT_PARAMS}
+			-systemdirs "/usr/include:/usr/include/sys")
+	endif(UNIX)
 	foreach(loop_var ${RSG_DEFS})
 		set(SPLINT_PARAMS ${SPLINT_PARAMS} -D${loop_var})
 	endforeach(loop_var ${RSG_DEFS})
-	set(SPLINT_PARAMS ${SPLINT_PARAMS} 
-		-I${RSG_SRC_DIR}
-		+posixlib
+	if(UNIX)
+		set(SPLINT_PARAMS ${SPLINT_PARAMS} 
+			+posixlib
+			)
+	elseif(MSVC)
+		set(SPLINT_PARAMS ${SPLINT_PARAMS}
+			-D_MSC_VER=1500
+			-D_M_IX86=400
+			-DWIN32
+			-D_NTSYSTEM
+			-D_WIN32_WINNT=0x0400
+			-DWINVER=600
+			-DNOGDI
+			-DNOKERNEL
+			-DNOUSER
+			-DWIN32_LEAN_AND_MEAN
+			-D__int64=long
+			-D_int64=int
+			-D__w64=
+			-D__ptr64=
+			-D_wtoi=atoi
+			-DSTRICT
+			-D__try=
+			-D__forceinline=inline
+			"-D__except(x)="
+			"-DGetExceptionCode()=1"
+			-fileextensions
+			)
+	endif(UNIX)
+	set(SPLINT_PARAMS ${SPLINT_PARAMS}
+		+show-scan
 		+boolint
 		-mts ${PROJECT_SOURCE_DIR}/splint)
 	set(SPLINT_PARAMS ${SPLINT_PARAMS} ${RSGSRC})

@@ -1,10 +1,11 @@
 #include "common.h"
+#include "gamma.h"
 #include "options.h"
 #include "location.h"
-#include "iupgui.h"
-#include "iupgui_main.h"
-#include "iupgui_gamma.h"
-#include "iupgui_location.h"
+#include "gui/iupgui.h"
+#include "gui/iupgui_main.h"
+#include "gui/iupgui_gamma.h"
+#include "gui/iupgui_location.h"
 
 extern Ihandle *himg_redshift;
 

@@ -7,6 +7,7 @@
 #define __COMMON_H__
 
 /*@ignore@*/
+/*@-nestcomment@*/
 #ifdef _WIN32
 # define WINVER  0x0500
 # define WIN32_LEAN_AND_MEAN
@@ -17,6 +18,7 @@
 # endif
 # include <windows.h>
 #endif
+/*@=nestcomment@*/
 
 #include <stdio.h>
 #include <stdlib.h>

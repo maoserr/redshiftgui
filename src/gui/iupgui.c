@@ -1,10 +1,10 @@
 #include "common.h"
-#include "options.h"
 #include "gamma.h"
-#include "iupgui.h"
-#include "iupgui_main.h"
-#include "iupgui_settings.h"
-#include "iupgui_gamma.h"
+#include "options.h"
+#include "gui/iupgui.h"
+#include "gui/iupgui_main.h"
+#include "gui/iupgui_settings.h"
+#include "gui/iupgui_gamma.h"
 #include "thirdparty/stb_image.h"
 
 extern unsigned char png_redshift[];

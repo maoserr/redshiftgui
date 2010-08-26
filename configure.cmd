@@ -37,14 +37,12 @@ GOTO:EOF
 SHIFT
 GOTO paramstart
 
-:: Runs cmake
 :runcmake
 	set GENSTRIP=%GENERATOR:"=%
 	set GENNOSPC=%GENSTRIP: =_%
 	cmake -H"." -B"%~dp0build%GENNOSPC%" %*
 GOTO:EOF
 
-:: Generates Makefile if needed
 :genmake
 	echo #This is automatically generated for %GENERATOR%.>Makefile
 	for %%A IN (all docs package) DO (
@@ -65,3 +63,4 @@ GOTO:EOF
 GOTO:EOF
 
 endlocal
+

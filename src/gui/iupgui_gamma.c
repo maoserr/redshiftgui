@@ -1,9 +1,9 @@
 #include "common.h"
-#include "options.h"
 #include "gamma.h"
-#include "iupgui.h"
-#include "iupgui_main.h"
-#include "iupgui_gamma.h"
+#include "options.h"
+#include "gui/iupgui.h"
+#include "gui/iupgui_main.h"
+#include "gui/iupgui_gamma.h"
 
 /*@null@*/ static Ihandle *timer_gamma_check=NULL;
 /*@null@*/ static Ihandle *timer_gamma_transition=NULL;
