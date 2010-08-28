@@ -2,11 +2,13 @@
 #include "solar.h"
 #include "time.h"
 
-#ifdef _MSC_VER
-double copysign(double x, double y){
+#if defined(_MSC_VER) && !defined(S_SPLINT_S)
+static double copysign(double x, double y){
 	double temp;
 	if(x<0)
 		temp = -1.0*x;
+	else
+		temp = x;
 	if(y<0)
 		return -1.0*temp;
 	return temp;

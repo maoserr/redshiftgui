@@ -92,9 +92,9 @@ static int _parse_options(int argc, char *argv[]){
 
 		opt_init();
 		if( args_check("h")==ARGBOOL_TRUE ){
-			printf(_("RedshiftGUI (%s) help:\n"),PACKAGE_VER);
+			printf(_("RedshiftGUI (%s) help:\n"),STR(PACKAGE_VER));
 			args_print();
-			printf(_("\nReport bugs to %s\n"),PACKAGE_BUGREPORT);
+			printf(_("\nReport bugs to %s\n"),STR(PACKAGE_BUGREPORT));
 			return RET_FUN_FAILED;
 		}
 
@@ -146,8 +146,8 @@ static int _do_oneshot(void){
 				opt_get_lat(),opt_get_lon(),
 				opt_get_temp_day(),opt_get_temp_night());
 
-	LOG(LOGINFO,_("Current color temperature: %uK"),gamma_state_get_temperature());
-	LOG(LOGINFO,_("Target color temperature: %uK"), temp);
+	LOG(LOGINFO,_("Current color temperature: %dK"),gamma_state_get_temperature());
+	LOG(LOGINFO,_("Target color temperature: %dK"), temp);
 
 	/* Adjust temperature */
 	if ( !gamma_state_set_temperature(temp, opt_get_gamma()) ){
@@ -160,7 +160,7 @@ static int _do_oneshot(void){
 #ifdef _WIN32
 	static int exiting=0;
 	/* Signal handler for exit signals */
-	BOOL CtrlHandler( DWORD fdwCtrlType ){
+	static BOOL CtrlHandler( DWORD fdwCtrlType ){
 		switch( fdwCtrlType ){
 		case CTRL_C_EVENT:
 			LOG(LOGINFO,_("Ctrl-C event."));
@@ -225,7 +225,7 @@ static void transition_to_temp(int curr, int target, int speed){
 				break;
 		}
 
-		LOG(LOGVERBOSE,_("Transition color: %uK"),currtemp);
+		LOG(LOGVERBOSE,_("Transition color: %dK"),currtemp);
 		if( !gamma_state_set_temperature(currtemp,opt_get_gamma()) ){
 			LOG(LOGERR,_("Temperature adjustment failed."));
 			exiting = 1;
@@ -234,7 +234,7 @@ static void transition_to_temp(int curr, int target, int speed){
 		/*@i@*/SLEEP(100);
 	}while(!exiting);
 
-	LOG(LOGVERBOSE,_("Target color reached: %uK"),target);
+	LOG(LOGVERBOSE,_("Target color reached: %dK"),target);
 	if( !gamma_state_set_temperature(target,opt_get_gamma()) ){
 		LOG(LOGERR,_("Temperature adjustment failed."));
 		exiting = 1;
@@ -250,7 +250,7 @@ static int _do_console(void)
 	int saved_temp = gamma_state_get_temperature();
 	int curr_temp = saved_temp;
 
-	LOG(LOGVERBOSE,_("Original temp: %uK"),saved_temp);
+	LOG(LOGVERBOSE,_("Original temp: %dK"),saved_temp);
 	sig_register();
 	do{
 		// Re-check every 20 minutes
@@ -282,9 +282,9 @@ int main(int argc, char *argv[]){
 	// This attaches a console to the parent process if it has a console
 	if(AttachConsole(ATTACH_PARENT_PROCESS)){
 		// reopen stout handle as console window output
-		freopen("CONOUT$","wb",stdout);
+		(void)freopen("CONOUT$","wb",stdout);
 		// reopen stderr handle as console window output
-		freopen("CONOUT$","wb",stderr);
+		(void)freopen("CONOUT$","wb",stderr);
 	}
 #endif
 

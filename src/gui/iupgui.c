@@ -68,13 +68,13 @@ static void _unload_icons(void){
 
 // Home page callback
 static int _btn_home(/*@unused@*/ Ihandle *ih){
-	(void)IupHelp(PACKAGE_HOME);
+	(void)IupHelp(STR(PACKAGE_HOME));
 	return IUP_DEFAULT;
 }
 
 // Bug report callback
 static int _btn_bug(/*@unused@*/ Ihandle *ih){
-	(void)IupHelp(PACKAGE_BUGREPORT);
+	(void)IupHelp(STR(PACKAGE_BUGREPORT));
 	return IUP_DEFAULT;
 }
 
@@ -97,7 +97,7 @@ int gui_about(/*@unused@*/ Ihandle *ih){
 	lbl_icon = IupLabel(NULL);
 	IupSetAttributeHandle(lbl_icon,"IMAGE",himg_redshift);
 	hbox_title = IupHbox(lbl_icon,IupLabel(_("RedshiftGUI  ")),
-			IupLabel(PACKAGE_VER),NULL);
+			IupLabel(STR(PACKAGE_VER)),NULL);
 
 	txt_area = IupSetAtt(NULL,IupText(NULL),
 			"EXPAND","YES","MULTILINE","YES",

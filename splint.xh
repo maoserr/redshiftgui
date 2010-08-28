@@ -73,5 +73,19 @@ void *xcb_randr_get_crtc_gamma_reply(
 		void *conn,void cookie,
 		/*@out@*/ void *error);
 
+// Win32 additional annotations
+void GetSystemTimeAsFileTime(/*@out@*/ void *lpSystemTimeAsFileTime);
+
+void *GetDC(/*@nulL@*/ void *hWnd);
+
+int GetDeviceCaps(void *hdc,int nIndex);
+
+short GetDeviceGammaRamp(void *hDC,/*@out@*/ void *lpRamp);
+
+short SetDeviceGammaRamp(void *hDC,void*lpRamp);
+
+int ReleaseDC(/*@null@*/ void *hWnd,void *hDC);
+
+
 
 // vim:ft=c

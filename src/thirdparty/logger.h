@@ -141,9 +141,9 @@ LogReturn log_setlevel_cb(int level);
  * See the example case at the bottom of logger.c to see how to wrap this in a
  * macro.
  */
-LogReturn log_log(int level,
-		const char *filename,
-		const char *funcname,
+/*@printflike@*/ LogReturn log_log(int level,
+		/*@nulL@*/ const char *filename,
+		/*@nulL@*/ const char *funcname,
 		int linenum,
 		LogStr format,...);
 

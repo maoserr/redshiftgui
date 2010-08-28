@@ -33,12 +33,13 @@ static int _gamma_transition(/*@unused@*/ Ihandle *ih){
 		}
 	}
 
-	LOG(LOGVERBOSE,_("Transition color: %uK"),curr_temp);
+	LOG(LOGVERBOSE,_("Transition color: %dK"),curr_temp);
 	if( !gamma_state_set_temperature(
 				curr_temp,opt_get_gamma()) ){
-		LOG(LOGERR,_("Temperature adjustment failed."));
-		IupSetAttribute(timer_gamma_transition,"RUN","NO");
-		return IUP_DEFAULT;
+		LOG(LOGERR,_("Temperature adjustment failed (Target %d."),
+			curr_temp);
+		//IupSetAttribute(timer_gamma_transition,"RUN","NO");
+		//return IUP_DEFAULT;
 	}
 	guimain_update_info();
 	return IUP_DEFAULT;

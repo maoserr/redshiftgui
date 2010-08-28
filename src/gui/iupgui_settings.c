@@ -68,8 +68,8 @@ static int _val_night_changed(Hcntrl ih){
 // Settings - active icon changed
 static int _set_active(Hcntrl ih){
 	char *file=_get_image_file(_(""));
-	LOG(LOGVERBOSE,_("New active image: %s"),file);
 	if( file != NULL ){
+		LOG(LOGVERBOSE,_("New active image: %s"),file);
 		IupSetAttribute(ih,"IMAGE",file);
 		free(file);
 	}
@@ -79,8 +79,8 @@ static int _set_active(Hcntrl ih){
 // Settings - idle icon changed
 static int _set_idle(Hcntrl ih){
 	char *file=_get_image_file(_(""));
-	LOG(LOGVERBOSE,_("New idle image: %s"),file);
 	if( file != NULL ){
+		LOG(LOGVERBOSE,_("New idle image: %s"),file);
 		IupSetAttribute(ih,"IMAGE",file);
 		free(file);
 	}
@@ -297,6 +297,53 @@ static Hcntrl _settings_create_icons(void){
 	IupSetAttribute(frame_icons,"TITLE",_("Icons"));
 	return frame_icons;
 }
+
+// Create events frame
+static Hcntrl _settings_create_events(void){
+	Hcntrl frame_events;
+	Hcntrl edt_command;
+	Hcntrl label_txt=IupLabel(_("Custom command on temperature change:"));
+
+	edt_command = IupText(NULL);
+	frame_events = IupFrame(
+			IupSetAttributes(
+				IupVbox(label_txt,edt_command,NULL),
+				"MARGIN=5")
+		);
+	IupSetAttribute(frame_events,"TITLE",_("Events"));
+	return frame_events;
+}
+
+// Create weather frame
+static Hcntrl _settings_create_weather(void){
+	Hcntrl frame_weather;
+	Hcntrl chk_enable;
+	Hcntrl spn_interval;
+	Hcntrl label_spn=IupLabel(_("Update interval (minutes)"));
+	Hcntrl label_txt=IupLabel(_("Weather based on lat/lon."));
+
+	chk_enable = IupToggle(_("Enable"),NULL);
+	spn_interval = IupSetAttributes(IupText(NULL),
+			"VISIBLE=NO,SPIN=YES,SPINVALUE=60,"
+			"SPINMIN=10,SPINMAX=180");
+	frame_weather = IupFrame(
+			IupSetAttributes(
+				IupVbox(label_txt,chk_enable,
+					IupHbox(label_spn,spn_interval,NULL),NULL),
+				"MARGIN=5")
+			);
+	IupSetAttribute(frame_weather,"TITLE",_("Weather"));
+	return frame_weather;
+}
+
+// Create logging frame
+static Hcntrl _settings_create_logging(void){
+
+}
+
+// Create gamma frame
+
+// Create additional gamma frame
 
 // Create transition speed slider frame
 static Hcntrl _settings_create_tran(void){

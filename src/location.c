@@ -1,8 +1,13 @@
 #include "common.h"
+#include "location.h"
 #include "netutils.h"
 
 // Use hostip.info to look up lat/lon
-int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
+int location_geocode_hostip(
+		/*@out@*/ float *lat,
+		/*@out@*/ float *lon,
+		/*@out@*/ char *city,int bsize)
+{
 	char url[]="http://api.hostip.info/get_html.php?position=true";
 	char *result;
 
@@ -31,7 +36,11 @@ int location_geocode_hostip(float *lat,float *lon,char *city,int bsize){
 }
 
 // Use Geobytes to look up lat/lon
-int location_geocode_geobytes(float *lat,float *lon,char *city,int bsize){
+int location_geocode_geobytes(
+		/*@out@*/ float *lat,
+		/*@out@*/ float *lon,
+		/*@out@*/ char *city,int bsize)
+{
 	char url[]="http://www.geobytes.com/IpLocator.htm?GetLocation&template=json.txt";
 	char *result;
 	int size_copied=0;
@@ -86,8 +95,11 @@ int location_geocode_geobytes(float *lat,float *lon,char *city,int bsize){
 
 // Use address input to look up lat/lon (probably could use an XML parser
 //		if this gets any more complicated)
-int location_address_lookup(const char *address,float *lat,float *lon,
-		char *city,int bsize){
+int location_address_lookup(const char *address,
+		/*@out@*/ float *lat,
+		/*@out@*/ float *lon,
+		/*@out@*/ char *city,int bsize)
+{
 	char baseurl[]=
 		"http://maps.google.com/maps/api/geocode/xml?sensor=false&address=";
 	char *url;

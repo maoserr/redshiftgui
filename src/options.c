@@ -1,7 +1,3 @@
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include "common.h"
 #include "gamma.h"
 #include "options.h"
@@ -346,11 +342,11 @@ int opt_parse_map(char *map){
 		if( (curr_map[i].temp>100.0)
 				/*@i@*/|| (curr_map[i].temp<0.0) ){
 			free(curr_map);
-			LOG(LOGERR,_("Invalid map line, temperature must be between 0-100%."));
+			LOG(LOGERR,_("Invalid map line, temperature must be between 0-100%%."));
 			return RET_FUN_FAILED;
 		}
 		
-		/*@i@*/LOG(LOGVERBOSE,_("Map line: %f,%d"),curr_map[i].elev,
+		/*@i@*/LOG(LOGVERBOSE,_("Map line: %f,%f"),curr_map[i].elev,
 				curr_map[i].temp);
 		currstr=++currend;
 	}

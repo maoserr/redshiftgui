@@ -130,8 +130,8 @@ char *escape_url(const char url[])
 		++k;
 	}
 	LOG(LOGVERBOSE,_("Old URL is %s"),url);
-	LOG(LOGVERBOSE,_("Escaped URL is: %s"),escaped_url);
-	return /*@i1@*/ escaped_url;
+	/*@i@*/LOG(LOGVERBOSE,_("Escaped URL is: %s"),escaped_url);
+	return /*@i@*/ escaped_url;
 }
 
 /* Copies content of tag to buffer

@@ -51,7 +51,7 @@
 #define LOG(LVL,...) log_log(LVL,__FILE__,__FUNCTION__ ,__LINE__,__VA_ARGS__)
 #else
 /**\brief Logging macro, outputs function name */
-#define LOG(LVL,...) log_log(LVL,NULL,__FUNCTION__,0,__VA_ARGS__)
+#define LOG(LVL,...) (void)log_log(LVL,NULL,__FUNCTION__,0,__VA_ARGS__)
 #endif
 /*@end@*/
 /**\brief Log level error */
@@ -81,6 +81,9 @@
  #define RSG_RCFILE "redshiftg.ini"
 #endif
 
+// Stringify
+#define STR(X) #X
+
 // Math macros
 #ifndef MIN
 /**\brief Minimum of two values */
@@ -93,7 +96,7 @@
 
 // MSVC round
 #ifdef _MSC_VER
-#define round(X) floor(X + 0.5)
+#define round(X) floor((X) + 0.5)
 #endif
 
 #ifndef _WIN32

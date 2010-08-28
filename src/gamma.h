@@ -75,6 +75,8 @@ typedef struct{
 	/*@null@*/ int (*func_set_temp)(int temp, gamma_s gamma);
 	/**\brief Function to get the temperature */
 	/*@null@*/ int (*func_get_temp)(void);
+	/**\brief Function to restore the saved ramps */
+	/*@null@*/ int (*func_restore)(void);
 	/**\brief Method name. */
 	/*@observer@*/ char *name;
 } gamma_method_s;

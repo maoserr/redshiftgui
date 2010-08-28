@@ -62,22 +62,22 @@ set(RSGNSRC
 	${RSG_SRC_DIR}/thirdparty/logger.h
 	${RSG_SRC_DIR}/thirdparty/logger.c
 	${RSG_SRC_DIR}/thirdparty/stb_image.h
-	${RSG_SRC_DIR}/thirdparty/stb_image.c)
-# Project Source files
-set(RSGSRC
+	${RSG_SRC_DIR}/thirdparty/stb_image.c
 	${RSG_SRC_DIR}/common.h
 	${RSG_SRC_DIR}/gamma.h
-	${RSG_SRC_DIR}/gamma.c
 	${RSG_SRC_DIR}/location.h
-	${RSG_SRC_DIR}/location.c
-	${RSG_SRC_DIR}/netutils.h
-	${RSG_SRC_DIR}/netutils.c
 	${RSG_SRC_DIR}/options.h
+	${RSG_SRC_DIR}/solar.h
+	${RSG_SRC_DIR}/systemtime.h
+	)
+# Project Source files
+set(RSGSRC
+	${RSG_SRC_DIR}/gamma.c
+	${RSG_SRC_DIR}/location.c
+	${RSG_SRC_DIR}/netutils.c
 	${RSG_SRC_DIR}/options.c
 	${RSG_SRC_DIR}/redshiftgui.c
-	${RSG_SRC_DIR}/solar.h
 	${RSG_SRC_DIR}/solar.c
-	${RSG_SRC_DIR}/systemtime.h
 	${RSG_SRC_DIR}/systemtime.c
 	${RSG_SRC_DIR}/resources/redshift.c
 	${RSG_SRC_DIR}/resources/redshift-idle.c
@@ -85,30 +85,36 @@ set(RSGSRC
 	${RSG_SRC_DIR}/resources/sunback.c
 	)
 APPEND_IF_VAR(RSGSRC ENABLE_GTK
-		${RSG_SRC_DIR}/gui/gtkgui.c
+		${RSG_SRC_DIR}/gui/gtkgui.c)
+APPEND_IF_VAR(RSGNSRC ENABLE_GTK
 		${RSG_SRC_DIR}/gui/gtkgui.h)
 APPEND_IF_VAR(RSGSRC ENABLE_IUP
 		${RSG_SRC_DIR}/gui/iupgui.c
-		${RSG_SRC_DIR}/gui/iupgui.h
 		${RSG_SRC_DIR}/gui/iupgui_gamma.c
-		${RSG_SRC_DIR}/gui/iupgui_gamma.h
 		${RSG_SRC_DIR}/gui/iupgui_location.c
-		${RSG_SRC_DIR}/gui/iupgui_location.h
 		${RSG_SRC_DIR}/gui/iupgui_main.c
-		${RSG_SRC_DIR}/gui/iupgui_main.h
 		${RSG_SRC_DIR}/gui/iupgui_settings.c
+		)
+APPEND_IF_VAR(RSGNSRC ENABLE_IUP
+		${RSG_SRC_DIR}/gui/iupgui.h
+		${RSG_SRC_DIR}/gui/iupgui_gamma.h
+		${RSG_SRC_DIR}/gui/iupgui_location.h
+		${RSG_SRC_DIR}/gui/iupgui_main.h
 		${RSG_SRC_DIR}/gui/iupgui_settings.h
 		)
 if(UNIX AND NOT APPLE)
 	APPEND_IF_VAR(RSGSRC ENABLE_RANDR
-			${RSG_SRC_DIR}/backends/randr.c
+			${RSG_SRC_DIR}/backends/randr.c)
+	APPEND_IF_VAR(RSGNSRC ENABLE_RANDR
 			${RSG_SRC_DIR}/backends/randr.h)
 	APPEND_IF_VAR(RSGSRC ENABLE_VIDMODE
-			${RSG_SRC_DIR}/backends/vidmode.c
+			${RSG_SRC_DIR}/backends/vidmode.c)
+	APPEND_IF_VAR(RSGNSRC ENABLE_VIDMODE
 			${RSG_SRC_DIR}/backends/vidmode.h)
 elseif(WIN32)
 	APPEND_IF_VAR(RSGSRC ENABLE_WINGDI
-			${RSG_SRC_DIR}/backends/w32gdi.c
+			${RSG_SRC_DIR}/backends/w32gdi.c)
+	APPEND_IF_VAR(RSGNSRC ENABLE_WINGDI
 			${RSG_SRC_DIR}/backends/w32gdi.h)
 	# Resource file
 	configure_file(${RSG_SRC_DIR}/win32/app.rc.in
@@ -118,7 +124,7 @@ elseif(WIN32)
 	configure_file(${RSG_SRC_DIR}/win32/app.64.manifest.in
 		${RSG_SRC_DIR}/win32/app.64.manifest)
 	include(AddMingwRC)
-	ADD_RC_FILE(${RSG_SRC_DIR}/win32 app RSGSRC)
+	ADD_RC_FILE(${RSG_SRC_DIR}/win32 app RSGNSRC)
 endif(UNIX AND NOT APPLE)
 
 # 3rd party packages
@@ -209,10 +215,10 @@ endif(UNIX)
 # Preprocessor definitions
 unset(RSG_DEFINITIONS CACHE)
 set(RSG_DEFS ${RSG_DEFS}
-	PACKAGE="${APP_NAME}"
-	PACKAGE_HOME="${RSG_HOMEPAGE}"
-	PACKAGE_BUGREPORT="${RSG_BUGREPORT}"
-	PACKAGE_VER="${RSG_VERSION}"
+	PACKAGE=${APP_NAME}
+	PACKAGE_HOME=${RSG_HOMEPAGE}
+	PACKAGE_BUGREPORT=${RSG_BUGREPORT}
+	PACKAGE_VER=${RSG_VERSION}
 	)
 CHECK_INCLUDE_FILE(libintl.h ENABLE_NLS)
 CHECK_INCLUDE_FILE(sys/signal.h HAVE_SYS_SIGNAL_H)
@@ -276,34 +282,25 @@ if(SPLINT_PATH)
 			)
 	elseif(MSVC)
 		set(SPLINT_PARAMS ${SPLINT_PARAMS}
+			-D__STDC__=1
+			-D_WIN32
 			-D_MSC_VER=1500
 			-D_M_IX86=400
-			-DWIN32
-			-D_NTSYSTEM
-			-D_WIN32_WINNT=0x0400
-			-DWINVER=600
 			-DNOGDI
-			-DNOKERNEL
-			-DNOUSER
 			-DWIN32_LEAN_AND_MEAN
 			-D__int64=long
-			-D_int64=int
 			-D__w64=
 			-D__ptr64=
-			-D_wtoi=atoi
-			-DSTRICT
-			-D__try=
 			-D__forceinline=inline
-			"-D__except(x)="
-			"-DGetExceptionCode()=1"
-			-fileextensions
 			)
 	endif(UNIX)
 	set(SPLINT_PARAMS ${SPLINT_PARAMS}
 		+show-scan
 		+boolint
 		-mts ${PROJECT_SOURCE_DIR}/splint)
-	set(SPLINT_PARAMS ${SPLINT_PARAMS} ${RSGSRC})
+	set(SPLINT_PARAMS ${SPLINT_PARAMS}
+		${RSGSRC}
+		)
 	add_custom_target(splint ${SPLINT_PATH} ${SPLINT_PARAMS}
 		VERBATIM)
 endif(SPLINT_PATH)

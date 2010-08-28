@@ -158,6 +158,7 @@ int gamma_load_methods(void){
 		methods[i].func_end = NULL;
 		methods[i].func_set_temp = NULL;
 		methods[i].func_get_temp = NULL;
+		methods[i].func_restore = NULL;
 		methods[i].name = NULL;
 	}
 	methods[GAMMA_METHOD_AUTO].name = "Auto";

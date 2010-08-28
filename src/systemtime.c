@@ -35,11 +35,11 @@ int systemtime_get_time(double *t){
 	FILETIME now;
 	ULARGE_INTEGER i;
 	GetSystemTimeAsFileTime(&now);
-	i.LowPart = now.dwLowDateTime;
-	i.HighPart = now.dwHighDateTime;
+	/*@i@*/i.LowPart = now.dwLowDateTime;
+	/*@i@*/i.HighPart = now.dwHighDateTime;
 
 	/* FILETIME is tenths of microseconds since 1601-01-01 UTC */
-	*t = (i.QuadPart / 10000000.0) - 11644473600.0;
+	/*@i@*/*t = (i.QuadPart / 10000000.0) - 11644473600.0;
 #endif /* _WIN32 */
 
 	return RET_FUN_SUCCESS;
