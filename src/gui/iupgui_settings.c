@@ -314,34 +314,30 @@ static Hcntrl _settings_create_events(void){
 	return frame_events;
 }
 
-// Create weather frame
-static Hcntrl _settings_create_weather(void){
-	Hcntrl frame_weather;
-	Hcntrl chk_enable;
-	Hcntrl spn_interval;
-	Hcntrl label_spn=IupLabel(_("Update interval (minutes)"));
-	Hcntrl label_txt=IupLabel(_("Weather based on lat/lon."));
-
-	chk_enable = IupToggle(_("Enable"),NULL);
-	spn_interval = IupSetAttributes(IupText(NULL),
-			"VISIBLE=NO,SPIN=YES,SPINVALUE=60,"
-			"SPINMIN=10,SPINMAX=180");
-	frame_weather = IupFrame(
-			IupSetAttributes(
-				IupVbox(label_txt,chk_enable,
-					IupHbox(label_spn,spn_interval,NULL),NULL),
-				"MARGIN=5")
-			);
-	IupSetAttribute(frame_weather,"TITLE",_("Weather"));
-	return frame_weather;
-}
-
 // Create logging frame
 static Hcntrl _settings_create_logging(void){
+	Hcntrl frame_logging;
+	Hcntrl chk_logging;
+	Hcntrl edt_logging;
+	Hcntrl list_loglvl;
+
+	list_loglvl = IupSetAtt(NULL,IupList(NULL),"1",
+			_("Error/Warnings"),"2",_("Info"),"3",
+			_("Debug"),"VALUE","1",NULL);
+	chk_logging = IupToggle(_("Log to file"),NULL);
+	edt_logging = IupSetAtt(NULL,IupText(NULL),"VALUE",
+			_("./log.txt"),NULL);
+	frame_logging = IupFrame(
+			IupSetAttributes(
+				IupVbox(list_loglvl,chk_logging,edt_logging,NULL),
+				"MARGIN=5"));
+	IupSetAttribute(frame_logging,"TITLE",_("Logging"));
+	return frame_logging;
+}
+// Create gamma frame
+static Hcntrl _settings_create_gamma(void){
 
 }
-
-// Create gamma frame
 
 // Create additional gamma frame
 
@@ -416,10 +412,11 @@ static void _settings_create(void){
 			frame_day,
 			frame_night,
 			frame_startup,
-			frame_icons,
 			frame_speed,
 			frame_elev,
-
+			frame_events,
+			frame_logging,
+			frame_icons,
 			tabs_all,
 
 			button_cancel,
@@ -431,9 +428,12 @@ static void _settings_create(void){
 	frame_day = _settings_create_day_temp();
 	frame_night = _settings_create_night_temp();
 	frame_startup = _settings_create_startup();
-	frame_icons = _settings_create_icons();
 	frame_speed = _settings_create_tran();
 	frame_elev = _settings_create_elev();
+	frame_events = _settings_create_events();
+	frame_logging = _settings_create_logging();
+	frame_icons = _settings_create_icons();
+
 
 	// Tabs containing settings
 	tabs_all = IupTabs(
@@ -448,9 +448,16 @@ static void _settings_create(void){
 				frame_speed,
 				frame_elev,
 				NULL),
+			IupVbox(
+				frame_events,
+				frame_logging,
+				frame_icons,
+				NULL),
 			NULL);
-	(void)IupSetAttributes(tabs_all,"TABTITLE0=Basic,"
-			"TABTITLE1=Transition");
+	(void)IupSetAttributes(tabs_all,
+			"TABTITLE0=Basic,"
+			"TABTITLE1=Transition"
+			"TABTITLE2=Advanced");
 
 	// Buttons
 	button_cancel = IupButton(_("Cancel"),NULL);
