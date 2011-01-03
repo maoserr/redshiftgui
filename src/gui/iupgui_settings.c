@@ -51,7 +51,7 @@ static /*@null@*/ char *_get_image_file(char *initial_file){
 static int _val_day_changed(Hcntrl ih){
 	int val = IupGetInt(ih,"VALUE");
 	int rounded = 100*((int)(val/100.0f));
-	IupSetfAttribute(label_day,"TITLE","%d° K",rounded);
+	IupSetfAttribute(label_day,"TITLE","%d K",rounded);
 	(void)guigamma_set_temp(rounded);
 	return IUP_DEFAULT;
 }
@@ -60,7 +60,7 @@ static int _val_day_changed(Hcntrl ih){
 static int _val_night_changed(Hcntrl ih){
 	int val = IupGetInt(ih,"VALUE");
 	int rounded = 100*((int)(val/100.0f));
-	IupSetfAttribute(label_night,"TITLE","%d° K",rounded);
+	IupSetfAttribute(label_night,"TITLE","%dï¿½ K",rounded);
 	(void)guigamma_set_temp(rounded);
 	return IUP_DEFAULT;
 }
@@ -90,7 +90,7 @@ static int _set_idle(Hcntrl ih){
 // Settings - transition speed changed
 static int _val_speed_changed(Hcntrl ih){
 	int val = IupGetInt(ih,"VALUE");
-	IupSetfAttribute(label_transpeed,"TITLE","%d° K/s",val);
+	IupSetfAttribute(label_transpeed,"TITLE","%d K/s",val);
 	return IUP_DEFAULT;
 }
 
@@ -217,7 +217,7 @@ static Hcntrl _settings_create_day_temp(void){
 	Hcntrl vbox_day,frame_day;
 	// Day temperature
 	label_day = IupLabel(NULL);
-	IupSetfAttribute(label_day,"TITLE",_("%d° K"),opt_get_temp_day());
+	IupSetfAttribute(label_day,"TITLE",_("%d K"),opt_get_temp_day());
 	val_day = IupVal(NULL);
 	IupSetAttribute(val_day,"EXPAND","HORIZONTAL");
 	IupSetfAttribute(val_day,"MIN","%d",MIN_TEMP);
@@ -239,7 +239,7 @@ static Hcntrl _settings_create_night_temp(void){
 	Hcntrl vbox_night,frame_night;
 	// Night temperature
 	label_night = IupLabel(NULL);
-	IupSetfAttribute(label_night,"TITLE",_("%d° K"),opt_get_temp_night());
+	IupSetfAttribute(label_night,"TITLE",_("%d K"),opt_get_temp_night());
 	val_night = IupVal(NULL);
 	IupSetAttribute(val_night,"EXPAND","HORIZONTAL");
 	IupSetfAttribute(val_night,"MIN","%d",MIN_TEMP);
@@ -314,30 +314,34 @@ static Hcntrl _settings_create_events(void){
 	return frame_events;
 }
 
+// Create weather frame
+static Hcntrl _settings_create_weather(void){
+	Hcntrl frame_weather;
+	Hcntrl chk_enable;
+	Hcntrl spn_interval;
+	Hcntrl label_spn=IupLabel(_("Update interval (minutes)"));
+	Hcntrl label_txt=IupLabel(_("Weather based on lat/lon."));
+
+	chk_enable = IupToggle(_("Enable"),NULL);
+	spn_interval = IupSetAttributes(IupText(NULL),
+			"VISIBLE=NO,SPIN=YES,SPINVALUE=60,"
+			"SPINMIN=10,SPINMAX=180");
+	frame_weather = IupFrame(
+			IupSetAttributes(
+				IupVbox(label_txt,chk_enable,
+					IupHbox(label_spn,spn_interval,NULL),NULL),
+				"MARGIN=5")
+			);
+	IupSetAttribute(frame_weather,"TITLE",_("Weather"));
+	return frame_weather;
+}
+
 // Create logging frame
 static Hcntrl _settings_create_logging(void){
-	Hcntrl frame_logging;
-	Hcntrl chk_logging;
-	Hcntrl edt_logging;
-	Hcntrl list_loglvl;
 
-	list_loglvl = IupSetAtt(NULL,IupList(NULL),"1",
-			_("Error/Warnings"),"2",_("Info"),"3",
-			_("Debug"),"VALUE","1",NULL);
-	chk_logging = IupToggle(_("Log to file"),NULL);
-	edt_logging = IupSetAtt(NULL,IupText(NULL),"VALUE",
-			_("./log.txt"),NULL);
-	frame_logging = IupFrame(
-			IupSetAttributes(
-				IupVbox(list_loglvl,chk_logging,edt_logging,NULL),
-				"MARGIN=5"));
-	IupSetAttribute(frame_logging,"TITLE",_("Logging"));
-	return frame_logging;
 }
+
 // Create gamma frame
-static Hcntrl _settings_create_gamma(void){
-
-}
 
 // Create additional gamma frame
 
@@ -346,7 +350,7 @@ static Hcntrl _settings_create_tran(void){
 	Hcntrl vbox_transpeed, frame_speed;
 	// Transition speed
 	label_transpeed = IupLabel(NULL);
-	IupSetfAttribute(label_transpeed,"TITLE",_("%d° K/s"),opt_get_trans_speed());
+	IupSetfAttribute(label_transpeed,"TITLE",_("%d K/s"),opt_get_trans_speed());
 	val_transpeed = IupVal(NULL);
 	IupSetAttribute(val_transpeed,"EXPAND","HORIZONTAL");
 	IupSetfAttribute(val_transpeed,"MIN","%d",MIN_SPEED);
@@ -412,11 +416,10 @@ static void _settings_create(void){
 			frame_day,
 			frame_night,
 			frame_startup,
+			frame_icons,
 			frame_speed,
 			frame_elev,
-			frame_events,
-			frame_logging,
-			frame_icons,
+
 			tabs_all,
 
 			button_cancel,
@@ -428,12 +431,9 @@ static void _settings_create(void){
 	frame_day = _settings_create_day_temp();
 	frame_night = _settings_create_night_temp();
 	frame_startup = _settings_create_startup();
+	frame_icons = _settings_create_icons();
 	frame_speed = _settings_create_tran();
 	frame_elev = _settings_create_elev();
-	frame_events = _settings_create_events();
-	frame_logging = _settings_create_logging();
-	frame_icons = _settings_create_icons();
-
 
 	// Tabs containing settings
 	tabs_all = IupTabs(
@@ -448,16 +448,9 @@ static void _settings_create(void){
 				frame_speed,
 				frame_elev,
 				NULL),
-			IupVbox(
-				frame_events,
-				frame_logging,
-				frame_icons,
-				NULL),
 			NULL);
-	(void)IupSetAttributes(tabs_all,
-			"TABTITLE0=Basic,"
-			"TABTITLE1=Transition"
-			"TABTITLE2=Advanced");
+	(void)IupSetAttributes(tabs_all,"TABTITLE0=Basic,"
+			"TABTITLE1=Transition");
 
 	// Buttons
 	button_cancel = IupButton(_("Cancel"),NULL);

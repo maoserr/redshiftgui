@@ -19,7 +19,8 @@ static Hnullc dialog=NULL;
 static Hnullc infotitle[4]={NULL,NULL,NULL,NULL};
 static Hnullc infovals[4]={NULL,NULL,NULL,NULL};
 static Hnullc lbl_elevation=NULL;
-static Hnullc chk_manual=NULL;
+static Hnullc chk_color=NULL;
+static Hnullc chk_bright=NULL;
 static Hnullc val_manual=NULL;
 static Hnullc val_bright=NULL;
 static Hnullc lbl_sun=NULL;
@@ -59,7 +60,7 @@ static void _set_sun_pos(double elevation){
 		phase="Day";
 	else
 		phase="Night";
-	IupSetfAttribute(lbl_elevation,"TITLE",_("%s: %.1f°"),phase,elevation);
+	IupSetfAttribute(lbl_elevation,"TITLE",_("%s: %.1f"),phase,elevation);
 	if( lbl_sun!=NULL )
 		IupRefresh(lbl_sun);
 }
@@ -79,7 +80,7 @@ static int _preview_timer(Hcntrl ih){
 	LOG(LOGINFO,_("Elevation: %f -> %d"),currelev,currtemp);
 	(void)guigamma_set_temp(currtemp);
 	_set_sun_pos(currelev);
-	IupSetfAttribute(infovals[0],"TITLE",_("%d° K"),guigamma_get_temp());
+	IupSetfAttribute(infovals[0],"TITLE",_("%d K"),guigamma_get_temp());
 	if( (double)preview_cnt >= 360/step ){
 		(void)guigamma_check(ih);
 		IupSetAttribute(ih,"RUN","NO");
@@ -126,6 +127,21 @@ static int _toggle_manual(Hcntrl ih, int state){
 		(void)guigamma_check(ih);
 		IupSetAttribute(val_manual,"VISIBLE","OFF");
 		IupSetAttributeHandle(dialog,"TRAYIMAGE",himg_redshift);
+	}
+	return IUP_DEFAULT;
+}
+
+// Toggles brightness
+static int _toggle_bright(Hcntrl ih, int state){
+	if( dialog==NULL ){
+		LOG(LOGERR,_("Fatal error, dialog does not exist!"));
+		return IUP_DEFAULT;
+	}
+	if( state ){
+		IupSetAttribute(val_bright,"VISIBLE","YES");
+		//IupSetfAttribute(val_manual,"VALUE","%d",guigamma_get_temp());
+	}else{
+		IupSetAttribute(val_bright,"VISIBLE","OFF");
 	}
 	return IUP_DEFAULT;
 }
@@ -191,17 +207,17 @@ static int _tray_click(Hcntrl ih, int but, int pressed,
 		default:
 			if( pressed ){
 				int state;
-				char *val=IupGetAttribute(chk_manual,"VALUE");
-				if( (chk_manual==NULL)||(val==NULL) ){
+				char *val=IupGetAttribute(chk_color,"VALUE");
+				if( (chk_color==NULL)||(val==NULL) ){
 					LOG(LOGERR,_("Checkbox undefined handle."));
 					return IUP_DEFAULT;
 				}
 				
 				state = strcmp(val,"ON");
 				if( state )
-					IupSetAttribute(chk_manual,"VALUE","ON");
+					IupSetAttribute(chk_color,"VALUE","ON");
 				else
-					IupSetAttribute(chk_manual,"VALUE","OFF");
+					IupSetAttribute(chk_color,"VALUE","OFF");
 				(void)_toggle_manual(ih,state);
 				//// Bring up menu
 				//if( !menu_tray ){
@@ -249,10 +265,10 @@ void guimain_update_info(void){
 		_set_sun_pos(elevation);
 	}
 
-	IupSetfAttribute(infovals[0],"TITLE",_("%d° K"),guigamma_get_temp());
-	IupSetfAttribute(infovals[1],"TITLE",_("%d° K"),opt_get_temp_day());
-	IupSetfAttribute(infovals[2],"TITLE",_("%d° K"),opt_get_temp_night());
-	IupSetfAttribute(infovals[3],"TITLE",_("%.2f° Lat, %.2f° Lon"),
+	IupSetfAttribute(infovals[0],"TITLE",_("%d K"),guigamma_get_temp());
+	IupSetfAttribute(infovals[1],"TITLE",_("%d K"),opt_get_temp_day());
+	IupSetfAttribute(infovals[2],"TITLE",_("%d K"),opt_get_temp_night());
+	IupSetfAttribute(infovals[3],"TITLE",_("%.2f Lat, %.2f Lon"),
 			opt_get_lat(),opt_get_lon());
 }
 
@@ -335,30 +351,34 @@ static Hcntrl _main_create_info(void){
 }
 
 // Create manual frame
-static Hcntrl _main_create_manual(void){
+static Hcntrl _main_create_color(void){
 	Hcntrl  vbox_manual,
 			framemanual;
 	// Manual override
-	chk_manual = IupSetAtt(NULL,IupToggle(_("Disable auto-adjust"),NULL)
+	chk_color = IupSetAtt(NULL,IupToggle(_("Disable auto-adjust"),NULL)
 		,"EXPAND","YES",NULL);
-	(void)IupSetCallback(chk_manual,"ACTION",(Icallback)_toggle_manual);
+	(void)IupSetCallback(chk_color,"ACTION",(Icallback)_toggle_manual);
 	val_manual = IupSetAtt(NULL,IupVal(NULL),"MIN","3400","MAX","7000",
 		"VISIBLE","NO","EXPAND","HORIZONTAL",NULL);
 	(void)IupSetCallback(val_manual,"VALUECHANGED_CB",(Icallback)_manual_temp);
-	vbox_manual = IupVbox(chk_manual,val_manual,NULL);
+	vbox_manual = IupVbox(chk_color,val_manual,NULL);
 	framemanual = IupFrame(vbox_manual);
-	IupSetAttribute(framemanual,"TITLE",_("Manual"));
+	IupSetAttribute(framemanual,"TITLE",_("Color"));
 	return framemanual;
 }
 
 // Create brightness frame
 static Hcntrl _main_create_bright(void){
 	Hcntrl framebright;
+	// Manual override
+	chk_bright = IupSetAtt(NULL,IupToggle(_("Disable auto-adjust"),NULL)
+		,"EXPAND","YES",NULL);
+	(void)IupSetCallback(chk_bright,"ACTION",(Icallback)_toggle_bright);
 	// Brightness
 	val_bright = IupSetAtt(NULL,IupVal(NULL),"MIN","0.1","MAX","1",
-		"VISIABLE","YES","EXPAND","HORIZONTAL","VALUE","1",NULL);
+		"VISIBLE","NO","EXPAND","HORIZONTAL",NULL);
 	(void)IupSetCallback(val_bright,"VALUECHANGED_CB",(Icallback)_bright);
-	framebright = IupFrame(IupVbox(val_bright,NULL));
+	framebright = IupFrame(IupVbox(chk_bright,val_bright,NULL));
 	IupSetAttribute(framebright,"TITLE",_("Brightness"));
 	return framebright;
 }
@@ -380,7 +400,7 @@ void guimain_dialog_init(void){
 	// Create frames
 	framesun = _main_create_sun();
 	frameinfo = _main_create_info();
-	framemanual = _main_create_manual();
+	framemanual = _main_create_color();
 	framebright = _main_create_bright();
 
 	// Buttons
@@ -440,9 +460,9 @@ void guimain_dialog_init(void){
 		(void)_toggle_main_dialog(dialog);
 
 	if( opt_get_disabled() ){
-		if( chk_manual!=NULL){
-			IupSetAttribute(chk_manual,"VALUE","ON");
-			(void)_toggle_manual(chk_manual,1);
+		if( chk_color!=NULL){
+			IupSetAttribute(chk_color,"VALUE","ON");
+			(void)_toggle_manual(chk_color,1);
 		}
 	}
 }
