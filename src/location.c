@@ -141,7 +141,7 @@ int location_address_lookup(const char *address,
 
 	if( parse_tag_str(result,"<formatted_address>",
 				"</formatted_address>",city,bsize)
-			!= RET_FUN_SUCCESS ){
+			== 0 ){
 		free(result);
 		return RET_FUN_FAILED;
 	}
