@@ -15,7 +15,7 @@ set(RSG_VERSION
 set(RSG_COPYRIGHT "GPL")
 set(RSG_AUTHOR "Mao Yu")
 set(RSG_CONTACT "maoserr@gmail.com")
-set(RSG_HOMEPAGE "http://www.mao-yu.com/projects/redshiftgui/")
+set(RSG_HOMEPAGE "http://maoserr.github.io/projects/redshiftgui/")
 set(RSG_BUGREPORT "http://github.com/maoserr/redshiftgui/issues")
 set(RSG_DESC "Monitor color temperature adjustment tool")
 
@@ -215,10 +215,10 @@ endif(UNIX)
 # Preprocessor definitions
 unset(RSG_DEFINITIONS CACHE)
 set(RSG_DEFS ${RSG_DEFS}
-	PACKAGE=${APP_NAME}
-	PACKAGE_HOME=${RSG_HOMEPAGE}
-	PACKAGE_BUGREPORT=${RSG_BUGREPORT}
-	PACKAGE_VER=${RSG_VERSION}
+	PACKAGE="${APP_NAME}"
+	PACKAGE_HOME="${RSG_HOMEPAGE}"
+	PACKAGE_BUGREPORT="${RSG_BUGREPORT}"
+	PACKAGE_VER="${RSG_VERSION}"
 	)
 CHECK_INCLUDE_FILE(libintl.h ENABLE_NLS)
 CHECK_INCLUDE_FILE(sys/signal.h HAVE_SYS_SIGNAL_H)

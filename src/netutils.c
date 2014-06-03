@@ -4,7 +4,7 @@
 #define CURL_STATICLIB
 #endif
 #include <curl/curl.h>
-#include <curl/types.h>
+//#include <curl/types.h>
 #include <curl/easy.h>
 /*@end@*/
 #define SIZEOF(X) (sizeof(X)/sizeof(X[0]))

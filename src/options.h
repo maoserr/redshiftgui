@@ -30,7 +30,7 @@ int opt_get_config_file(/*@out@*/ char buffer[],size_t bufsize);
 
 /**\brief Load default values for all fields.
  */
-void opt_init(void);
+void opt_init(char *exename);
 
 /**\brief Sets the brightness value
  * \param brightness Brightness scale (0.1 - 1)
@@ -87,6 +87,11 @@ int opt_parse_method(char *val);
  * \param onoff set to 1 to enable
  */
 int opt_set_oneshot(int onoff);
+
+/**\brief Sets portable mode (Save settings to program folder)
+ * \param onoff set to 1 to enable
+ */
+int opt_set_portable(int onoff);
 
 /**\brief Sets transition speed
  * \param tpersec temperature per second, defaults to 100k/s
@@ -165,6 +170,9 @@ gamma_method_t opt_get_method(void);
 
 /**\brief Retrieves oneshot mode */
 int opt_get_oneshot(void);
+
+/**\brief Retrieves portable mode */
+int opt_get_portable(void);
 
 /**\brief Retrieves transition speed */
 int opt_get_trans_speed(void);

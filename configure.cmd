@@ -3,7 +3,7 @@ setlocal
 :: This only works with NT and above
 
 :: Options
-set GENERATOR="Visual Studio 9 2008"
+set GENERATOR="Visual Studio 10"
 GOTO :paramstart
 
 :: Help screen

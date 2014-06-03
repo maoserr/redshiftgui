@@ -57,6 +57,8 @@ static int _parse_options(int argc, char *argv[]){
 		_("Run in console mode (no GUI)."),ARGVAL_NONE);
 	(void)args_addarg("o","oneshot",
 		_("Adjust color and then exit (no GUI)"),ARGVAL_NONE);
+	(void)args_addarg("p","portable",
+		_("Save to executable folder"),ARGVAL_NONE);
 	(void)args_addarg("r","speed",
 		_("<SPEED> Transition speed (default 1000 K/s)"),ARGVAL_STRING);
 	(void)args_addarg("s","screen",
@@ -79,24 +81,26 @@ static int _parse_options(int argc, char *argv[]){
 		LOG(LOGERR,_("Error occurred parsing options,"
 					"Check your config file or command line."));
 		return RET_FUN_FAILED;
-	}
-	else{
+	}else{
 		char *val;
 		int err=0;
 		char Config_file[LONGEST_PATH];
 		
+		if( args_check("h")==ARGBOOL_TRUE ){
+			printf(_("RedshiftGUI (%s) help:\n"),PACKAGE_VER);
+			args_print();
+			printf(_("\nReport bugs to %s\n"),PACKAGE_BUGREPORT);
+			return RET_FUN_FAILED;
+		}
+		opt_init(argv[0]);
+		if( (val=args_getnamed("p")) )
+			err = (!opt_set_portable(1) ) || err;
+
 		if( (opt_get_config_file(Config_file,LONGEST_PATH)
 					==RET_FUN_SUCCESS)
 				&& ((args_parsefile(Config_file)) != ARGRET_OK) )
 			LOG(LOGWARN,_("Invalid/empty config: %s"),Config_file);
 
-		opt_init();
-		if( args_check("h")==ARGBOOL_TRUE ){
-			printf(_("RedshiftGUI (%s) help:\n"),STR(PACKAGE_VER));
-			args_print();
-			printf(_("\nReport bugs to %s\n"),STR(PACKAGE_BUGREPORT));
-			return RET_FUN_FAILED;
-		}
 
 		if( (val=args_getnamed("v")) )
 			err = (opt_set_verbose(atoi(val))==RET_FUN_FAILED) 
@@ -134,6 +138,9 @@ static int _parse_options(int argc, char *argv[]){
 		}
 		if( args_unknown() ){
 			printf(_("Unknown arguments encountered.\n"));
+			printf(_("RedshiftGUI (%s) help:\n"),PACKAGE_VER);
+			args_print();
+			printf(_("\nReport bugs to %s\n"),PACKAGE_BUGREPORT);
 			return RET_FUN_FAILED;
 		}
 	}

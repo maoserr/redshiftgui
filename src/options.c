@@ -3,6 +3,8 @@
 #include "options.h"
 #include "solar.h"
 #include "gamma_vals.h"
+#include <sys/types.h>
+#include <sys/stat.h>
 #define SIZEOF(X) (sizeof(X)/sizeof(X[0]))
 
 /**\brief Redshift options.*/
@@ -29,6 +31,8 @@ typedef struct{
 	int trans_speed;
 	/**\brief Oneshot mode enabled? */
 	int one_shot;
+	/**\brief Portable mode */
+	int portable;
 	/**\brief Console mode enabled? */
 	int nogui;
 	/**\brief Verbosity level */
@@ -47,6 +51,8 @@ typedef struct{
 	/*@null@*//*@partial@*//*@owned@*/ pair *map;
 	/**\brief Temperature map size (Advanced) */
 	int map_size;
+	/**\brief Folder for options */
+	char exepath[LONGEST_PATH];
 } rs_opts;
 
 static rs_opts Rs_opts;
@@ -57,21 +63,33 @@ static pair default_map[]={
 	{-174.0,0},
 };
 
+// Checks to see if config file exists in directory
+static int _config_exist(char *basedir){
+
+	return RET_FUN_FAILED;
+}
+
 /* Retrieves configuration file full path */
 int opt_get_config_file(char buffer[],size_t bufsize){
-#ifndef _WIN32
-		char *home = getenv("HOME");
-#else
-		char *home = getenv("APPDATA");
-#endif
+		char *configdir;
 		size_t s_home;
-		if( home==NULL ){
+
+		if( opt_get_portable() ){
+			configdir = Rs_opts.exepath ;
+		}else{
+#ifndef _WIN32
+			configdir = getenv("HOME");
+#else
+			configdir = getenv("APPDATA");
+#endif
+		}
+		if( configdir==NULL ){
 			strcpy(buffer,"None");
 			return RET_FUN_FAILED;
 		}
-		s_home = strlen(home);
+		s_home = strlen(configdir);
 		if( s_home < (bufsize+strlen(RSG_RCFILE)-5) ){
-			strcpy(buffer,home);
+			strcpy(buffer,configdir);
 			buffer[s_home++]=PATH_SEP;
 			strcpy(buffer+s_home,RSG_RCFILE);
 			return RET_FUN_SUCCESS;
@@ -81,9 +99,10 @@ int opt_get_config_file(char buffer[],size_t bufsize){
 }
 
 // Load defaults
-void opt_init(void){
-	if( Rs_opts.map!=NULL )
-		free(Rs_opts.map);
+void opt_init(char *exename){
+	struct stat buffer;   
+	char *sep = strrchr(exename,PATH_SEP);
+	char pathbuffer[LONGEST_PATH];
 	Rs_opts.map=NULL;
 	(void)opt_set_verbose(0);
 	(void)opt_set_brightness(1.0);
@@ -96,6 +115,18 @@ void opt_init(void){
 	(void)opt_set_transpeed(1000);
 	(void)opt_set_oneshot(0);
 	(void)opt_set_nogui(0);
+	if(sep && (sep<(exename+LONGEST_PATH-10))){
+		strncpy(Rs_opts.exepath,exename,sep-exename+1);
+	}else{
+		Rs_opts.exepath[0]='.';
+		Rs_opts.exepath[1]=PATH_SEP;
+		Rs_opts.exepath[2]='\0';
+	}
+	strcpy(pathbuffer,Rs_opts.exepath);
+	strcpy(pathbuffer+strlen(pathbuffer),RSG_RCFILE);
+	if(stat (pathbuffer, &buffer) == 0){
+		opt_set_portable(1);
+	}
 #ifdef ENABLE_IUP
 	(void)opt_set_min(0);
 	(void)opt_set_disabled(0);
@@ -224,6 +255,12 @@ int opt_parse_method(char *val){
 // Sets oneshot mode
 int opt_set_oneshot(int onoff){
 	Rs_opts.one_shot = onoff;
+	return RET_FUN_SUCCESS;
+}
+
+// Set portable mode
+int opt_set_portable(int onoff){
+	Rs_opts.portable = onoff;
 	return RET_FUN_SUCCESS;
 }
 
@@ -381,6 +418,9 @@ gamma_method_t opt_get_method(void)
 int opt_get_oneshot(void)
 {return Rs_opts.one_shot;}
 
+int opt_get_portable(void)
+{return Rs_opts.portable;}
+
 int opt_get_trans_speed(void)
 {return Rs_opts.trans_speed;}
 
@@ -436,10 +476,12 @@ void opt_write_config(void){
 	fid_config = fopen(Config_file,"w");
 	if( fid_config==NULL )
 		return;
+#if defined(ENABLE_GTK) || defined(ENABLE_IUP)
 	if( opt_get_min()!=0 )
 		fprintf(fid_config,"min\n");
 	if( opt_get_disabled()!=0 )
 		fprintf(fid_config,"disable\n");
+#endif
 	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
 	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());
