@@ -37,16 +37,10 @@ typedef struct{
 	int nogui;
 	/**\brief Verbosity level */
 	int verbose;
-#ifdef ENABLE_IUP
 	/**\brief Start GUI minimized */
 	int startmin;
 	/**\brief Start GUI disabled */
 	int startdisabled;
-	/**\brief Active icon */
-	/*@unique@*/ char active_icon[LONGEST_PATH];
-	/**\brief Idle icon */
-	/*@unique@*/ char idle_icon[LONGEST_PATH];
-#endif//ENABLE_IUP
 	/**\brief Temperature map (Advanced) */
 	/*@null@*//*@partial@*//*@owned@*/ pair *map;
 	/**\brief Temperature map size (Advanced) */
@@ -127,12 +121,8 @@ void opt_init(char *exename){
 	if(stat (pathbuffer, &buffer) == 0){
 		opt_set_portable(1);
 	}
-#ifdef ENABLE_IUP
 	(void)opt_set_min(0);
 	(void)opt_set_disabled(0);
-	(void)opt_set_active_icon("");
-	(void)opt_set_idle_icon("");
-#endif//ENABLE_IUP
 }
 
 // Sets brightness
@@ -304,7 +294,6 @@ int opt_set_verbose(int level){
 	return RET_FUN_SUCCESS;
 }
 
-#ifdef ENABLE_IUP
 // Sets start minimized
 int opt_set_min(int val){
 	Rs_opts.startmin = val;
@@ -316,30 +305,6 @@ int opt_set_disabled(int val){
 	Rs_opts.startdisabled = val;
 	return RET_FUN_SUCCESS;
 }
-
-// Sets active icon
-int opt_set_active_icon(const char *icon){
-	if(icon==NULL){
-		strncpy(Rs_opts.active_icon,_(""),LONGEST_PATH-1);
-		return RET_FUN_SUCCESS;
-	}
-	strncpy(Rs_opts.active_icon,icon,LONGEST_PATH-1);
-	Rs_opts.active_icon[LONGEST_PATH-1]='\0';
-	return RET_FUN_SUCCESS;
-}
-
-// Sets idle icon
-int opt_set_idle_icon(const char *icon){
-	if(icon==NULL){
-		strncpy(Rs_opts.active_icon,_(""),LONGEST_PATH-1);
-		return RET_FUN_SUCCESS;
-	}
-	strncpy(Rs_opts.active_icon,icon,LONGEST_PATH-1);
-	Rs_opts.active_icon[LONGEST_PATH-1]='\0';
-	return RET_FUN_SUCCESS;
-}
-
-#endif//ENABLE_IUP
 
 // Parse temperature map
 int opt_parse_map(char *map){
@@ -436,19 +401,11 @@ int opt_get_temp_night(void)
 int opt_get_verbosity(void)
 {return Rs_opts.verbose;}
 
-#ifdef ENABLE_IUP
 int opt_get_min(void)
 {return Rs_opts.startmin;}
 
 int opt_get_disabled(void)
 {return Rs_opts.startdisabled;}
-
-char *opt_get_active_icon(void)
-{return Rs_opts.active_icon;}
-
-char *opt_get_idle_icon(void)
-{return Rs_opts.idle_icon;}
-#endif//ENABLE_IUP
 
 pair *opt_get_map(int *size){
 	if( !Rs_opts.map ){
@@ -476,12 +433,10 @@ void opt_write_config(void){
 	fid_config = fopen(Config_file,"w");
 	if( fid_config==NULL )
 		return;
-#if defined(ENABLE_GTK) || defined(ENABLE_IUP)
 	if( opt_get_min()!=0 )
 		fprintf(fid_config,"min\n");
 	if( opt_get_disabled()!=0 )
 		fprintf(fid_config,"disable\n");
-#endif
 	fprintf(fid_config,"temps=%d:%d\n",opt_get_temp_day(),opt_get_temp_night());
 	fprintf(fid_config,"latlon=%f:%f\n",opt_get_lat(),opt_get_lon());
 	fprintf(fid_config,"speed=%d\n",opt_get_trans_speed());

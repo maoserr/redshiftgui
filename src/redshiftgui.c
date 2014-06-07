@@ -19,6 +19,8 @@
 # include "gui/iupgui.h"
 #elif defined(ENABLE_GTK)
 # include "gui/gtkgui.h"
+#elif defined(ENABLE_WINGUI)
+# include "gui/win32gui.h"
 #endif
 
 // Main program return codes
@@ -69,12 +71,10 @@ static int _parse_options(int argc, char *argv[]){
 		_("<LEVEL> Verbosity of output (0 = err/warn, 1 = info, 2 = verbose)"),ARGVAL_STRING);
 	(void)args_addarg(NULL,"map",
 		_("(Advanced) Temperature map"),ARGVAL_STRING);
-#ifdef ENABLE_IUP
 	(void)args_addarg(NULL,"min",
 		_("Start GUI minimized"),ARGVAL_NONE);
 	(void)args_addarg("d","disable",
 		_("Start GUI disabled"),ARGVAL_NONE);
-#endif//ENABLE_IUP
 	(void)args_addarg("h","help",
 		_("Display this help message"),ARGVAL_NONE);
 	if( (args_parse(argc,argv) != ARGRET_OK) ){
@@ -125,12 +125,10 @@ static int _parse_options(int argc, char *argv[]){
 			err = (!opt_set_screen(atoi(val))) || err;
 		if( (val=args_getnamed("t")) )
 			err = (!opt_parse_temperatures(val)) || err;
-#ifdef ENABLE_IUP
 		if( (val=args_getnamed("min")) )
 			err = (!opt_set_min(1)) || err;
 		if( (val=args_getnamed("d")) )
 			err = (!opt_set_disabled(1)) || err;
-#endif//ENABLE_IUP
 		if( (val=args_getnamed("map")) )
 			err = (!opt_parse_map(val)) || err;
 		if( err ){
@@ -333,6 +331,8 @@ int main(int argc, char *argv[]){
 	ret = iup_gui(argc,argv);
 #elif defined(ENABLE_GTK)
 	ret = gtk_gui(argc,argv);
+#elif defined(ENABLE_WINGUI)
+	ret = win32_gui(argc,argv);
 #else
 		LOG(LOGVERBOSE,_("No GUI toolkit compiled in."));
 		ret = RET_FUN_FAILED;
