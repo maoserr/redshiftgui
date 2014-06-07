@@ -343,8 +343,8 @@ static ArgReturn _parse_line(ArgChar buffer[]){
 		DEBUG("Found flag %s.\n",buffer);
 		item = _args_setval(buffer,NULL);
 		if( !item ){
-			DEBUG("Found unknown %s.\n",name);
-			_args_setunknown(name);
+			DEBUG("Found unknown %s.\n",buffer);
+			_args_setunknown(buffer);
 		}
 	}
 	return ARGRET_OK;
