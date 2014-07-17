@@ -27,7 +27,7 @@ void guigamma_end_timers(void);
 
 /**\brief Checks if temperatures need to be changed,
  * and starts transition timer if needed */
-int guigamma_check(Ihandle *ih);
+void guigamma_check(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime);
 
 #endif//__WIN32GUI_GAMMA_H__
 

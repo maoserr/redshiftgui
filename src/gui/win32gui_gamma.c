@@ -1,9 +1,11 @@
 #include "common.h"
 #include "gamma.h"
 #include "options.h"
+#include "gui/win32gui.h"
+#include "gui/win32gui_gamma.h"
 
-static UINT timer_gamma_check=NULL;
-static UINT timer_gamma_transition=NULL;
+static UINT timer_gamma_check=(UINT)NULL;
+static UINT timer_gamma_transition=(UINT)NULL;
 
 #define IDT_GAMMA_CHECK 2000
 #define IDT_GAMMA_TRANS 2001
@@ -12,31 +14,8 @@ static int curr_temp=1000;
 static int target_temp=1000;
 static int timers_disabled = 0;
 
-// Toggles transition timer
-static void _gamma_toggle_timer_trans(int onoff){
-	if(onoff){
-		// Transition step size is 100 ms
-		timer_gamma_transition = SetTimer(NULL,IDT_GAMMA_TRANS,100,(TIMERPROC)_gamma_transition);
-	}else{
-		if(timer_gamma_transition){
-			KillTimer(NULL,timer_gamma_transition);
-			timer_gamma_transition = NULL;
-		}
-	}
-}
-
-// Toggles check timer
-static void _gamma_toggle_timer_check(int onoff){
-	if(onoff){
-		// Re-check every 5 minute
-		timer_gamma_check = SetTimer(NULL,IDT_GAMMA_CHECK,1000*60*5,(TIMERPROC) guigamma_check);
-	}else{
-		if(timer_gamma_check){
-			KillTimer(NULL,timer_gamma_check);
-			timer_gamma_check = NULL;
-		}
-	}
-}
+static void _gamma_toggle_timer_trans(int onoff);
+static void _gamma_toggle_timer_check(int onoff);
 
 // Changes temperature
 static void _gamma_transition(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime){
@@ -67,6 +46,33 @@ static void _gamma_transition(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime)
 	}
 	guimain_update_info();
 	return;
+}
+
+
+// Toggles transition timer
+static void _gamma_toggle_timer_trans(int onoff){
+	if(onoff){
+		// Transition step size is 100 ms
+		timer_gamma_transition = SetTimer(NULL,IDT_GAMMA_TRANS,100,(TIMERPROC)_gamma_transition);
+	}else{
+		if(timer_gamma_transition){
+			KillTimer(NULL,timer_gamma_transition);
+			timer_gamma_transition = (UINT) NULL;
+		}
+	}
+}
+
+// Toggles check timer
+static void _gamma_toggle_timer_check(int onoff){
+	if(onoff){
+		// Re-check every 5 minute
+		timer_gamma_check = SetTimer(NULL,IDT_GAMMA_CHECK,1000*60*5,(TIMERPROC) guigamma_check);
+	}else{
+		if(timer_gamma_check){
+			KillTimer(NULL,timer_gamma_check);
+			timer_gamma_check = (UINT)NULL;
+		}
+	}
 }
 
 // Returns current temperature as known by GUI
@@ -117,12 +123,12 @@ void guigamma_enable(void){
 }
 
 // Initialize timer to run gamma correction
-void guigamma_init_timers(HWND hwnd){
+void guigamma_init_timers(void){
 
 	// Make sure gamma is synced up
 	curr_temp = gamma_state_get_temperature();
 	(void)gamma_state_set_temperature(curr_temp,opt_get_gamma());
-	(void)guigamma_check(NULL,NULL,NULL,NULL);
+	(void)guigamma_check((HWND)NULL,(UINT)NULL,(UINT)NULL,(DWORD)NULL);
 	_gamma_toggle_timer_check(1);
 }
 
@@ -130,11 +136,11 @@ void guigamma_init_timers(HWND hwnd){
 void guigamma_end_timers(void){
 	if( timer_gamma_check ){
 		KillTimer(NULL,timer_gamma_check);
-		timer_gamma_check = NULL;
+		timer_gamma_check = (UINT)NULL;
 	}
 
 	if( timer_gamma_transition ){
 		KillTimer(NULL,timer_gamma_transition);
-		timer_gamma_transition = NULL;
+		timer_gamma_transition = (UINT)NULL;
 	}
 }

@@ -10,4 +10,7 @@
 /**\brief Main Win32 GUI loop */
 int win32_gui(int argc, char *argv[]);
 
+/**\brief Update GUI status display */
+void guimain_update_info(void);
+
 #endif//__WIN32GUI_H__
