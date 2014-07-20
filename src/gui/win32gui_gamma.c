@@ -98,8 +98,8 @@ void guigamma_check(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime){
 			opt_get_temp_day(),opt_get_temp_night());
 	LOG(LOGINFO,_("Gamma check, current: %d, target: %d"),
 			curr_temp,target_temp);
-	if( fabs((double)(curr_temp - target_temp)) >= 1.0 ){
-		// Disable current timer
+	if( fabs((double)(curr_temp - target_temp)) >= 100 ){
+		// Transition
 		_gamma_toggle_timer_check(0);
 		_gamma_toggle_timer_trans(1);
 	}
@@ -128,8 +128,8 @@ void guigamma_init_timers(void){
 	// Make sure gamma is synced up
 	curr_temp = gamma_state_get_temperature();
 	(void)gamma_state_set_temperature(curr_temp,opt_get_gamma());
-	(void)guigamma_check((HWND)NULL,(UINT)NULL,(UINT)NULL,(DWORD)NULL);
 	_gamma_toggle_timer_check(1);
+	(void)guigamma_check((HWND)NULL,(UINT)NULL,(UINT)NULL,(DWORD)NULL);
 }
 
 // Destroys timers

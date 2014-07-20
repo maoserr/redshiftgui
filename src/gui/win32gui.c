@@ -44,10 +44,11 @@ INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			guigamma_init_timers();
 			if( opt_get_disabled() ){
 				guigamma_disable();
+				EnableWindow(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO),TRUE);
 			}else{
 				guigamma_check((HWND)NULL,(UINT)NULL,(UINT)NULL,(DWORD)NULL);
 			}
-			SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_SETRANGE, 
+			SendDlgItemMessage(gHmain,IDC_MAIN_SL_AUTO, TBM_SETRANGE, 
 				(WPARAM) TRUE,                   // redraw flag 
 				(LPARAM) MAKELONG(3600, 6500));  // min. & max. positions
         

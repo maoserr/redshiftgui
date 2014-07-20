@@ -141,6 +141,11 @@ static int w32gdi_restore(void)
 
 static int w32gdi_set_temperature(int temp, /*@unused@*/ gamma_s gamma)
 {
+		int cmcap;
+	int n,i;
+	HDC hdc;
+	DISPLAY_DEVICE dd;
+
 	gamma_ramp_s ramp=gamma_ramp_fill(GAMMA_RAMP_SIZE,temp);
 
 	/* Set new gamma ramps */
@@ -148,10 +153,48 @@ static int w32gdi_set_temperature(int temp, /*@unused@*/ gamma_s gamma)
 		LOG(LOGERR,_("No device context or ramp."));
 		return RET_FUN_FAILED;
 	}
-	if( !SetDeviceGammaRamp(state.hDC,ramp.all)) {
-		LOG(LOGERR,_("Unable to set gamma ramps."));
-		return RET_FUN_FAILED;
-	}
+
+
+	n = GetSystemMetrics(SM_CMONITORS);
+	LOG(LOGVERBOSE,_("Found %d monitors."),n);
+	dd.cb = sizeof(dd);
+
+   for (i=0;i<n;i++) {
+      dd.DeviceName  [0] = '\0';
+      dd.DeviceString[0] = '\0';
+      dd.DeviceID    [0] = '\0';
+      dd.DeviceKey   [0] = '\0';
+
+      dd.StateFlags   = 0;
+
+      EnumDisplayDevices(NULL, i, &dd, 0);
+
+      LOG(LOGVERBOSE,_("Screen %d  Flags: %d"), i);
+	  LOG(LOGVERBOSE,_("Flags: %d"), dd.StateFlags);
+      LOG(LOGVERBOSE,_("Name: %s"),  dd.DeviceName);
+      LOG(LOGVERBOSE,_("String: %s"),dd.DeviceString);
+      LOG(LOGVERBOSE,_("ID: %s"),    dd.DeviceID);
+      LOG(LOGVERBOSE,_("Key: %s"),   dd.DeviceKey);
+
+      hdc = CreateDC(NULL, dd.DeviceName, NULL, NULL);
+      LOG(LOGVERBOSE,_("  dims: %dx%d"), GetDeviceCaps(hdc, HORZRES), GetDeviceCaps(hdc, VERTRES));
+      LOG(LOGVERBOSE,_("  colors: %d bits"), GetDeviceCaps(hdc, BITSPIXEL));
+	  cmcap = GetDeviceCaps(hdc, COLORMGMTCAPS);
+	  if (cmcap != CM_GAMMA_RAMP) {
+		  LOG(LOGVERBOSE,_("Display device does not support gamma ramps: %d"),cmcap);
+	  }else{
+		  LOG(LOGVERBOSE,_("Display device supports gamma ramps."));
+	  }
+		if( !SetDeviceGammaRamp(hdc,ramp.all)) {
+			LOG(LOGERR,_("Unable to set gamma ramps."));
+		}
+	  (void)DeleteDC(hdc);
+   }
+
+	//if( !SetDeviceGammaRamp(state.hDC,ramp.all)) {
+	//	LOG(LOGERR,_("Unable to set gamma ramps."));
+	//	return RET_FUN_FAILED;
+	//}
 
 	return RET_FUN_SUCCESS;
 }
