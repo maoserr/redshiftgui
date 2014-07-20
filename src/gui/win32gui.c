@@ -47,11 +47,32 @@ INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}else{
 				guigamma_check((HWND)NULL,(UINT)NULL,(UINT)NULL,(DWORD)NULL);
 			}
+			SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_SETRANGE, 
+				(WPARAM) TRUE,                   // redraw flag 
+				(LPARAM) MAKELONG(3600, 6500));  // min. & max. positions
+        
+			SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_SETPAGESIZE, 
+				0, (LPARAM) 100);                  // new page size 
+        
+			SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_SETPOS, 
+				(WPARAM) TRUE,                   // redraw flag 
+				(LPARAM) 3600);
 		case WM_COMMAND:
 			switch(LOWORD(wParam)){
 			case IDCANCEL:
 				SendMessage(hDlg, WM_CLOSE, 0, 0);
 				return TRUE;
+			}
+			break;
+		case WM_HSCROLL:
+			if( (HWND)lParam == GetDlgItem(gHmain,IDC_MAIN_SL_AUTO)){
+				DWORD dwPos;
+				int rounded;
+				dwPos = SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_GETPOS, 0, 0);
+				rounded = 100*((int)(dwPos/100.0f));
+				LOG(LOGVERBOSE,_("Setting manual temperature: %d"),rounded);
+				(void)guigamma_set_temp(rounded);
+				guimain_update_info();
 			}
 			break;
 		case WM_CLOSE:
