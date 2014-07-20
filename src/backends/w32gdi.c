@@ -41,10 +41,47 @@ static int w32gdi_init(/*@unused@*/int screen_num,/*@unused@*/ int crtc_num)
 {
 	int cmcap;
 
+	int n,i;
+	HDC hdc;
+	DISPLAY_DEVICE dd;
+	n = GetSystemMetrics(SM_CMONITORS);
+	LOG(LOGVERBOSE,_("Found %d monitors."),n);
+	dd.cb = sizeof(dd);
+
+   for (i=0;i<n;i++) {
+      dd.DeviceName  [0] = '\0';
+      dd.DeviceString[0] = '\0';
+      dd.DeviceID    [0] = '\0';
+      dd.DeviceKey   [0] = '\0';
+
+      dd.StateFlags   = 0;
+
+      EnumDisplayDevices(NULL, i, &dd, 0);
+
+      LOG(LOGVERBOSE,_("Screen %d  Flags: %d"), i);
+	  LOG(LOGVERBOSE,_("Flags: %d"), dd.StateFlags);
+      LOG(LOGVERBOSE,_("Name: %s"),  dd.DeviceName);
+      LOG(LOGVERBOSE,_("String: %s"),dd.DeviceString);
+      LOG(LOGVERBOSE,_("ID: %s"),    dd.DeviceID);
+      LOG(LOGVERBOSE,_("Key: %s"),   dd.DeviceKey);
+
+      hdc = CreateDC(NULL, dd.DeviceName, NULL, NULL);
+      LOG(LOGVERBOSE,_("  dims: %dx%d"), GetDeviceCaps(hdc, HORZRES), GetDeviceCaps(hdc, VERTRES));
+      LOG(LOGVERBOSE,_("  colors: %d bits"), GetDeviceCaps(hdc, BITSPIXEL));
+	  cmcap = GetDeviceCaps(hdc, COLORMGMTCAPS);
+	  if (cmcap != CM_GAMMA_RAMP) {
+		  LOG(LOGVERBOSE,_("Display device does not support gamma ramps: %d"),cmcap);
+	  }else{
+		  LOG(LOGVERBOSE,_("Display device supports gamma ramps."));
+	  }
+	  (void)DeleteDC(hdc);
+   }
+
+
 	/* Open device context */
 	if(state.hDC)
-		(void)ReleaseDC(NULL, state.hDC);
-	state.hDC = GetDC(NULL);
+		(void)DeleteDC(state.hDC);
+	state.hDC = CreateDC(TEXT("DISPLAY"),NULL,NULL,NULL);
 	if (state.hDC == NULL) {
 		LOG(LOGERR,_("Unable to open device context."));
 		return RET_FUN_FAILED;
@@ -63,14 +100,14 @@ static int w32gdi_init(/*@unused@*/int screen_num,/*@unused@*/ int crtc_num)
 	state.saved_ramps = malloc(3*GAMMA_RAMP_SIZE*sizeof(WORD));
 	if (state.saved_ramps == NULL) {
 		perror("malloc");
-		(void)ReleaseDC(NULL, state.hDC);
+		(void)DeleteDC(state.hDC);
 		return RET_FUN_FAILED;
 	}
 
 	/* Save current gamma ramps so we can restore them at program exit */
 	if( !GetDeviceGammaRamp(state.hDC, state.saved_ramps) ){
 		LOG(LOGERR,_("Unable to save current gamma ramp."));
-		(void)ReleaseDC(NULL, state.hDC);
+		(void)DeleteDC(state.hDC);
 		return RET_FUN_FAILED;
 	}
 
@@ -84,7 +121,7 @@ static int w32gdi_free(void)
 
 	/* Release device context */
 	if( state.hDC )
-		(void)ReleaseDC(NULL, state.hDC);
+		(void)DeleteDC(state.hDC);
 	return RET_FUN_SUCCESS;
 }
 
