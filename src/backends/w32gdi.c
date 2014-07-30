@@ -67,11 +67,6 @@ static int w32gdi_init(/*@unused@*/int screen_num,/*@unused@*/ int crtc_num)
       LOG(LOGVERBOSE,_("  dims: %dx%d"), GetDeviceCaps(hdc, HORZRES), GetDeviceCaps(hdc, VERTRES));
       LOG(LOGVERBOSE,_("  colors: %d bits"), GetDeviceCaps(hdc, BITSPIXEL));
 	  cmcap = GetDeviceCaps(hdc, COLORMGMTCAPS);
-	  //if (cmcap != CM_GAMMA_RAMP) {
-	  //	  LOG(LOGVERBOSE,_("Display device does not support gamma ramps: %d"),cmcap);
-	  //}else{
-		//  LOG(LOGVERBOSE,_("Display device supports gamma ramps."));
-	  //}
 	  (void)DeleteDC(hdc);
    }
 
