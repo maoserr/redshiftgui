@@ -41,28 +41,43 @@ INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch(uMsg){
 		case WM_INITDIALOG:
 			gHmain = hDlg;
-			guigamma_init_timers();
+
+			SendDlgItemMessage(gHmain,IDC_MAIN_SL_AUTO, TBM_SETRANGE, 
+				(WPARAM) TRUE,
+				(LPARAM) MAKELONG(opt_get_temp_night(),  opt_get_temp_day()));
+			SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_SETPAGESIZE, 
+				0, (LPARAM) 100);                  // new page size 
+			SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_SETPOS, 
+				(WPARAM) TRUE,                   // redraw flag 
+				(LPARAM) opt_get_temp_day());
+
 			if( opt_get_disabled() ){
 				guigamma_disable();
 				EnableWindow(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO),TRUE);
+				SendDlgItemMessage(gHmain, IDC_MAIN_CHK_AUTO, BM_SETCHECK, BST_CHECKED, 0);
 			}else{
-				guigamma_check((HWND)NULL,(UINT)NULL,(UINT)NULL,(DWORD)NULL);
+				guigamma_init_timers();
 			}
-			SendDlgItemMessage(gHmain,IDC_MAIN_SL_AUTO, TBM_SETRANGE, 
-				(WPARAM) TRUE,                   // redraw flag 
-				(LPARAM) MAKELONG(3600, 6500));  // min. & max. positions
-        
-			SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_SETPAGESIZE, 
-				0, (LPARAM) 100);                  // new page size 
-        
-			SendMessage(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO), TBM_SETPOS, 
-				(WPARAM) TRUE,                   // redraw flag 
-				(LPARAM) 3600);
 		case WM_COMMAND:
-			switch(LOWORD(wParam)){
-			case IDCANCEL:
-				SendMessage(hDlg, WM_CLOSE, 0, 0);
-				return TRUE;
+			switch(HIWORD(wParam)){
+			case BN_CLICKED:
+				if(LOWORD(wParam) == IDC_MAIN_CHK_AUTO){
+					if(SendDlgItemMessage(hDlg,IDC_MAIN_CHK_AUTO,BM_GETCHECK,0,0)==BST_CHECKED){
+						guigamma_disable();
+						EnableWindow(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO),TRUE);
+					}else{
+						guigamma_enable();
+						(void)guigamma_check((HWND)NULL,(UINT)NULL,(UINT)NULL,(DWORD)NULL);
+						EnableWindow(GetDlgItem(gHmain,IDC_MAIN_SL_AUTO),FALSE);
+					}
+				}
+				break;
+			default:
+				switch(LOWORD(wParam)){
+				case IDCANCEL:
+					SendMessage(hDlg, WM_CLOSE, 0, 0);
+					return TRUE;
+				}
 			}
 			break;
 		case WM_HSCROLL:
