@@ -61,4 +61,7 @@ IV. Limitations
 ===============
 1. WinGDI has a lower limit on gamma ramps, so brightness cannot go below a
    certain limit.
+	- This can be fixed by the following registry key:
+	[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ICM]
+	"GdiIcmGammaRange"=dword:00000100
 
