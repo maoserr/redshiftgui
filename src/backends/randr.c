@@ -150,16 +150,6 @@ int randr_init(int screen_num, int crtc_num)
 	/* Save size and gamma ramps of all CRTCs.
 	   Current gamma ramps are saved so we can restore them
 	   at program exit. */
-		/* Allocate space for saved gamma ramps */
-	saved_ramps = malloc(state.crtc_count*3*ramp_size
-			*sizeof(uint16_t));
-	if ( !saved_ramps ) {
-		perror("malloc");
-		LOG(LOGERR,_("Memory allocation error."));
-		free(gamma_get_reply);
-		xcb_disconnect(state.conn);
-		/*@i1@*/return RET_FUN_FAILED;
-	}
 	for (i = 0; i < ((int)state.crtc_count); i++) {
 		/*@i2@*/xcb_randr_crtc_t crtc = state.crtcs[i].crtc;
 
@@ -209,6 +199,16 @@ int randr_init(int screen_num, int crtc_num)
 		gamma_r = xcb_randr_get_crtc_gamma_red(gamma_get_reply);
 		gamma_g = xcb_randr_get_crtc_gamma_green(gamma_get_reply);
 		gamma_b = xcb_randr_get_crtc_gamma_blue(gamma_get_reply);
+
+		/* Allocate space for saved gamma ramps */
+		state.crtcs[i].saved_ramps =
+			malloc(3*ramp_size*sizeof(uint16_t));
+		if (state.crtcs[i].saved_ramps == NULL) {
+			perror("malloc");
+			free(gamma_get_reply);
+			xcb_disconnect(state.conn);
+			/*@i1@*/return RET_FUN_FAILED;
+		}
 
 		/* Copy gamma ramps into CRTC state */
 		/*@i6@*/memcpy(state.crtcs[i].saved_ramps+0*ramp_size, gamma_r,
@@ -273,10 +273,11 @@ int randr_free(void){
 		return RET_FUN_FAILED;
 
 	/* Free CRTC state */
-	for( i=0; i<(int)state.crtc_count; ++i ){
+	for( i=0; i<state.crtc_count; ++i ){
 		if( state.crtcs[i].saved_ramps!=NULL ){
 			LOG(LOGVERBOSE,_("Freeing Randr CRTC %d"),i);
 			free(state.crtcs[i].saved_ramps);
+			state.crtcs[i].saved_ramps=NULL;
 		}
 	}
 	free(state.crtcs);
