@@ -5,6 +5,7 @@
 #include "gamma_vals.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <locale.h>
 #define SIZEOF(X) (sizeof(X)/sizeof(X[0]))
 
 /**\brief Redshift options.*/
@@ -330,10 +331,10 @@ int opt_parse_map(char *map){
 		return RET_FUN_FAILED;
 	}
 	currstr=map;
+	setlocale(LC_NUMERIC,"");
 	for( i=0; i<cnt; ++i ){
-		currsep=strchr(currstr,',');
 		currend=strchr(currstr,';');
-		curr_map[i].elev=atof(currstr);
+		curr_map[i].elev=strtof(currstr,&currsep);
 		curr_map[i].temp=atof(++currsep);
 		if( curr_map[i].elev > prevelev ){
 			free(curr_map);
@@ -445,7 +446,7 @@ void opt_write_config(void){
 		int i;
 		fprintf(fid_config,"map=");
 		for( i=0; i<Rs_opts.map_size; ++i )
-			fprintf(fid_config,"%.2f,%.2f;",Rs_opts.map[i].elev,Rs_opts.map[i].temp);
+			fprintf(fid_config,"%.2f|%.2f;",Rs_opts.map[i].elev,Rs_opts.map[i].temp);
 		fprintf(fid_config,"\n");
 	}
 	(void)fclose(fid_config);
