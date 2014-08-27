@@ -431,7 +431,7 @@ static void _settings_create(void){
 	frame_day = _settings_create_day_temp();
 	frame_night = _settings_create_night_temp();
 	frame_startup = _settings_create_startup();
-	frame_icons = _settings_create_icons();
+	//frame_icons = _settings_create_icons();
 	frame_speed = _settings_create_tran();
 	frame_elev = _settings_create_elev();
 
@@ -442,7 +442,7 @@ static void _settings_create(void){
 				frame_day,
 				frame_night,
 				frame_startup,
-				frame_icons,
+				//frame_icons,
 				NULL),
 			IupVbox(
 				frame_speed,

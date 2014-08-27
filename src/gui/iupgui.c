@@ -105,7 +105,9 @@ int gui_about(/*@unused@*/ Ihandle *ih){
 			"SCROLLBAR","VERTICAL",
 			"READONLY","YES",
 			"VALUE",
-			_("Homepage:\nhttp://www.mao-yu.com/projects/redshiftgui/\n\n"
+			_("Homepage:\n"
+				STR(PACKAGE_HOME)
+				"\n\n"
 				"Written by Mao Yu\n"
 				"Redshift GUI is based on Redshift by Jon Lund Steffensen\n"
 				"This program uses IUP and libcURL\n"

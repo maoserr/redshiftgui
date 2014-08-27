@@ -82,7 +82,7 @@
 #endif
 
 // Stringify
-#define STR(X) #X
+#define STR(X) X
 
 // Math macros
 #ifndef MIN
