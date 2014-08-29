@@ -1,5 +1,5 @@
 RedshiftGUI - Monitor color temperature adjustment GUI
-	http://www.mao-yu.com/projects/redshiftgui/
+	http://maoserr.github.io/projects/redshiftgui/
 
 I. Building
 ===========
@@ -43,6 +43,10 @@ Upcoming (Version 0.3.0)
  * Better google maps parsing (Address lookups)
  * Added another geocode IP lookup service (Geobytes)
  * Change download provider to sourceforge (Github is too awkward)
+
+Friday, August 29, 2014 (Version 0.2.4)
+-----------------------------------------
+ * Locale bug fix release
 
 Thursday, August 05, 2010 (Version 0.2.1)
 -----------------------------------------
