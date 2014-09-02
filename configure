@@ -14,7 +14,7 @@ fi
 
 basedir=.
 suffix=`uname``uname -m`
-cmake -H"$basedir" -B"$basedir/build$suffix" $@
+cmake -DCMAKE_BUILD_TYPE=Release $@ -H"$basedir" -B"$basedir/build$suffix"
 
 cat > Makefile << EOF
 all:
