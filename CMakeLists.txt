@@ -45,8 +45,7 @@ if(UNIX)
 	option(PACKAGE_DEB "Package deb files" false)
 elseif(WIN32)
 	option(ENABLE_WINGDI "Enable win32 GDI at compile time" true)
-	option(ENABLE_GTK "Enable GTK GUI at compile time" false)
-	option(ENABLE_IUP "Enable IUP GUI at compile time" true)
+	option(ENABLE_WINGUI "Enable Windows GUI at compile time" true)
 endif(UNIX)
 
 if( ENABLE_GTK AND ENABLE_IUP )
@@ -101,6 +100,14 @@ APPEND_IF_VAR(RSGNSRC ENABLE_IUP
 		${RSG_SRC_DIR}/gui/iupgui_location.h
 		${RSG_SRC_DIR}/gui/iupgui_main.h
 		${RSG_SRC_DIR}/gui/iupgui_settings.h
+		)
+APPEND_IF_VAR(RSGSRC ENABLE_WINGUI
+		${RSG_SRC_DIR}/gui/win32gui.c
+		${RSG_SRC_DIR}/gui/win32gui_gamma.c
+		)
+APPEND_IF_VAR(RSGNSRC ENABLE_WINGUI
+		${RSG_SRC_DIR}/gui/win32gui.h
+		${RSG_SRC_DIR}/gui/win32gui_gamma.h
 		)
 if(UNIX AND NOT APPLE)
 	APPEND_IF_VAR(RSGSRC ENABLE_RANDR
