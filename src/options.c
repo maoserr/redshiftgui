@@ -334,7 +334,7 @@ int opt_parse_map(char *map){
 	setlocale(LC_NUMERIC,"");
 	for( i=0; i<cnt; ++i ){
 		currend=strchr(currstr,';');
-		curr_map[i].elev=strtof(currstr,&currsep);
+		curr_map[i].elev=strtod(currstr,&currsep);
 		curr_map[i].temp=atof(++currsep);
 		if( curr_map[i].elev > prevelev ){
 			free(curr_map);
