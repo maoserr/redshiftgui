@@ -9,7 +9,7 @@
  *
  *	\section Documentation
  *	This is the developer documentation. For the project homepage, see
- *	<a href="http://www.mao-yu.com/projects/redshiftgui.html">here</a>.
+ *	<a href="http://maoserr.com/projects/redshiftgui/">here</a>.
  *
  *	RedshiftGUI utilizes gamma ramps to change the color temperature of the
  *	monitor.  Currently the gamma ramps are calculated using 
