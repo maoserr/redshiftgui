@@ -446,7 +446,7 @@ void opt_write_config(void){
 		int i;
 		fprintf(fid_config,"map=");
 		for( i=0; i<Rs_opts.map_size; ++i )
-			fprintf(fid_config,"%.2f|%.2f;",Rs_opts.map[i].elev,Rs_opts.map[i].temp);
+			fprintf(fid_config,"%.2f,%.2f;",Rs_opts.map[i].elev,Rs_opts.map[i].temp);
 		fprintf(fid_config,"\n");
 	}
 	(void)fclose(fid_config);
